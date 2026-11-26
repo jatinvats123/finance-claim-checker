@@ -1,0 +1,28 @@
+{
+  "name": "finance-claim-checker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Concurrent Mozaik agents that check numbers in finance articles against SEC 10-Q/10-K financial statements.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "start": "tsx src/cli.ts --mode replay",
+    "check": "tsx src/cli.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "snapshot:sec": "tsx scripts/snapshot-sec.ts",
+    "fixtures:seal": "tsx src/cli.ts --mode author --script fixtures/nvda-demo.script.ts --out out/author"
+  },
+  "dependencies": {
+    "@mozaik-ai/core": "6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.1",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vitest": "3.2.4"
+  }
+}
