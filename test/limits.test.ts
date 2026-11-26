@@ -101,6 +101,19 @@ describe("live safety limits", () => {
 		expect(Date.now() - t0).toBeLessThan(5_000)
 	}, 10_000)
 
+	it("treats an empty provider response as a retryable error instead of letting the agent loop die", async () => {
+		const tasks = new TaskTracker()
+		let n = 0
+		const emptyOnce = fakeProvider(async () => (++n === 1 ? { items: [], tokenUsage: undefined, rowResponse: null } : answer()))
+		const r = new CheckerRunner({ mode: "live", tasks, model: "claude-haiku-4-5", inner: emptyOnce })
+		const t0 = Date.now()
+		const out = await r.run(input(tasks))
+		expect((out.items[0] as ModelMessageItem).content.text).toBe("ok")
+		expect(r.usage.summary()).toMatchObject({ requests: 2, retries: 1, stalled: [] })
+		expect(r.usage.retryNotes[0]).toMatch(/empty response/)
+		expect(Date.now() - t0).toBeLessThan(5_000)
+	}, 10_000)
+
 	it("reads provider retry hints and backs off otherwise", () => {
 		expect(retryDelayMs(new Error("RESOURCE_EXHAUSTED ... \"retryDelay\": \"7s\""), 0)).toBe(7250)
 		expect(retryDelayMs(Object.assign(new Error("overloaded"), { status: 529 }), 0)).toBeGreaterThanOrEqual(2000)

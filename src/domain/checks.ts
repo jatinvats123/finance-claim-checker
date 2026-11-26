@@ -60,7 +60,32 @@ export function auditGate(claim: Claim, binding: EvidenceBinding, calc: Calculat
 			return { ok: false, target: "evidence", reason: `use the comparative as presented alongside the current figure: ${preferred.id} (${preferred.value}) instead of ${base.id} (${base.value})` }
 		}
 	}
+	const misdated = priorPeriodAttribution(claim, calc, registry)
+	if (misdated) return { ok: false, target: "claim", reason: misdated }
 	return { ok: true }
+}
+
+/**
+ * "up 85% from $44.1 billion a year earlier": the article attaches the figure itself to the prior
+ * year. If such a level figure was labelled with the current period, mismatches it, and exactly
+ * matches the same period one fiscal year earlier, the period was misread — not the article.
+ * Only fires when "a year earlier/ago" (or "year-ago …") directly follows the number, so
+ * "$44.1 billion, up 85% from a year earlier" (a genuine wrong-period figure) is left alone.
+ */
+export function priorPeriodAttribution(claim: Claim, calc: Calculation, registry: EvidenceRegistry): string | undefined {
+	const c = claim.interpretation
+	if (c.kind !== "level" || calc.verdict !== "MISMATCH" || !isVerifiable(c.metric) || c.accounting === "non_gaap") return undefined
+	const quote = c.quote.replace(/\s+/g, " ").replace(/(\d),(?=\d{3}\b)/g, "$1")
+	const esc = c.statedNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+	const attached = new RegExp(`(?<![\\d.])${esc}(?!\\d|\\.\\d)\\s*(?:thousand|million|billion|trillion|bn|mn|m|b)?\\s*,?\\s*(?:a year (?:earlier|ago|before)|in the year-ago (?:quarter|period)|the year before|in the prior[- ]year (?:quarter|period))`, "i")
+	if (!attached.test(quote)) return undefined
+	const perShare = c.metric.startsWith("eps")
+	const scale = perShare ? 1 : SCALE[c.scale]
+	const target = parseStated(c.statedNumber) * scale
+	const tol = roundingTolerance(c.statedNumber) * scale
+	const prior = registry.search(c.metric, c.fiscalYear - 1, c.fiscalPeriod).find((f) => Math.abs(f.value - target) <= tol)
+	if (!prior) return undefined
+	return `The quote attaches ${c.statedNumber} to a year earlier, and it matches ${periodLabel(prior.fiscalYear, prior.fiscalPeriod)} (${prior.id}) exactly; the claim is labelled ${periodLabel(c.fiscalYear, c.fiscalPeriod)}. Set fiscalYear to ${prior.fiscalYear} if the sentence means the year-earlier figure.`
 }
 
 const relDiff = (a: number, b: number) => Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b), 1e-12)

@@ -1,0 +1,200 @@
+{
+  "summary": {
+    "source": "live gemini-3.5-flash-lite (recorded to eval/recordings/)",
+    "extractionCoverage": "8/15 (53%)",
+    "verdictCorrectWhenExtracted": "8/8 (100%)",
+    "endToEndCorrect": "8/15 (53%)",
+    "abstentionsOnCheckableClaims": "0/8",
+    "unsupportedClaimsHandledCorrectly": "1/1",
+    "forecastsCorrectlySkipped": "1/1",
+    "extractedButNotFullyReviewed": "0/8",
+    "spuriousExtractions": 0,
+    "runFailures": "1/2"
+  },
+  "rows": [
+    {
+      "id": "A1",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c1",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q1 FY2027 revenue $81,615M; stated $81.6B ± $0.05B"
+    },
+    {
+      "id": "A2",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c2",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "(81,615 − 44,062) / 44,062 = 85.23%; stated 85% ± 0.5 pp"
+    },
+    {
+      "id": "A3",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c3",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q1 FY2026 revenue $44,062M; stated $44.1B ± $0.05B (diff $0.038B)"
+    },
+    {
+      "id": "A4",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c4",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q1 FY2027 gross profit $61,157M; stated $61.2B ± $0.05B"
+    },
+    {
+      "id": "A5",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c5",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "(58,321 − 18,775) / 18,775 = 210.63%; stated 211% ± 0.5 pp"
+    },
+    {
+      "id": "A6",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c6",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q1 FY2027 net income $58,321M; stated $58.3B ± $0.05B"
+    },
+    {
+      "id": "A7",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c7",
+      "verdict": "MISMATCH",
+      "review": "reviewed",
+      "truth": "Q1 FY2027 diluted EPS $2.39; stated $2.93 (digits transposed)"
+    },
+    {
+      "id": "A8",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c8",
+      "verdict": "MISMATCH",
+      "review": "reviewed",
+      "truth": "QoQ vs derived Q4 FY2026 ($130,387M − $86,088M = $44,299M): (53,536 − 44,299) / 44,299 = +20.85%; article says it fell 5%"
+    },
+    {
+      "id": "A9",
+      "expected": "SKIP",
+      "outcome": "skipped",
+      "correct": true,
+      "truth": "forecast ('expects ... next quarter'); must not be extracted"
+    },
+    {
+      "id": "B1",
+      "expected": "MATCH",
+      "outcome": "missed (not extracted with this metric/period/number)",
+      "correct": false,
+      "truth": "FY2026 revenue $215,938M; stated $215.9B ± $0.05B"
+    },
+    {
+      "id": "B2",
+      "expected": "MATCH",
+      "outcome": "missed (not extracted with this metric/period/number)",
+      "correct": false,
+      "truth": "(215,938 − 130,497) / 130,497 = 65.47%; stated 65% ± 0.5 pp"
+    },
+    {
+      "id": "B3",
+      "expected": "MATCH",
+      "outcome": "missed (not extracted with this metric/period/number)",
+      "correct": false,
+      "truth": "FY2026 net income $120,067M; stated $120.1B ± $0.05B"
+    },
+    {
+      "id": "B4",
+      "expected": "MATCH",
+      "outcome": "missed (not extracted with this metric/period/number)",
+      "correct": false,
+      "truth": "FY2026 diluted EPS $4.90; stated $4.90 ± $0.005"
+    },
+    {
+      "id": "B5",
+      "expected": "MATCH",
+      "outcome": "missed (not extracted with this metric/period/number)",
+      "correct": false,
+      "truth": "Q4 FY2026 revenue derived as FY − 9M = $215,938M − $147,811M = $68,127M; stated $68.1B ± $0.05B"
+    },
+    {
+      "id": "B6",
+      "expected": "MISMATCH",
+      "outcome": "missed (not extracted with this metric/period/number)",
+      "correct": false,
+      "truth": "QoQ: (68,127 − 57,006) / 57,006 = 19.51%; article says 'more than 20%'"
+    },
+    {
+      "id": "B7",
+      "expected": "ABSTAIN",
+      "outcome": "not extracted",
+      "correct": true,
+      "truth": "adjusted gross margin: a non-GAAP ratio, not a supported statement line"
+    },
+    {
+      "id": "B8",
+      "expected": "MISMATCH",
+      "outcome": "missed (not extracted with this metric/period/number)",
+      "correct": false,
+      "truth": "Q3 FY2026 net income $31,910M; article says $31.9 million (units error)"
+    }
+  ],
+  "spurious": [],
+  "runs": {
+    "a": {
+      "status": "done",
+      "calls": {
+        "live": 77
+      },
+      "usage": {
+        "model": "gemini-3.5-flash-lite",
+        "requests": 78,
+        "retries": 1,
+        "inputTokens": 102282,
+        "outputTokens": 3043,
+        "reasoningTokens": 0,
+        "retryNotes": [
+          "auditor:c7@r1.e1: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this er"
+        ],
+        "stalled": []
+      }
+    },
+    "b": {
+      "status": "extraction failed: PROVIDER_ERROR: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 500, model: gemini-3.5-flash-lite, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 16h53m48.954853798s.\",\"status\":\"RESOURCE_EXHAUSTED\",\"details\":[{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://aistudio.google.com/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"description\":\"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-3.5-flash-lite\"},\"quotaValue\":\"500\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"60828s\"}]}}",
+      "calls": {
+        "provider-error": 1
+      },
+      "usage": {
+        "model": "gemini-3.5-flash-lite",
+        "requests": 4,
+        "retries": 3,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "reasoningTokens": 0,
+        "retryNotes": [
+          "extractor:article: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this er",
+          "extractor:article: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this er",
+          "extractor:article: {\"error\":{\"code\":429,\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this er"
+        ],
+        "stalled": []
+      }
+    }
+  }
+}

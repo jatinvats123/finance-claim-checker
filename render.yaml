@@ -1,0 +1,16 @@
+# Render Blueprint: Dashboard -> New -> Blueprint -> pick this repo.
+# Public, keyless demo of the web workspace. Do NOT add ANTHROPIC_API_KEY / OPENAI_API_KEY /
+# GEMINI_API_KEY here or in the dashboard: anyone with the URL could then spend that credit.
+services:
+  - type: web
+    name: finance-claim-checker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: commit
+    healthCheckPath: /api/meta
+    envVars:
+      - key: HOST
+        value: 0.0.0.0

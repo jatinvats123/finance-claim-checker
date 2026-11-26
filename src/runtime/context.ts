@@ -47,7 +47,7 @@ export type Ctx = {
 }
 
 export function makeCtx(rt: Runtime, state: CheckerState, tasks: TaskTracker, model: string): Ctx {
-	return {
+	const ctx: Ctx = {
 		rt,
 		state,
 		tasks,
@@ -58,7 +58,7 @@ export function makeCtx(rt: Runtime, state: CheckerState, tasks: TaskTracker, mo
 			const context = ModelContext.create().addContextItem(DeveloperMessageItem.create(agent.getDeveloperMessage()))
 			tasks.register({ key: t.key, role: t.role, claimId: t.claimId, claimRevision: t.claimRevision, evidenceRevision: t.evidenceRevision, contextId: context.id })
 			// maxOutputTokens is required: Mozaik 6.0.0's Anthropic mapper sends max_tokens with no default.
-			rt.runLoop(agent.getId(), t.message, { model, context, tools: agent.getTools(), maxOutputTokens: 4096 })
+			rt.runLoop(agent.getId(), t.message, { model: ctx.model, context, tools: agent.getTools(), maxOutputTokens: 4096 })
 		},
 		later: (fn) =>
 			setImmediate(() => {
@@ -69,6 +69,7 @@ export function makeCtx(rt: Runtime, state: CheckerState, tasks: TaskTracker, mo
 				}
 			}),
 	}
+	return ctx
 }
 
 export class On extends SituationSpecification {

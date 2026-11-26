@@ -1,0 +1,16 @@
+# Never ship secrets: the server loads .env on start if one is present.
+.env
+.env.*
+
+node_modules
+dist
+out
+.git
+.gitignore
+.claude
+.vscode
+.idea
+npm-debug.log*
+Dockerfile
+.dockerignore
+render.yaml

@@ -30,7 +30,7 @@ import {
 } from "@mozaik-ai/core"
 import type { TaskTracker } from "../runtime/tasks.js"
 import { geminiEndpoint } from "./gemini.js"
-import { DEFAULT_LIMITS, KNOWN_PRICES, LimitReached, Pacer, retryDelayMs, sleep, UsageMeter, withTimeout, type LiveLimits } from "./limits.js"
+import { DEFAULT_LIMITS, KNOWN_PRICES, LimitReached, Pacer, RequestTimeout, retryDelayMs, sleep, UsageMeter, withTimeout, type LiveLimits } from "./limits.js"
 
 export type LlmMode = "live" | "record" | "replay" | "author"
 export type Provenance = "live" | "recorded" | "fixture"
@@ -261,10 +261,20 @@ export class CheckerRunner implements InferenceRunner {
 				const cost = usage.costUsd()
 				if (limits.budgetUsd !== undefined && cost !== undefined && cost >= limits.budgetUsd) stop(`budget reached ($${cost.toFixed(4)} of $${limits.budgetUsd})`)
 				usage.requests++
+				// Two independent guards: a per-request timeout, and the watchdog (see watch()) that can
+				// abandon a request through `abandon` even if that timer never fires.
+				const entry = { task: taskKey, turn, startedAt: Date.now(), abandon: (_e: Error) => {} }
+				const watchdog = new Promise<never>((_, reject) => (entry.abandon = reject))
+				this.inFlight.add(entry)
+				this.watch()
 				try {
-					return await withTimeout(this.inner.run(input), limits.requestTimeoutMs)
+					const res = await Promise.race([withTimeout(this.inner.run(input), limits.requestTimeoutMs), watchdog])
+					if (!res.items.length) throw new Error("provider returned an empty response (no text and no tool call)")
+					return res
 				} catch (err) {
 					return err instanceof Error ? err : new Error(String(err))
+				} finally {
+					this.inFlight.delete(entry)
 				}
 			})
 			if (!(out instanceof Error)) {
@@ -277,6 +287,30 @@ export class CheckerRunner implements InferenceRunner {
 			if (usage.retryNotes.length < 5) usage.retryNotes.push(`${taskKey}: ${out.message.slice(0, 140)}`)
 			await sleep(wait)
 		}
+	}
+
+	private readonly inFlight = new Set<{ task: string; turn: number; startedAt: number; abandon: (e: Error) => void }>()
+	private watchTimer?: NodeJS.Timeout
+
+	/** Watchdog: every few seconds, abandon requests older than the request timeout (+ grace) and note them. */
+	private watch() {
+		if (this.watchTimer) return
+		const grace = 5_000
+		this.watchTimer = setInterval(() => {
+			const now = Date.now()
+			for (const e of this.inFlight) {
+				if (now - e.startedAt > this.limits.requestTimeoutMs + grace) {
+					this.inFlight.delete(e)
+					this.usage.stalled.push(`${e.task} turn ${e.turn}: no answer after ${Math.round((now - e.startedAt) / 1000)} s (abandoned by watchdog)`)
+					e.abandon(new RequestTimeout(`watchdog: no answer from the provider within ${Math.round((now - e.startedAt) / 1000)} s`))
+				}
+			}
+			if (!this.inFlight.size) {
+				clearInterval(this.watchTimer)
+				this.watchTimer = undefined
+			}
+		}, Math.min(5_000, Math.max(50, this.limits.requestTimeoutMs / 4)))
+		this.watchTimer.unref?.()
 	}
 
 	// Streaming is not used by the checker.

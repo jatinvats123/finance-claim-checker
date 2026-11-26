@@ -155,7 +155,7 @@ Requires Node `^20.19.0` or `>=22.12.0` (what Vite 7 and its React plugin need).
 npm install
 npm start                       # keyless replay of the hand-written demo fixtures
 npm run check -- --replay-source recorded   # keyless replay of the genuine Gemini recording only
-npm test                        # 107 tests, no key needed
+npm test                        # 110 tests, no key needed
 npm run typecheck               # server + web
 npm run eval                    # independent evaluation, replayed from eval/recordings (no key)
 ```
@@ -226,6 +226,35 @@ npm run check -- --article path/to/article.md --ticker NVDA --mode record   # al
 - `runLoop` appends to the `ModelContext` it receives. We give every task a fresh context; that keeps loops independent and makes the replay hashes deterministic.
 - The Gemini adapter drops Gemini 3's `thoughtSignature` on function calls, so multi-turn tool use fails with a 400. `src/llm/gemini.ts` is the same mapping plus the signature, plugged into Mozaik's public `GeminiGenerateContent` endpoint.
 
+## Independent evaluation
+
+`eval/` holds two synthetic articles with claims the checker had never seen: other periods, a derived Q4, operating income and gross profit, a direction error, a "more than" qualifier, a units error, an unsupported margin, and a forecast. The expected outcomes in `eval/expected.json` were computed by hand from the SEC values, and cross-checked against NVIDIA's own release tables. `npm run eval -- --mode record` runs it live; `npm run eval` replays the recordings. Every rate below has its denominator.
+
+**Run 1, first independent measurement** (`gemini-3.5-flash-lite`, before any change prompted by it; `eval/results-run1.md`):
+
+| Measure | Result |
+|---|---|
+| Checkable claims extracted with the right metric, period and number | 14/15 |
+| Verdict correct, among extracted | 14/14 |
+| End-to-end correct | 14/15 |
+| Abstentions on checkable claims | 0/14 |
+| Unsupported claim (adjusted margin) handled correctly | 1/1 |
+| Forecast correctly not extracted | 1/1 |
+| Extracted but not fully reviewed | 1/14 (B8: the auditor's model request never returned) |
+| Spurious extractions | 1 (A3 extracted with the wrong period: see below) |
+| Runs failed / timed out | 1/2 (article B hit its run timeout because of that request) |
+
+The run-1 results file was produced by an earlier scorer that also counted the correctly abstained margin claim as spurious; the table above corrects that by hand.
+
+**Fixes made because of run 1:**
+- "up 85% from $44.1 billion **a year earlier**" was labelled with the current quarter and approved by the LLM auditor. A rule now catches this case: if a figure is literally followed by "a year earlier/ago", is labelled with the current period, and exactly matches the prior-year period, it goes back to the extractor (`priorPeriodAttribution`). "$44.1 billion, up 85% from a year earlier" is deliberately left alone.
+- Hung provider requests are now abandoned by an independent watchdog and recorded.
+- Empty provider responses are retried instead of silently killing an agent loop.
+
+**Run 2, after those fixes** (`eval/results-run2.md`; no longer independent for A3):
+- **Article A:** 8/8 checkable claims correct and fully reviewed, A3 included; forecast skipped; 0 spurious.
+- **Article B:** not run. Google's free-tier daily limit (500 requests/day for this model) was exhausted, and the runner stopped cleanly with that reason. Article B's figures therefore come from run 1 only.
+
 ## Measured concurrency
 
 Every run exports `trace.json` (CLI `out/trace.json`, web "Trace" download): one lane per agent loop, opened and closed by Mozaik's own `message_received.started` / `model.answer` events, with task, claim and revision ids, and the computed peak number of loops active at once.
@@ -243,7 +272,7 @@ In the evidence inspector, "Challenge interpretation" sends a reviewer's concern
 - If the extractor revises and the code validates the change (the anchoring rules above), a new claim revision is created, and only that claim's evidence, context and audit re-run. Other claims are untouched.
 - If the extractor declines, the earlier outcome is restored and the decline is logged.
 
-The button never sets a verdict; the calculator does. Rechecks call the model, so they need a provider key on the server. Recheck calls on a replayed run are labelled `live`, which makes the run's provenance visibly mixed.
+The button never sets a verdict; the calculator does. Rechecks call the model, so they need a provider key on the server. Recheck calls on a replayed run are labelled `live`, which makes the run's provenance visibly mixed. Verified with scripted model answers (accepted, declined, and an attempt to launder a units error, which the anchoring rule rejects). Against the real Gemini API, three attempts today hit provider limits (503 "high demand" on gemini-3.5-flash and gemini-3.8-flash; 429 quota on gemini-3.1-pro-preview). Each time the failure was labelled, the earlier approval was restored and no other claim changed, but a real-model recheck that completes has not been observed yet.
 
 ## Public deployment and load
 
@@ -252,6 +281,24 @@ The server has no global lock:
 - Live runs and rechecks run one at a time, with a 5-minute timeout plus the per-run call and turn caps.
 
 On a host, bind `HOST=0.0.0.0` and the platform's `PORT`. Never set a provider key on a public deployment: without one, live mode and rechecks are disabled and explain why.
+
+### Deploy
+
+The repo ships a `Dockerfile`. It installs the dependencies (dev dependencies included, since `tsx` and `vite` are needed), builds the frontend, and runs the server on `0.0.0.0:$PORT` as a non-root user. `.dockerignore` keeps `.env` out of the image.
+
+```bash
+docker build -t finance-claim-checker .
+docker run --rm -p 8080:8080 finance-claim-checker    # http://localhost:8080
+```
+
+**Render (free plan):** Dashboard → **New → Blueprint** → select this repository. `render.yaml` creates a free Docker web service with `/api/meta` as the health check, and the URL is `https://<service-name>.onrender.com`. Free instances sleep after about 15 idle minutes, so the first request after that takes up to a minute. Any host that runs a long-lived container with Server-Sent Events works (Render, Railway, Fly.io); serverless-only platforms don't.
+
+Verified locally without Docker, by reproducing the image's build context (no `.env`) and start command (`HOST=0.0.0.0 PORT=… node --import tsx src/web/server.ts`):
+- two simultaneous visitors, one replaying the recording and one the fixtures, both reached 10 of 10 reviewed claims over SSE;
+- Markdown, JSON and trace downloads returned attachments;
+- live checks and rechecks answered `LIVE_NOT_CONFIGURED`.
+
+A real `docker build` has not been run here.
 
 ## Limitations
 

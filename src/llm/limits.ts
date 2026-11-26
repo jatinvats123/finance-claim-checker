@@ -70,6 +70,7 @@ export type UsageSummary = {
 	price?: { input: number; output: number }
 	limitHit?: string
 	retryNotes?: string[]
+	stalled?: string[]
 }
 
 export class UsageMeter {
@@ -81,6 +82,8 @@ export class UsageMeter {
 	limitHit?: string
 	/** First few retry reasons, for diagnosing rate limits. */
 	readonly retryNotes: string[] = []
+	/** Requests the watchdog had to abandon (task, turn, how long). */
+	readonly stalled: string[] = []
 
 	constructor(
 		readonly model: string,
@@ -102,7 +105,7 @@ export class UsageMeter {
 	}
 
 	summary(): UsageSummary {
-		return { model: this.model, requests: this.requests, retries: this.retries, inputTokens: this.inputTokens, outputTokens: this.outputTokens, reasoningTokens: this.reasoningTokens, costUsd: this.costUsd(), price: this.price, limitHit: this.limitHit, retryNotes: this.retryNotes }
+		return { model: this.model, requests: this.requests, retries: this.retries, inputTokens: this.inputTokens, outputTokens: this.outputTokens, reasoningTokens: this.reasoningTokens, costUsd: this.costUsd(), price: this.price, limitHit: this.limitHit, retryNotes: this.retryNotes, stalled: this.stalled }
 	}
 }
 
@@ -143,7 +146,7 @@ export function retryDelayMs(err: unknown, attempt: number): number | undefined 
 	const e = err as { status?: number; message?: string }
 	const msg = String(e?.message ?? err)
 	const status = e?.status ?? Number(/\b(429|500|502|503|504|529)\b/.exec(msg)?.[1])
-	const transient = err instanceof RequestTimeout || [429, 500, 502, 503, 504, 529].includes(status) || /RESOURCE_EXHAUSTED|UNAVAILABLE|overloaded|ECONNRESET|ETIMEDOUT|fetch failed/i.test(msg)
+	const transient = err instanceof RequestTimeout || [429, 500, 502, 503, 504, 529].includes(status) || /RESOURCE_EXHAUSTED|UNAVAILABLE|overloaded|ECONNRESET|ETIMEDOUT|fetch failed|empty response/i.test(msg)
 	if (!transient) return undefined
 	const hinted = /retry(?:Delay)?["\s:]*(?:in\s*)?"?(\d+(?:\.\d+)?)s/i.exec(msg)
 	if (hinted) return Math.min(Number(hinted[1]) * 1000 + 250, 65_000)

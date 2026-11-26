@@ -1,0 +1,223 @@
+{
+  "summary": {
+    "source": "live gemini-3.5-flash-lite (recorded to eval/recordings/)",
+    "extractionCoverage": "14/15 (93%)",
+    "verdictCorrectWhenExtracted": "14/14 (100%)",
+    "endToEndCorrect": "14/15 (93%)",
+    "abstentionsOnCheckableClaims": "0/14",
+    "unsupportedClaimsHandledCorrectly": "1/1",
+    "forecastsCorrectlySkipped": "1/1",
+    "extractedButNotFullyReviewed": "1/14",
+    "spuriousExtractions": 2,
+    "runFailures": "1/2"
+  },
+  "rows": [
+    {
+      "id": "A1",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c1",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q1 FY2027 revenue $81,615M; stated $81.6B ± $0.05B"
+    },
+    {
+      "id": "A2",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c2",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "(81,615 − 44,062) / 44,062 = 85.23%; stated 85% ± 0.5 pp"
+    },
+    {
+      "id": "A3",
+      "expected": "MATCH",
+      "outcome": "missed (not extracted with this metric/period/number)",
+      "correct": false,
+      "truth": "Q1 FY2026 revenue $44,062M; stated $44.1B ± $0.05B (diff $0.038B)"
+    },
+    {
+      "id": "A4",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c4",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q1 FY2027 gross profit $61,157M; stated $61.2B ± $0.05B"
+    },
+    {
+      "id": "A5",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c5",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "(58,321 − 18,775) / 18,775 = 210.63%; stated 211% ± 0.5 pp"
+    },
+    {
+      "id": "A6",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c6",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q1 FY2027 net income $58,321M; stated $58.3B ± $0.05B"
+    },
+    {
+      "id": "A7",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c7",
+      "verdict": "MISMATCH",
+      "review": "reviewed",
+      "truth": "Q1 FY2027 diluted EPS $2.39; stated $2.93 (digits transposed)"
+    },
+    {
+      "id": "A8",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c8",
+      "verdict": "MISMATCH",
+      "review": "reviewed",
+      "truth": "QoQ vs derived Q4 FY2026 ($130,387M − $86,088M = $44,299M): (53,536 − 44,299) / 44,299 = +20.85%; article says it fell 5%"
+    },
+    {
+      "id": "A9",
+      "expected": "SKIP",
+      "outcome": "skipped",
+      "correct": true,
+      "truth": "forecast ('expects ... next quarter'); must not be extracted"
+    },
+    {
+      "id": "B1",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c2",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "FY2026 revenue $215,938M; stated $215.9B ± $0.05B"
+    },
+    {
+      "id": "B2",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c1",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "(215,938 − 130,497) / 130,497 = 65.47%; stated 65% ± 0.5 pp"
+    },
+    {
+      "id": "B3",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c3",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "FY2026 net income $120,067M; stated $120.1B ± $0.05B"
+    },
+    {
+      "id": "B4",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c4",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "FY2026 diluted EPS $4.90; stated $4.90 ± $0.005"
+    },
+    {
+      "id": "B5",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c5",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q4 FY2026 revenue derived as FY − 9M = $215,938M − $147,811M = $68,127M; stated $68.1B ± $0.05B"
+    },
+    {
+      "id": "B6",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c6",
+      "verdict": "MISMATCH",
+      "review": "reviewed",
+      "truth": "QoQ: (68,127 − 57,006) / 57,006 = 19.51%; article says 'more than 20%'"
+    },
+    {
+      "id": "B7",
+      "expected": "ABSTAIN",
+      "outcome": "not extracted",
+      "correct": true,
+      "truth": "adjusted gross margin: a non-GAAP ratio, not a supported statement line"
+    },
+    {
+      "id": "B8",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c8",
+      "verdict": "MISMATCH",
+      "review": "not fully reviewed (pending)",
+      "truth": "Q3 FY2026 net income $31,910M; article says $31.9 million (units error)"
+    }
+  ],
+  "spurious": [
+    {
+      "article": "a",
+      "claimId": "c3",
+      "quote": "That was up 85% from $44.1 billion a year earlier.",
+      "verdict": "MISMATCH"
+    },
+    {
+      "article": "b",
+      "claimId": "c7",
+      "quote": "Adjusted gross margin was 75.0% for the year.",
+      "verdict": "NOT_VERIFIABLE"
+    }
+  ],
+  "runs": {
+    "a": {
+      "status": "done",
+      "calls": {
+        "live": 67
+      },
+      "usage": {
+        "model": "gemini-3.5-flash-lite",
+        "requests": 67,
+        "retries": 0,
+        "inputTokens": 85512,
+        "outputTokens": 2649,
+        "reasoningTokens": 0,
+        "retryNotes": []
+      }
+    },
+    "b": {
+      "status": "timed_out",
+      "calls": {
+        "live": 56
+      },
+      "usage": {
+        "model": "gemini-3.5-flash-lite",
+        "requests": 57,
+        "retries": 0,
+        "inputTokens": 74760,
+        "outputTokens": 2460,
+        "reasoningTokens": 0,
+        "retryNotes": []
+      }
+    }
+  }
+}

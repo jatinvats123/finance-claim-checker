@@ -72,7 +72,7 @@ function limitsFromArgs(): Partial<LiveLimits> {
 function usageLine(u: UsageSummary): string {
 	const tokens = `${u.inputTokens.toLocaleString("en-US")} input + ${(u.outputTokens + u.reasoningTokens).toLocaleString("en-US")} output tokens${u.reasoningTokens ? ` (incl. ${u.reasoningTokens.toLocaleString("en-US")} thinking)` : ""}`
 	const cost = u.costUsd !== undefined ? `$${u.costUsd.toFixed(4)} at $${u.price!.input}/$${u.price!.output} per 1M` : "cost unknown (no price for this model; pass --price to compute)"
-	const retries = u.retryNotes?.length ? `\nRetried after: ${u.retryNotes.join(" | ")}` : ""
+	const retries = (u.retryNotes?.length ? `\nRetried after: ${u.retryNotes.join(" | ")}` : "") + (u.stalled?.length ? `\nAbandoned by watchdog: ${u.stalled.join(" | ")}` : "")
 	return `Model usage (${u.model}): ${u.requests} requests${u.retries ? `, ${u.retries} retries` : ""} · ${tokens} · ${cost}${u.limitHit ? `\nSTOPPED BY LIMIT: ${u.limitHit}` : ""}${retries}`
 }
 

@@ -31,6 +31,21 @@ const script: AuthorScript = {
 	},
 }
 
+describe("reviewer challenge model", () => {
+	it("a recheck after a replayed run calls the live model, not the replay placeholder", async () => {
+		const tasks = new TaskTracker()
+		const scripted = new CheckerRunner({ mode: "author", tasks, script })
+		const seen: { task?: string; model: string }[] = []
+		const spy = { run: (input: any) => (seen.push({ task: tasks.forContext(input.context.id)?.key, model: input.model }), scripted.run(input)), stream: () => { throw new Error("unused") } }
+		const result = await runChecker({ article: { ...readArticle("data/articles/nvda-q2-fy2027.md"), ticker: "NVDA" }, snapshot: loadSnapshot("NVDA"), runner: spy as any, tasks, model: "replay", timeoutMs: 20_000 })
+		expect(seen.every((s) => s.model === "replay")).toBe(true)
+		await result.challenge("c9", "Is this really the full fiscal year?", 20_000, "gemini-3.5-flash")
+		const fix = seen.filter((s) => s.task === "extractor-fix:c9@r1")
+		expect(fix.length).toBeGreaterThan(0)
+		expect(fix.every((s) => s.model === "gemini-3.5-flash")).toBe(true)
+	}, 40_000)
+})
+
 describe("reviewer challenge", () => {
 	it("re-runs only the challenged claim, restores declined challenges, and never sets a verdict", async () => {
 		const tasks = new TaskTracker()

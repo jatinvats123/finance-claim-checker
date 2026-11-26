@@ -80,6 +80,24 @@ describe("auditor rule gate", () => {
 		expect(setup({ accounting: "non_gaap" }, { noReference: { status: "NOT_IN_STATEMENTS", detail: "" } }).gate.ok).toBe(true)
 	})
 
+	it("sends a year-earlier figure labelled as the current period back to the extractor", () => {
+		const q1 = (quote: string, fiscalYear = 2027) => setup({ quote, fiscalYear, fiscalPeriod: "Q1", statedNumber: "44.1" }, { currentFactId: id("revenue", fiscalYear, "Q1") })
+		// found by the independent evaluation: the figure itself is attached to "a year earlier"
+		const misread = q1("That was up 85% from $44.1 billion a year earlier.")
+		expect(misread.calc.verdict).toBe("MISMATCH")
+		expect(misread.gate.ok).toBe(false)
+		if (!misread.gate.ok) {
+			expect(misread.gate.target).toBe("claim")
+			expect(misread.gate.reason).toMatch(/matches Q1-FY2026/)
+		}
+		// the same number stated as the current figure is a genuine error and must stay a mismatch
+		expect(q1("Revenue was $44.1 billion, up 85% from a year earlier.").gate.ok).toBe(true)
+		// correctly labelled: it simply matches
+		const right = q1("That was up 85% from $44.1 billion a year earlier.", 2026)
+		expect(right.calc.verdict).toBe("MATCH")
+		expect(right.gate.ok).toBe(true)
+	})
+
 	it("sends a stated-unit misreading back to the extractor", () => {
 		const g = setup({ statedUnit: "percent" }, { currentFactId: id("revenue", 2027, "Q2") }).gate
 		expect(g.ok).toBe(false)

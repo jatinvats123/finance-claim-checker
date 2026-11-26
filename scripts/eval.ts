@@ -20,7 +20,7 @@ import { loadSnapshot } from "../src/sec/edgar.js"
 
 type Expected = { id: string; article: string; metric: string; kind: string; fiscalYear: number; fiscalPeriod: string; statedNumber: string; expected: "MATCH" | "MISMATCH" | "ABSTAIN" | "SKIP"; truth: string }
 
-const { values: args } = parseArgs({ options: { mode: { type: "string", default: "replay" }, model: { type: "string" }, rpm: { type: "string" } } })
+const { values: args } = parseArgs({ options: { mode: { type: "string", default: "replay" }, model: { type: "string" }, rpm: { type: "string" }, out: { type: "string", default: "eval/results" } } })
 if (existsSync(".env")) process.loadEnvFile(".env")
 const mode = args.mode as "record" | "replay"
 if (mode !== "record" && mode !== "replay") throw new Error("--mode must be record or replay")
@@ -47,7 +47,7 @@ for (const [art, path] of Object.entries(spec.articles)) {
 		runner = new CheckerRunner({ mode: "replay", tasks, cassettes: [c], replaySpeed: 50 })
 	}
 	console.log(`[${art}] ${mode} ${mode === "record" ? model : recPath} …`)
-	const result = await runChecker({ article: { ...readArticle(path), ticker: "NVDA" }, snapshot: loadSnapshot("NVDA"), runner, tasks, model, timeoutMs: 30 * 60_000 })
+	const result = await runChecker({ article: { ...readArticle(path), ticker: "NVDA" }, snapshot: loadSnapshot("NVDA"), runner, tasks, model, timeoutMs: 12 * 60_000 })
 	if (mode === "record") runner.save()
 	const s = result.state
 	if (result.timedOut || s.extraction === "failed") runFailures++
@@ -60,6 +60,8 @@ for (const [art, path] of Object.entries(spec.articles)) {
 	const same = (c: Claim, e: Expected) => {
 		const i = c.interpretation
 		const metricOk = e.metric === "other" ? i.metric === "other" || i.accounting === "non_gaap" : i.metric === e.metric
+		// Unsupported claims (expected ABSTAIN) are matched by metric and number only: their kind/period is not checkable anyway.
+		if (e.expected === "ABSTAIN") return metricOk && Number(i.statedNumber) === Number(e.statedNumber)
 		return metricOk && i.kind === e.kind && i.fiscalYear === e.fiscalYear && i.fiscalPeriod === e.fiscalPeriod && Number(i.statedNumber) === Number(e.statedNumber)
 	}
 	for (const e of spec.claims.filter((x) => x.article === art)) {
@@ -145,7 +147,7 @@ const md = [
 	"",
 ].join("\n")
 
-writeFileSync("eval/results.md", md)
-writeFileSync("eval/results.json", JSON.stringify({ summary, rows, spurious, runs }, null, 2))
+writeFileSync(`${args.out}.md`, md)
+writeFileSync(`${args.out}.json`, JSON.stringify({ summary, rows, spurious, runs }, null, 2))
 console.log(JSON.stringify(summary, null, 2))
-console.log("→ eval/results.md")
+console.log(`→ ${args.out}.md`)
