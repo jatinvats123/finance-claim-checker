@@ -6,6 +6,8 @@
 
 Finance news and earnings coverage often get numbers wrong. Growth rates get transposed between table rows, "million" becomes "billion", a quarter's figure gets reported as the full year, adjusted profit gets presented as plain profit, or a percentage has no stated basis. Readers act on these numbers. This project reads an article, extracts its claims about six supported earnings metrics (revenue, net income, gross profit, operating income, diluted and basic EPS; anything else is reported as not verifiable), and checks them against the financial statements the company filed with the SEC: quarterly 10-Q statements (unaudited) and annual 10-K statements (audited). Every check comes with the filing, the line item, the dates, the input values and the formula.
 
+**Live demo: https://finance-claim-checker.onrender.com** (no sign-in, no API key; runs the included example on replayed model responses).
+
 ```
 npm install
 npm run web        # verification workspace at http://localhost:4317 (no API key needed)
@@ -290,6 +292,15 @@ The repo ships a `Dockerfile`. It installs the dependencies (dev dependencies in
 docker build -t finance-claim-checker .
 docker run --rm -p 8080:8080 finance-claim-checker    # http://localhost:8080
 ```
+
+**Live instance:** https://finance-claim-checker.onrender.com runs this Dockerfile on Render (Singapore, 0.5 CPU / 512 MB, `HOST=0.0.0.0`, health check `/api/meta`, no provider key). Checked against the public URL on 26 Nov 2026:
+- the page and bundle load;
+- `/api/meta` reports live mode as not configured;
+- two example runs started at the same time (recorded and fixtures) both finished with 10/10 claims reviewed (4 match, 4 mismatch, 1 not verifiable, 1 reference unavailable), streamed over SSE and labelled their sources (75 recorded calls; 86 fixture calls);
+- traces show peaks of 9 and 12 agent loops at once;
+- `report.md`, `report.json` and `trace.json` download as attachments;
+- a live custom run and a recheck are both refused with `LIVE_NOT_CONFIGURED`;
+- new text in replay mode ends as an explicit `cache_miss`.
 
 **Render (free plan):** Dashboard → **New → Blueprint** → select this repository. `render.yaml` creates a free Docker web service with `/api/meta` as the health check, and the URL is `https://<service-name>.onrender.com`. Free instances sleep after about 15 idle minutes, so the first request after that takes up to a minute. Any host that runs a long-lived container with Server-Sent Events works (Render, Railway, Fly.io); serverless-only platforms don't.
 
