@@ -11,12 +11,13 @@ import { basename, join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { parseArgs } from "node:util"
 import { readArticle } from "./article.js"
-import { defaultCassettePaths, defaultModel, loadCassettes, providerConfigured } from "./llm/cassettes.js"
+import { defaultCassettePaths, defaultModel, loadCassettes, parseReplaySource, providerConfigured } from "./llm/cassettes.js"
 import type { LiveLimits, UsageSummary } from "./llm/limits.js"
 import { CheckerRunner, type AuthorScript, type LlmMode } from "./llm/runner.js"
 import { liveLine, renderMarkdown, renderTerminalSummary, toJson, DISCLAIMER, type ReportMeta } from "./report/render.js"
 import { runChecker } from "./runtime/pipeline.js"
 import { TaskTracker } from "./runtime/tasks.js"
+import { LaneTracer } from "./runtime/trace.js"
 import { getSnapshot, SecDataMissing } from "./sec/edgar.js"
 
 const { values: args } = parseArgs({
@@ -29,6 +30,9 @@ const { values: args } = parseArgs({
 		script: { type: "string" },
 		out: { type: "string", default: "out" },
 		"live-sec": { type: "boolean", default: false },
+		// replay: which sources to use (fixtures = hand-written only, recorded = genuine recordings only, all = recordings then fixtures)
+		"replay-source": { type: "string", default: "fixtures" },
+		"replay-speed": { type: "string" },
 		quiet: { type: "boolean", default: false },
 		timeout: { type: "string" },
 		// live/record safety limits (see src/llm/limits.ts)
@@ -89,7 +93,7 @@ async function main() {
 	const snapshot = await getSnapshot(article.ticker, args["live-sec"]!)
 	const tasks = new TaskTracker()
 
-	const cassettes = mode === "replay" ? loadCassettes(args.cassette?.length ? args.cassette : defaultCassettePaths()) : []
+	const cassettes = mode === "replay" ? loadCassettes(args.cassette?.length ? args.cassette : defaultCassettePaths(parseReplaySource(args["replay-source"]))) : []
 
 	let script: AuthorScript | undefined
 	let writeTo: string | undefined
@@ -101,7 +105,7 @@ async function main() {
 	if (mode === "record") writeTo = join("data/replay/recordings", `${basename(args.article!).replace(/\.\w+$/, "")}.${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`)
 
 	const live = mode === "live" || mode === "record"
-	const runner = new CheckerRunner({ mode, tasks, cassettes: cassettes.map((c) => c.data), script, writeTo, model, limits: limitsFromArgs() })
+	const runner = new CheckerRunner({ mode, tasks, cassettes: cassettes.map((c) => c.data), script, writeTo, model, limits: limitsFromArgs(), replaySpeed: args["replay-speed"] ? Number(args["replay-speed"]) : undefined })
 	if (live) {
 		const l = runner.limits
 		console.log(`Safety limits: ≤${l.maxCalls} requests, ≤${l.maxTurnsPerTask} turns per task (extractor ≤${l.maxExtractorTurns}), ≤${l.maxConcurrent} in flight${l.rpm ? `, ≤${l.rpm}/min` : ""}, ${l.retries} retries${l.budgetUsd !== undefined ? `, budget $${l.budgetUsd}` : ", no USD budget set"}`)
@@ -113,6 +117,7 @@ async function main() {
 	console.log(DISCLAIMER + "\n")
 
 	const t0 = Date.now()
+	const tracer = new LaneTracer(tasks)
 	const result = await runChecker({
 		article,
 		snapshot,
@@ -122,6 +127,7 @@ async function main() {
 		// live runs wait on real model latency (and pacing), so they get a longer default
 		timeoutMs: Number(args.timeout ?? (live ? 1800 : 600)) * 1000,
 		onEvent: (e, names, state) => {
+			tracer.onEvent(e)
 			if (args.quiet) return
 			const line = liveLine(e, names, state, t0, (id) => tasks.forContext(id)?.key)
 			if (line) console.log(line)
@@ -137,10 +143,13 @@ async function main() {
 		calls: runner.calls,
 		cassettes: cassettes.map((c) => ({ path: c.path, provenance: c.data.provenance, description: c.data.description })),
 		usage: live ? runner.usage.summary() : undefined,
+		trace: tracer.trace(Object.fromEntries(["live", "recorded", "fixture"].map((k) => [k, runner.calls.filter((c) => c.provenance === k).length]))),
 	}
 	mkdirSync(args.out!, { recursive: true })
 	writeFileSync(join(args.out!, "report.md"), renderMarkdown(result, meta))
 	writeFileSync(join(args.out!, "report.json"), JSON.stringify(toJson(result, meta), null, 2))
+	writeFileSync(join(args.out!, "trace.json"), JSON.stringify(meta.trace, null, 2))
+	console.log(`Concurrency: peak ${meta.trace!.peakActive} agent loops at once (${meta.trace!.lanes.length} loops; ${meta.trace!.timing} timing) · trace: ${join(args.out!, "trace.json")}`)
 	console.log(renderTerminalSummary(result, meta))
 	console.log(`\nReceipts: ${join(args.out!, "report.md")} · ${join(args.out!, "report.json")}${writeTo ? ` · ${mode === "author" ? "sealed fixtures" : "recording"}: ${writeTo}` : ""}`)
 	if (live) console.log("\n" + usageLine(runner.usage.summary()))

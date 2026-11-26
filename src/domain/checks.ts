@@ -72,14 +72,15 @@ export function ruleWarnings(claim: Claim, binding: EvidenceBinding, calc: Calcu
 
 	if (binding.noReference?.status === "REFERENCE_NOT_YET_FILED") {
 		const rel = binding.noReference.earningsReleases ?? []
+		const asOf = registry.snapshot.source.fetchedAt.slice(0, 10)
 		w(
 			"EARNINGS_RELEASE_ONLY",
 			rel.length
-				? `Only the company's earnings release exists for this period (${rel.map((r) => `8-K filed ${r.filed}, accn ${r.accn}`).join("; ")}). Checking a release against itself would be circular; wait for the 10-Q/10-K.`
-				: "No 10-Q/10-K covers this period yet.",
+				? `In the SEC data fetched ${asOf}, only the company's earnings release covers this period (${rel.map((r) => `8-K filed ${r.filed}, accn ${r.accn}`).join("; ")}). Checking a release against itself would be circular; a 10-Q/10-K may have been filed after ${asOf}.`
+				: `No 10-Q/10-K in the SEC data fetched ${asOf} covers this period; one may have been filed since.`,
 		)
 	}
-	if (c.accounting === "non_gaap") w("NON_GAAP", "Article cites an adjusted (non-GAAP) figure. Companies define these themselves; they are not in the audited statements.")
+	if (c.accounting === "non_gaap") w("NON_GAAP", "Article cites an adjusted (non-GAAP) figure. Companies define these themselves; they are not line items in the 10-Q/10-K financial statements.")
 	if (c.accounting === "unspecified" && PROFIT_METRICS.has(c.metric)) w("GAAP_OR_ADJUSTED_UNSTATED", "Article does not say whether this profit figure is GAAP or adjusted; it was checked against GAAP.")
 
 	const cur = binding.currentFactId ? registry.get(binding.currentFactId) : undefined

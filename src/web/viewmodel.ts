@@ -324,6 +324,7 @@ export function runView(args: {
 	calls: CallRecord[]
 	activity: ActivityLog
 	error?: string
+	trace?: import("../runtime/trace.js").Trace
 }): RunView {
 	const { state } = args
 	const finished = args.status !== "running"
@@ -363,5 +364,6 @@ export function runView(args: {
 		},
 		staleRejections: state.staleRejections,
 		error: args.error,
+		trace: args.trace,
 	}
 }

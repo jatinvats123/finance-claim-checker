@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { fmtDate, fmtNumber, fmtSeconds, type CalcInput, type ClaimView, type RunView } from "../api"
 import { IconChevron, IconClose, IconExternal, IconLocate } from "./icons"
 import { ReviewLine, VerdictBadge, warningLabel } from "./status"
@@ -13,6 +13,9 @@ type Props = {
 	historyOpen: boolean
 	onHistoryToggle: (open: boolean) => void
 	headingRef?: React.Ref<HTMLHeadingElement>
+	liveConfigured: boolean
+	liveHint: string
+	onChallenge: (claimId: string, reason: string) => Promise<void>
 }
 
 function conclusion(c: ClaimView): string {
@@ -64,7 +67,7 @@ function EvidenceRow({ x, role }: { x: CalcInput; role: string }) {
 	)
 }
 
-export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyOpen, onHistoryToggle, headingRef }: Props) {
+export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyOpen, onHistoryToggle, headingRef, liveConfigured, liveHint, onChallenge }: Props) {
 	const idx = run.claims.findIndex((x) => x.id === c.id)
 	const prev = run.claims[idx - 1]
 	const next = run.claims[idx + 1]
@@ -230,6 +233,7 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 
 				<section>
 					<h3>Audit and corrections</h3>
+					<Recheck run={run} claim={c} liveConfigured={liveConfigured} liveHint={liveHint} onChallenge={onChallenge} />
 					<dl className="facts">
 						<dt>Audit</dt>
 						<dd>
@@ -305,5 +309,68 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 				</details>
 			</div>
 		</div>
+	)
+}
+
+/**
+ * "Challenge interpretation": sends a reviewer's concern to the extractor. A change the code validates
+ * becomes a new claim revision and only this claim is re-checked; the verdict still comes from the
+ * calculator. Needs a live model on the server.
+ */
+function Recheck({ run, claim: c, liveConfigured, liveHint, onChallenge }: { run: RunView; claim: ClaimView; liveConfigured: boolean; liveHint: string; onChallenge: (claimId: string, reason: string) => Promise<void> }) {
+	const [open, setOpen] = useState(false)
+	const [reason, setReason] = useState("")
+	const [error, setError] = useState<string>()
+	const [busy, setBusy] = useState(false)
+	const settled = run.status !== "running" && (c.review.status === "complete" || c.review.status === "unresolved" || c.review.status === "incomplete")
+	const rechecking = run.status === "running" && c.corrections.some((k) => k.by === "reviewer (human)") && c.review.status !== "complete"
+	if (rechecking) return <p className="note">Recheck in progress: the extractor is reconsidering this claim; other claims are unchanged.</p>
+	if (!open)
+		return (
+			<div className="recheck">
+				<button className="btn btn-sm btn-secondary" onClick={() => setOpen(true)} disabled={!settled || !liveConfigured} aria-describedby={`recheck-help-${c.id}`}>
+					Challenge interpretation
+				</button>
+				<p className="muted small" id={`recheck-help-${c.id}`}>
+					{!liveConfigured ? `Recheck asks the extractor and auditor again, so it needs a live model. ${liveHint}` : !settled ? "Available once this claim's review has settled." : "Ask the extractor to reconsider how this sentence was read. A validated change creates a new revision and re-checks only this claim; the verdict always comes from the calculator."}
+				</p>
+			</div>
+		)
+	return (
+		<form
+			className="recheck-form"
+			onSubmit={async (e) => {
+				e.preventDefault()
+				setBusy(true)
+				setError(undefined)
+				try {
+					await onChallenge(c.id, reason)
+					setOpen(false)
+					setReason("")
+				} catch (err) {
+					setError((err as Error).message)
+				} finally {
+					setBusy(false)
+				}
+			}}
+		>
+			<label htmlFor={`recheck-${c.id}`} className="label">
+				What looks wrong about how “{c.quote}” was read?
+			</label>
+			<textarea id={`recheck-${c.id}`} className="input textarea" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} maxLength={600} required placeholder="e.g. The sentence does not say whether this is GAAP or adjusted profit." />
+			{error && (
+				<p className="form-error" role="alert">
+					{error}
+				</p>
+			)}
+			<div className="dialog-actions">
+				<button type="button" className="btn btn-sm btn-quiet" onClick={() => setOpen(false)}>
+					Cancel
+				</button>
+				<button type="submit" className="btn btn-sm btn-primary" disabled={busy || reason.trim().length < 5}>
+					{busy ? "Sending…" : "Recheck this claim"}
+				</button>
+			</div>
+		</form>
 	)
 }

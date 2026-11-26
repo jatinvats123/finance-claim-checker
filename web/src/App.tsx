@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { fmtDate, fmtSeconds, useMedia, useMeta, useRun, type RunView } from "./api"
-import { AgentStrip, CorrectionsBar, Timeline } from "./components/Activity"
+import { AgentStrip, CorrectionsBar, Lanes, Timeline } from "./components/Activity"
 import { ArticlePanel, type ArticleHandle } from "./components/ArticlePanel"
 import { CustomArticleDialog } from "./components/CustomArticle"
 import { Modal } from "./components/Dialog"
@@ -29,12 +29,13 @@ function progressText(run: RunView): string {
 
 export default function App() {
 	const { meta, error: metaError } = useMeta()
-	const { run, start, running, error: runError, reset } = useRun()
+	const { run, start, running, error: runError, reset, challenge } = useRun()
 	const [selectedId, setSelectedId] = useState<string>()
 	const [historyOpen, setHistoryOpen] = useState(false)
 	const [tab, setTab] = useState<Tab>("article")
 	const [timelineOpen, setTimelineOpen] = useState(false)
 	const [customOpen, setCustomOpen] = useState<false | { title: string; text: string } | true>(false)
+	const [replayChoice, setReplayChoice] = useState<"recorded" | "fixtures">()
 	const article = useRef<ArticleHandle>(null)
 	const inspectorHeading = useRef<HTMLHeadingElement>(null)
 	const wide = useMedia("(min-width: 1400px)")
@@ -71,14 +72,16 @@ export default function App() {
 		[layout],
 	)
 
+	const replay = replayChoice ?? meta?.defaultReplay ?? "fixtures"
 	const runExample = () => {
 		setTab("results")
-		start({ source: "example" }).catch(() => undefined)
+		start({ source: "example", replay }).catch(() => undefined)
 	}
 
 	if (metaError) return <div className="fatal">Could not reach the checker server: {metaError}</div>
 	if (!meta) return <div className="loading" aria-busy="true">Loading…</div>
 
+	const replayOption = meta.replayOptions.find((o) => o.id === replay)
 	const articleTitle = run?.article.title ?? meta.example.title
 	const articleText = run?.article.text ?? meta.example.text
 	const finished = run && run.status !== "running"
@@ -151,7 +154,7 @@ export default function App() {
 					<h3>Run the included example</h3>
 					<p>The checker will extract each numerical claim from the article, find the matching figures in NVIDIA's 10-Q/10-K filings, recalculate them, and have an auditor review every result.</p>
 					<ul className="plain small muted">
-						<li>Model responses: {meta.replaySources.map((s) => `${s.provenance} (${s.path})`).join(", ") || "none available"}.</li>
+						<li>Model responses: {replayOption?.label}. {replayOption?.detail}</li>
 						<li>SEC lookups, calculations, rule checks and revision control run for real.</li>
 						<li>No API key or account is needed.</li>
 					</ul>
@@ -176,6 +179,9 @@ export default function App() {
 			historyOpen={historyOpen}
 			onHistoryToggle={setHistoryOpen}
 			headingRef={inspectorHeading}
+			liveConfigured={meta.live.configured}
+			liveHint={meta.live.hint}
+			onChallenge={challenge}
 		/>
 	)
 
@@ -210,8 +216,22 @@ export default function App() {
 					<button className="btn btn-secondary" onClick={() => setCustomOpen(true)} disabled={running}>
 						Check your own article
 					</button>
-					<span className="label-chip" id="example-label">
-						{meta.example.label}
+					{meta.replayOptions.filter((o) => o.available).length > 1 && (
+						<label className="replay-select">
+							<span className="sr-only">Model responses for the included example</span>
+							<select className="input input-sm" value={replay} onChange={(e) => setReplayChoice(e.target.value as "recorded" | "fixtures")} disabled={running} title={replayOption?.detail}>
+								{meta.replayOptions
+									.filter((o) => o.available)
+									.map((o) => (
+										<option key={o.id} value={o.id}>
+											{o.label}
+										</option>
+									))}
+							</select>
+						</label>
+					)}
+					<span className="label-chip" id="example-label" title={replayOption?.detail}>
+						Synthetic example · {replayOption?.short} · Real calculations
 					</span>
 				</div>
 				<div className="runbar-status">
@@ -231,6 +251,9 @@ export default function App() {
 							<a className="btn btn-sm btn-quiet" href={`/api/runs/${run.id}/report.json`} download>
 								<IconDownload size={14} /> JSON
 							</a>
+							<a className="btn btn-sm btn-quiet" href={`/api/runs/${run.id}/trace.json`} download>
+								<IconDownload size={14} /> Trace
+							</a>
 						</span>
 					)}
 				</div>
@@ -246,6 +269,7 @@ export default function App() {
 			</div>
 			{run && timelineOpen && (
 				<div id="timeline" className="timeline-wrap">
+					<Lanes run={run} onSelect={(id) => select(id)} />
 					<Timeline run={run} onSelect={(id, h) => select(id, h)} />
 				</div>
 			)}

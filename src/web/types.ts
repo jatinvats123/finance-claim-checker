@@ -4,6 +4,9 @@
  */
 import type { CalcInput, ClaimInterpretation, ContextWarning, NumericVerdict } from "../domain/types.js"
 import type { HistoryEntry } from "../domain/store.js"
+import type { Trace, Lane } from "../runtime/trace.js"
+
+export type { Trace, Lane }
 
 export type { CalcInput, ClaimInterpretation, ContextWarning, NumericVerdict, HistoryEntry }
 
@@ -100,6 +103,8 @@ export type RunView = {
 	progress: { discovered: number; settled: number; reviewed: number; extractionDone: boolean }
 	summary: { match: number; mismatch: number; notComputable: number; notVerifiable: number; referenceUnavailable: number; pending: number; reviewComplete: number; reviewIncomplete: number }
 	staleRejections: HistoryEntry[]
+	/** Agent loops measured from Mozaik start/end events (see src/runtime/trace.ts). */
+	trace?: Trace
 	error?: string
 }
 
@@ -110,7 +115,9 @@ export type MetaView = {
 	snapshotFetchedAt: string
 	example: { title: string; text: string; path: string; label: string }
 	replaySources: { path: string; provenance: string; description: string }[]
+	/** The included example can replay either source, never both mixed. Default = first available. */
+	replayOptions: { id: "recorded" | "fixtures"; label: string; short: string; available: boolean; detail: string }[]
+	defaultReplay: "recorded" | "fixtures"
 	live: { configured: boolean; model?: string; hint: string }
 	mozaikVersion: string
-	activeRunId?: string
 }

@@ -46,8 +46,13 @@ export type CassetteEntry = {
 	items: ({ type: "function_call"; name: string; args: Record<string, unknown> } | { type: "message"; text: string })[]
 	model?: string
 	recordedAt?: string
+	/** Recordings only: measured wall time the agent waited for this response (provider latency + pacing + retries). */
+	latencyMs?: number
 }
-export type Cassette = { provenance: Provenance; description: string; createdAt: string; entries: Record<string, CassetteEntry> }
+
+/** Replay speed for recordings: recorded latency is divided by this, keeping the live run's ordering. */
+export const DEFAULT_REPLAY_SPEED = 10
+export type Cassette = { provenance: Provenance; description: string; createdAt: string; keyVersion?: number; model?: string; entries: Record<string, CassetteEntry> }
 
 export type CallRecord = { task: string; turn: number; key: string; provenance: Provenance | "cache-miss" | "provider-error" | "limit-reached"; detail?: string }
 
@@ -79,13 +84,36 @@ function canonical(v: unknown): unknown {
 	return v
 }
 
+/**
+ * Replay cache policy, version 2:
+ *  - the key hashes everything the model sees: every context item (instructions, task message, prior
+ *    tool calls and exact tool outputs) and every model-visible tool definition (name, description,
+ *    parameter schema, strict flag), canonicalised;
+ *  - it excludes the model name, provider call ids and simulated delays;
+ *  - a cassette records the key version it was sealed/recorded with; replay refuses a cassette from
+ *    another version (explicit error, never a silent miss) — bump REPLAY_KEY_VERSION whenever the key
+ *    shape changes, then reseal fixtures and re-record.
+ */
+export const REPLAY_KEY_VERSION = 2
+
 /** Hash of everything the model sees, excluding the model name and random ids. */
 export function requestKey(input: InferenceInput): string {
 	const shape = {
+		v: REPLAY_KEY_VERSION,
 		items: input.context.getItems().map(itemShape).filter(Boolean),
-		tools: (input.tools ?? []).map((t) => t.name).sort(),
+		tools: (input.tools ?? [])
+			.map((t) => canonical({ name: t.name, description: t.description, parameters: t.parameters, strict: t.strict }))
+			.sort((a: any, b: any) => String(a.name).localeCompare(String(b.name))),
 	}
 	return createHash("sha256").update(JSON.stringify(shape)).digest("hex").slice(0, 24)
+}
+
+export class IncompatibleCassette extends Error {}
+
+export function assertCompatible(c: Cassette, path = "cassette") {
+	if (c.keyVersion !== REPLAY_KEY_VERSION) {
+		throw new IncompatibleCassette(`${path} was made with replay key version ${c.keyVersion ?? 1}; this build uses version ${REPLAY_KEY_VERSION}. Reseal fixtures (npm run fixtures:seal) or re-record.`)
+	}
 }
 
 export const turnOf = (input: InferenceInput) => input.context.getItems().filter((i) => i.type === "function_call_output").length
@@ -134,6 +162,8 @@ export class CheckerRunner implements InferenceRunner {
 			/** live/record: model id, used for pricing the measured token usage */
 			model?: string
 			limits?: Partial<LiveLimits>
+			/** replay: recorded latency ÷ replaySpeed (default 10). Fixtures use their own simulated delays. */
+			replaySpeed?: number
 		},
 	) {
 		this.limits = { ...DEFAULT_LIMITS, ...opts.limits }
@@ -143,8 +173,10 @@ export class CheckerRunner implements InferenceRunner {
 		}
 		this.pacer = new Pacer(this.limits.maxConcurrent, this.limits.rpm)
 		this.inner = opts.inner ?? mozaikDefaultRunner()
-		if (opts.mode === "author") this.sealed = { provenance: "fixture", description: opts.script?.description ?? "", createdAt: new Date().toISOString(), entries: {} }
-		if (opts.mode === "record") this.recorded = { provenance: "recorded", description: "Live model responses recorded by --mode record", createdAt: new Date().toISOString(), entries: {} }
+		if (opts.mode === "author") this.sealed = { provenance: "fixture", description: opts.script?.description ?? "", createdAt: new Date().toISOString(), keyVersion: REPLAY_KEY_VERSION, entries: {} }
+		if (opts.mode === "record")
+			this.recorded = { provenance: "recorded", description: `Genuine responses from ${opts.model ?? "the configured model"}, recorded by --mode record`, createdAt: new Date().toISOString(), keyVersion: REPLAY_KEY_VERSION, model: opts.model, entries: {} }
+		if (opts.mode === "replay") for (const c of opts.cassettes ?? []) assertCompatible(c)
 	}
 
 	async run(input: InferenceInput): Promise<InferenceOutput> {
@@ -158,9 +190,16 @@ export class CheckerRunner implements InferenceRunner {
 					for (const c of this.opts.cassettes ?? []) {
 						const e = c.entries[key]
 						if (!e) continue
-						if (e.delayMs) await new Promise((r) => setTimeout(r, e.delayMs))
+						const wait = e.latencyMs !== undefined ? e.latencyMs / (this.opts.replaySpeed ?? DEFAULT_REPLAY_SPEED) : e.delayMs
+						if (wait) await new Promise((r) => setTimeout(r, wait))
 						this.calls.push({ task: taskKey, turn, key, provenance: c.provenance })
 						return toOutput(e)
+					}
+					if (this.liveFallback) {
+						// only after an explicit reviewer recheck on a finished replay run; labelled "live"
+						const out = await this.liveCall(input, turn, taskKey)
+						this.calls.push({ task: taskKey, turn, key, provenance: "live" })
+						return out
 					}
 					throw new CacheMiss(`no recorded or fixture response for ${taskKey} turn ${turn} (request ${key}). Run with a provider key (--mode live or record) to check new input.`)
 				}
@@ -179,8 +218,9 @@ export class CheckerRunner implements InferenceRunner {
 					return toOutput(entry)
 				}
 				default: {
+					const started = Date.now()
 					const out = await this.liveCall(input, turn, taskKey)
-					if (this.recorded) this.recorded.entries[key] = { task: taskKey, turn, items: fromOutput(out), model: input.model, recordedAt: new Date().toISOString() }
+					if (this.recorded) this.recorded.entries[key] = { task: taskKey, turn, items: fromOutput(out), model: input.model, recordedAt: new Date().toISOString(), latencyMs: Date.now() - started }
 					this.calls.push({ task: taskKey, turn, key, provenance: "live" })
 					return out
 				}
@@ -192,6 +232,18 @@ export class CheckerRunner implements InferenceRunner {
 			this.calls.push({ task: taskKey, turn, key, provenance: kind === "CACHE_MISS" ? "cache-miss" : kind === "LIMIT_REACHED" ? "limit-reached" : "provider-error", detail: message })
 			return { items: [ModelMessageItem.rehydrate({ text: `[runner ${kind}] ${message}` })], tokenUsage: undefined, rowResponse: null }
 		}
+	}
+
+	private liveFallback = false
+
+	/**
+	 * Allow replay misses to go to the live provider from now on. Used only when a reviewer asks to
+	 * recheck a claim of a finished replay run; those calls are recorded with provenance "live", so the
+	 * run's provenance becomes visibly mixed.
+	 */
+	enableLiveFallback(model: string) {
+		this.liveFallback = true
+		if (this.usage.model === "unknown") Object.assign(this.usage, { model })
 	}
 
 	/** One provider request under the call/turn/budget caps, pacing and transient-error retries. */

@@ -81,6 +81,7 @@ export class CheckerState extends RuntimeState {
 		this.contextDone.delete(claimId)
 		this.contextFailures.delete(claimId)
 		this.evidenceAttempts.delete(claimId)
+		this.challengeRestore.delete(claimId)
 		this.log("claim.revised", `r${old.revision} → r${claim.revision}: ${reason} (evidence, calculation, audit and context for r${old.revision} invalidated)`, claimId)
 		return { ok: true, value: claim }
 	}
@@ -140,6 +141,37 @@ export class CheckerState extends RuntimeState {
 		const d =state.status === "approved" ? state.note : state.status === "investigating" ? `${state.target}: ${state.reason}` : "reason" in state ? state.reason : ""
 		this.log(`audit.${state.status}`, `r${claimRevision}.e${evidenceRevision} ${d}`, claimId)
 		return { ok: true, value: state }
+	}
+
+	/** Audits reopened by a reviewer's challenge, kept so a declined challenge restores the prior outcome. */
+	readonly challengeRestore = new Map<string, { claimRevision: number; evidenceRevision: number; state: AuditState }>()
+
+	/**
+	 * A human reviewer challenges the interpretation of a settled claim. The audit is reopened (blocking
+	 * the claim until the extractor answers); nothing else changes. Numbers are never set here.
+	 */
+	reopenForChallenge(claimId: string, reason: string, by: string): WriteResult<AuditState> {
+		const claim = this.claims.get(claimId)
+		const a = this.audits.get(claimId)
+		if (!claim || !a || a.claimRevision !== claim.revision) return { ok: false, stale: false, reason: `claim ${claimId} has no current audit to reopen` }
+		if (!this.isSettled(claimId)) return { ok: false, stale: false, reason: `claim ${claimId} is still being checked` }
+		this.challengeRestore.set(claimId, { ...a })
+		const state: AuditState = { status: "investigating", target: "claim", reason, by }
+		this.audits.set(claimId, { ...a, state })
+		this.corrections.push({ claimId, at: Date.now() - this.t0, by, target: "claim", reason, claimRevision: a.claimRevision, evidenceRevision: a.evidenceRevision })
+		this.log("review.challenged", `r${a.claimRevision}.e${a.evidenceRevision} ${by}: ${reason}`, claimId)
+		return { ok: true, value: state }
+	}
+
+	/** The extractor kept its interpretation: restore the audit outcome the challenge reopened. */
+	declineChallenge(claimId: string, why: string): boolean {
+		const prev = this.challengeRestore.get(claimId)
+		const claim = this.claims.get(claimId)
+		if (!prev || !claim || prev.claimRevision !== claim.revision) return false
+		this.challengeRestore.delete(claimId)
+		this.audits.set(claimId, prev)
+		this.log("challenge.declined", `r${prev.claimRevision}: ${why}; previous audit outcome (${prev.state.status}) restored`, claimId)
+		return true
 	}
 
 	/** Count a correction request against the claim's budget (shared across revisions). */

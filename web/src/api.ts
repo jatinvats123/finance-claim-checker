@@ -36,7 +36,7 @@ export function useMeta() {
 	return { meta, error }
 }
 
-export type StartBody = { source: "example" } | { source: "custom"; mode: "live" | "replay"; title: string; text: string }
+export type StartBody = { source: "example"; replay?: "recorded" | "fixtures" } | { source: "custom"; mode: "live" | "replay"; title: string; text: string }
 
 /**
  * Starts runs only on explicit calls (never on mount), streams RunView snapshots over SSE.
@@ -96,7 +96,18 @@ export function useRun() {
 	}, [])
 
 	useEffect(() => () => source.current?.close(), [])
-	return { run, start, starting, error, reset, running: starting || run?.status === "running" }
+	/** Reviewer recheck of one claim; streams the run again while that claim is re-run. */
+	const challenge = useCallback(
+		async (claimId: string, reason: string) => {
+			if (!run) return
+			await api(`/api/runs/${run.id}/claims/${claimId}/challenge`, { method: "POST", body: JSON.stringify({ reason }) })
+			busy.current = true
+			attach(run.id)
+		},
+		[run, attach],
+	)
+
+	return { run, start, starting, error, reset, challenge, running: starting || run?.status === "running" }
 }
 
 export function useMedia(query: string): boolean {

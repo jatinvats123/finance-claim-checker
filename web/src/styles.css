@@ -1475,3 +1475,97 @@ details > summary {
 		scroll-behavior: auto !important;
 	}
 }
+
+/* ---------- execution lanes ---------- */
+.lanes {
+	margin-bottom: 12px;
+}
+.lanes-head {
+	display: flex;
+	gap: 12px;
+	align-items: baseline;
+	flex-wrap: wrap;
+	margin-bottom: 6px;
+}
+.lane-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-height: 260px;
+	overflow: auto;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+}
+.lane {
+	display: grid;
+	grid-template-columns: minmax(150px, 220px) 1fr;
+	gap: 8px;
+	align-items: center;
+	padding: 2px 8px;
+	font-size: 12px;
+	border-bottom: 1px solid var(--border);
+}
+.lane:last-child {
+	border-bottom: 0;
+}
+.lane-label {
+	font-family: var(--mono);
+	font-size: 11.5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.lane-track {
+	position: relative;
+	height: 12px;
+	background: var(--surface-2);
+	border-radius: 3px;
+}
+.lane-bar {
+	position: absolute;
+	top: 1px;
+	bottom: 1px;
+	border-radius: 3px;
+	background: var(--neutral);
+}
+.lane-Extractor {
+	background: #3b82c4;
+}
+.lane-Evidence {
+	background: #2456d3;
+}
+.lane-Context {
+	background: #8a5cc2;
+}
+.lane-Auditor {
+	background: #1d7348;
+}
+.lane-failed {
+	background: var(--bad);
+}
+@media (max-width: 959px) {
+	.lane {
+		grid-template-columns: 110px 1fr;
+	}
+}
+
+.recheck {
+	margin: 4px 0 10px;
+}
+.recheck p {
+	margin-top: 4px;
+}
+.recheck-form {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin: 4px 0 12px;
+	padding: 10px;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	background: var(--surface-2);
+}
+.replay-select select {
+	width: auto;
+	max-width: 280px;
+}

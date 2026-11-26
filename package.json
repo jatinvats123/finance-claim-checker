@@ -6,7 +6,7 @@
   "type": "module",
   "license": "MIT",
   "engines": {
-    "node": ">=20.12"
+    "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
     "start": "tsx src/cli.ts --mode replay",
@@ -18,7 +18,8 @@
     "web": "vite build && tsx src/web/server.ts",
     "web:build": "vite build",
     "web:serve": "tsx src/web/server.ts",
-    "web:dev": "vite"
+    "web:dev": "vite",
+    "eval": "tsx scripts/eval.ts"
   },
   "dependencies": {
     "@mozaik-ai/core": "6.0.0",

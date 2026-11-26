@@ -3,6 +3,7 @@ import { fmtExact } from "../domain/calculator.js"
 import type { CheckerState } from "../domain/store.js"
 import type { AuditState, Calculation, Claim } from "../domain/types.js"
 import type { UsageSummary } from "../llm/limits.js"
+import type { Trace } from "../runtime/trace.js"
 import type { CallRecord } from "../llm/runner.js"
 import type { RunResult } from "../runtime/pipeline.js"
 import { describeClaim } from "../agents/extractor.js"
@@ -32,7 +33,7 @@ export function verdictBadge(v?: string): string {
 		case "NOT_VERIFIABLE":
 			return yellow("? NOT VERIFIABLE")
 		case "REFERENCE_NOT_YET_FILED":
-			return yellow("⧗ NO 10-Q/10-K YET")
+			return yellow("⧗ NO 10-Q/10-K IN DATASET")
 		default:
 			return dim("… pending")
 	}
@@ -99,6 +100,8 @@ export type ReportMeta = {
 	cassettes: { path: string; provenance: string; description: string }[]
 	/** live/record runs: measured token usage and cost */
 	usage?: UsageSummary
+	/** Measured agent-loop lanes and peak concurrency */
+	trace?: Trace
 }
 
 function provenanceSummary(calls: CallRecord[]) {
@@ -175,11 +178,12 @@ export function renderMarkdown(result: RunResult, meta: ReportMeta): string {
 	out.push("")
 	out.push(`**Company:** ${snap.entityName} (${snap.ticker}, CIK ${snap.cik}) · **Article:** \`${meta.articlePath}\``)
 	out.push("")
-	out.push(`**Reference documents:** 10-Q and 10-K financial statements only (XBRL facts from SEC EDGAR, fetched ${snap.source.fetchedAt}). Earnings releases filed as 8-K exhibits are never used as the reference: checking a release against itself would be circular.`)
+	out.push(`**Reference documents:** 10-Q (quarterly, unaudited) and 10-K (annual, audited) financial statements only, as XBRL facts from SEC EDGAR fetched ${snap.source.fetchedAt}. Earnings releases filed as 8-K exhibits are never used as the reference: checking a release against itself would be circular. Supported metrics: revenue, net income, gross profit, operating income, diluted and basic EPS.`)
 	out.push("")
 	out.push(`| Verdict | Claims |`)
 	out.push(`|---|---|`)
-	for (const v of ["MATCH", "MISMATCH", "NOT_COMPUTABLE", "NOT_VERIFIABLE", "REFERENCE_NOT_YET_FILED"]) out.push(`| ${v.replace(/_/g, " ")} | ${count(v)} |`)
+	const label: Record<string, string> = { REFERENCE_NOT_YET_FILED: `REFERENCE UNAVAILABLE IN DATASET (as of ${snap.source.fetchedAt.slice(0, 10)})` }
+	for (const v of ["MATCH", "MISMATCH", "NOT_COMPUTABLE", "NOT_VERIFIABLE", "REFERENCE_NOT_YET_FILED"]) out.push(`| ${label[v] ?? v.replace(/_/g, " ")} | ${count(v)} |`)
 	out.push("")
 	out.push(`| Claim | Quote | Numerical result | Context warnings | Audit |`)
 	out.push(`|---|---|---|---|---|`)
@@ -203,6 +207,7 @@ export function renderMarkdown(result: RunResult, meta: ReportMeta): string {
 		const cost = u.costUsd !== undefined ? `$${u.costUsd.toFixed(4)}` : "cost not computed (no price for this model)"
 		out.push(`- Measured usage (${u.model}): ${u.requests} requests, ${u.inputTokens} input + ${u.outputTokens + u.reasoningTokens} output tokens, ${cost}${u.limitHit ? `; stopped by limit: ${u.limitHit}` : ""}`)
 	}
+	if (meta.trace) out.push(`- Concurrency (measured from Mozaik loop start/end events): peak ${meta.trace.peakActive} agent loops active at once across ${meta.trace.lanes.length} loops. ${meta.trace.timingNote}`)
 	for (const cs of meta.cassettes) out.push(`- Cassette \`${cs.path}\` — provenance **${cs.provenance}**: ${cs.description}`)
 	out.push(`- SEC data: [company facts](${snap.source.companyFactsUrl}), [filing index](${snap.source.submissionsUrl}), fetched ${snap.source.fetchedAt}.`)
 	out.push(`- Calculations, period/unit checks, evidence validation and revision control ran for real in this mode; only model responses are replayed when the mode is \`replay\`.`)
@@ -241,7 +246,7 @@ export function toJson(result: RunResult, meta: ReportMeta) {
 		article: { title: state.article!.title, path: meta.articlePath },
 		company: { ticker: state.registry.snapshot.ticker, cik: state.registry.snapshot.cik, name: state.registry.snapshot.entityName },
 		secSource: state.registry.snapshot.source,
-		run: { mode: meta.mode, model: meta.model, mozaik: meta.mozaikVersion, timedOut: result.timedOut, elapsedMs: result.elapsedMs, modelCalls: meta.calls, cassettes: meta.cassettes, usage: meta.usage },
+		run: { mode: meta.mode, model: meta.model, mozaik: meta.mozaikVersion, timedOut: result.timedOut, elapsedMs: result.elapsedMs, modelCalls: meta.calls, cassettes: meta.cassettes, usage: meta.usage, trace: meta.trace },
 		claims: [...state.claims.values()].map((cl) => ({
 			...cl,
 			evidence: state.bindings.get(cl.id),

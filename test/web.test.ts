@@ -42,16 +42,19 @@ describe("web API with the included example (keyless)", () => {
 	let final: RunView
 	let snapshots: RunView[]
 	let runId = ""
-	let duplicate: { status: number; body: any }
+	let second: { status: number; body: any }
+	let secondFinal: RunView
 
 	beforeAll(async () => {
 		base = await listen(app)
-		const started = await post(base, { source: "example" })
+		const started = await post(base, { source: "example", replay: "fixtures" })
 		expect(started.status).toBe(202)
 		runId = started.body.id
-		duplicate = await post(base, { source: "example" })
-		snapshots = await stream(base, runId)
+		second = await post(base, { source: "example", replay: "fixtures" }) // another visitor, at the same time
+		const [a, b] = await Promise.all([stream(base, runId), stream(base, second.body.id)])
+		snapshots = a
 		final = snapshots.at(-1)!
+		secondFinal = b.at(-1)!
 	}, 30_000)
 	afterAll(() => app.server.close())
 
@@ -60,7 +63,14 @@ describe("web API with the included example (keyless)", () => {
 		const canonical = readArticle(EXAMPLE_ARTICLE)
 		expect(meta.example.title).toBe(canonical.title)
 		expect(meta.example.text).toBe(canonical.text) // byte-identical: replay hashes depend on it
-		expect(meta.example.label).toBe("Synthetic example · Fixture model responses · Real calculations")
+		const fixturesOpt = meta.replayOptions.find((o) => o.id === "fixtures")!
+		expect(fixturesOpt).toMatchObject({ available: true, short: "Fixture model responses" })
+		const def = meta.replayOptions.find((o) => o.id === meta.defaultReplay)!
+		expect(def.available).toBe(true)
+		expect(meta.example.label).toBe(`Synthetic example · ${def.short} · Real calculations`)
+		// a recorded option is only offered when a genuine recording exists, and is labelled with its model
+		const recOpt = meta.replayOptions.find((o) => o.id === "recorded")!
+		if (recOpt.available) expect(recOpt.label).toMatch(/^Genuine recorded run \(/)
 		expect(meta.company.ticker).toBe("NVDA")
 		expect(meta.companies.map((c) => c.ticker)).toEqual(["NVDA"])
 		expect(meta.live.configured).toBe(false)
@@ -68,9 +78,11 @@ describe("web API with the included example (keyless)", () => {
 		expect(JSON.stringify(meta)).not.toMatch(/sk-|api_key=/i)
 	})
 
-	it("refuses a duplicate run while one is active", () => {
-		expect(duplicate.status).toBe(409)
-		expect(duplicate.body.runId).toBe(runId)
+	it("one visitor's run never blocks another's: both complete independently", () => {
+		expect(second.status).toBe(202)
+		expect(second.body.id).not.toBe(runId)
+		expect(secondFinal.status).toBe("done")
+		expect(secondFinal.claims.map((c) => c.verdict)).toEqual(final.claims.map((c) => c.verdict))
 	})
 
 	it("streams progress, then every bundled claim with its engine status", () => {
@@ -155,6 +167,19 @@ describe("web API with the included example (keyless)", () => {
 		expect(final.timeline.some((t) => t.tone === "stale")).toBe(true)
 	})
 
+	it("exports measured execution lanes with claim/revision ids and an honest timing label", async () => {
+		const t = (await (await fetch(`${base}/api/runs/${runId}/trace.json`)).json()) as any
+		expect(t.timing).toBe("replay-fixture")
+		expect(t.timingNote).toMatch(/Not model latency/)
+		expect(t.peakActive).toBeGreaterThanOrEqual(3)
+		expect(t.lanes.every((l: any) => typeof l.endMs === "number" && l.endMs >= l.startMs)).toBe(true)
+		expect(t.lanes.some((l: any) => l.task === "context:c4@r2" && l.claimRevision === 2)).toBe(true)
+		// peak recomputed independently from the lanes
+		const at = t.peakAtMs
+		expect(t.lanes.filter((l: any) => l.startMs <= at && l.endMs > at).length).toBe(t.peakActive)
+		expect(final.trace?.peakActive).toBe(t.peakActive)
+	})
+
 	it("serves the existing Markdown and JSON reports as downloads", async () => {
 		const md = await fetch(`${base}/api/runs/${runId}/report.md`)
 		expect(md.status).toBe(200)
@@ -174,6 +199,25 @@ describe("web API with the included example (keyless)", () => {
 	})
 })
 
+describe("genuine recording replay", () => {
+	it("replays only the recorded model run, labelled as recorded, with no fixture fallback", async () => {
+		const app = createApp({ replaySpeed: 1000 })
+		const base = await listen(app)
+		const meta = (await (await fetch(`${base}/api/meta`)).json()) as MetaView
+		const rec = meta.replayOptions.find((o) => o.id === "recorded")!
+		if (!rec.available) return app.server.close() // no recording in this checkout
+		const { body } = await post(base, { source: "example", replay: "recorded" })
+		const final = (await stream(base, body.id)).at(-1)!
+		expect(final.status).toBe("done")
+		expect(Object.keys(final.provenance.counts)).toEqual(["recorded"])
+		expect(final.provenance.label).toBe("Recorded model responses")
+		expect(final.trace?.timing).toBe("replay-recorded")
+		expect(final.claims.length).toBeGreaterThan(0)
+		expect(final.claims.every((c) => c.review.status === "complete")).toBe(true)
+		app.server.close()
+	}, 30_000)
+})
+
 describe("custom articles", () => {
 	it("an edited article in replay mode is an explicit cache miss", async () => {
 		const app = createApp()
@@ -185,6 +229,26 @@ describe("custom articles", () => {
 		expect(final.error).toMatch(/^CACHE_MISS/)
 		expect(final.claims).toEqual([])
 		expect(final.provenance.counts).toEqual({ "cache-miss": 1 })
+		app.server.close()
+	}, 30_000)
+
+	it("bounds public load: replay runs are capped, live runs run one at a time", async () => {
+		const hang: InferenceRunner = { run: () => new Promise(() => undefined), stream: () => { throw new Error("unused") } }
+		const app = createApp({ env: { ANTHROPIC_API_KEY: "test-placeholder" }, liveInner: () => hang, maxReplayRuns: 1, timeoutMs: 3_000 })
+		const base = await listen(app)
+		const live1 = await post(base, { source: "custom", mode: "live", title: "t", text: "Revenue rose 5%." })
+		const live2 = await post(base, { source: "custom", mode: "live", title: "t", text: "Revenue rose 6%." })
+		expect(live1.status).toBe(202)
+		expect(live2.status).toBe(429)
+		expect(live2.body.code).toBe("LIVE_BUSY")
+		// a busy live slot does not block the included example
+		const ex1 = await post(base, { source: "example" })
+		expect(ex1.status).toBe(202)
+		const ex2 = await post(base, { source: "example" })
+		expect(ex2.status).toBe(429) // replay cap of 1 in this test
+		expect(ex2.body.code).toBe("BUSY")
+		await stream(base, ex1.body.id)
+		expect((await post(base, { source: "example" })).status).toBe(202) // slot free again
 		app.server.close()
 	}, 30_000)
 

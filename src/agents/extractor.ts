@@ -58,7 +58,6 @@ export function validateInterpretation(args: any, articleText: string): ClaimInt
 	if (!Number.isInteger(c.fiscalYear)) throw new Error("fiscalYear must be an integer")
 	parseStated(c.statedNumber)
 	if (!norm(articleText).includes(norm(c.quote))) throw new Error("quote does not appear verbatim in the article")
-	if (c.statedUnit !== "multiple" && !norm(c.quote).replace(/,/g, "").includes(c.statedNumber)) throw new Error(`statedNumber "${c.statedNumber}" does not appear in the quote`)
 	if (c.kind === "change") {
 		c.comparison = need(args, "comparison", ["yoy", "qoq", "unspecified"] as const)
 		c.direction = need(args, "direction", ["increase", "decrease"] as const)
@@ -80,6 +79,16 @@ const YOY_WORDS = /year[- ](over|on)[- ]year|year (earlier|ago|before)|year-ago|
 const QOQ_WORDS = /quarter[- ](over|on)[- ]quarter|sequential|(previous|prior|last|preceding) quarter|\bq\/q\b|\bqoq\b|from the (first|second|third|fourth) quarter/i
 const MULTIPLE_WORDS = /doubl|tripl|quadrupl|\btimes\b|-fold|\bfold\b/i
 
+/** Multiples a phrase states: "doubled" → 2, "tripled" → 3, "quadrupled" → 4, "2.5 times" / "3-fold" / "4x" → N. */
+function multiplesIn(quote: string): number[] {
+	const out: number[] = []
+	if (/doubl/i.test(quote)) out.push(2)
+	if (/tripl/i.test(quote)) out.push(3)
+	if (/quadrupl/i.test(quote)) out.push(4)
+	for (const m of quote.matchAll(/(\d+(?:\.\d+)?)\s*(?:times\b|-?fold\b|x\b)/gi)) out.push(Number(m[1]))
+	return out
+}
+
 /** The sentence (in normalized text) that contains the quote. */
 function sentenceOf(articleText: string, quote: string): string {
 	const t = norm(articleText)
@@ -98,9 +107,12 @@ function sentenceOf(articleText: string, quote: string): string {
  * change them to agree with the filings. A units error stays a units error.
  */
 export function checkAnchoring(c: ClaimInterpretation, articleText: string) {
-	const quote = norm(c.quote).replace(/,/g, "")
+	const quote = norm(c.quote).replace(/(\d),(?=\d{3}\b)/g, "$1").replace(/−/g, "-")
+	if (c.statedNumber.startsWith("-") && c.kind === "change") throw new Error("for a change, statedNumber is the size of the move (no minus sign); use direction for up/down")
 	if (c.statedUnit === "multiple") {
 		if (!MULTIPLE_WORDS.test(quote)) throw new Error('statedUnit "multiple" needs wording like "doubled", "tripled" or "N times" in the quote')
+		const said = multiplesIn(quote)
+		if (!said.includes(Number(c.statedNumber))) throw new Error(`statedNumber "${c.statedNumber}" is not the multiple the quote states (${said.join(", ") || "none found"})`)
 	} else {
 		const esc = c.statedNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 		const re = new RegExp(`(?<![\\d.])${esc}(?!\\d|\\.\\d)`, "g")
@@ -189,16 +201,23 @@ export function createExtractor(ctx: Ctx): Agent {
 		handlers: [
 			handler(EV.ARTICLE_SUBMITTED, () => {
 				const reg = state.registry
-				const cal = reg.calendar
-					.slice(-8)
-					.map((c) => `- ${periodLabel(c.fy, c.fp === "FY" ? "FY" : (c.fp as any))}: period ended ${c.periodEnd} (${c.form} filed ${c.filed})`)
-					.join("\n")
+				const filed = reg.calendar.slice(-8).map((c) => `- ${periodLabel(c.fy, c.fp as any)}: period ended ${c.periodEnd} (${c.form} filed ${c.filed})`)
+				// Upcoming periods of the current fiscal year that have no 10-Q/10-K yet, so claims about them still get a fiscal label.
+				const current = reg.fiscalYears.at(-1)
+				const latest = reg.latestReportedPeriod()
+				const upcoming =
+					current?.projected && latest
+						? (["Q1", "Q2", "Q3", "Q4"] as const)
+								.map((q, i) => ({ q, end: new Date(Date.parse(current.start) + (i + 1) * 91 * 86_400_000 - 86_400_000).toISOString().slice(0, 10) }))
+								.filter((p) => p.end > latest.periodEnd)
+								.map((p) => `- ${periodLabel(current.label, p.q)}: period ending around ${p.end} (no 10-Q/10-K on record yet)`)
+						: []
 				ctx.startTask(agent, {
 					role: "extractor",
 					key: "extractor:article",
 					message: `Company: ${reg.snapshot.entityName} (${reg.snapshot.ticker}).
-Fiscal calendar (periods covered by 10-Q/10-K filings on record; Q4 ends with the fiscal year; the next quarters follow at ~13-week steps):
-${cal}
+Fiscal calendar (10-Q/10-K periods on record, then upcoming periods without a filing yet; Q4 ends with the fiscal year):
+${[...filed, ...upcoming].join("\n")}
 
 Article title: ${state.article!.title}
 <<<ARTICLE

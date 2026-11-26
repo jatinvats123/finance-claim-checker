@@ -1,0 +1,26 @@
+{
+  "description": "Manually checked ground truth for the independent evaluation. Values come from NVIDIA's 10-Q/10-K XBRL facts in data/sec-snapshot/NVDA.json and were cross-checked by hand against the summary tables in NVIDIA's Q2 FY2027 and Q3 FY2027 earnings releases (8-K exhibits, used only for this manual check, never by the checker). Outcomes: MATCH / MISMATCH = expected numeric verdict; ABSTAIN = the claim is outside what the checker supports, so NOT_VERIFIABLE or not extracting it are both correct; SKIP = must not be extracted (forecast).",
+  "articles": {
+    "a": "eval/articles/a-q1-fy2027.md",
+    "b": "eval/articles/b-fy2026-recap.md"
+  },
+  "claims": [
+    { "id": "A1", "article": "a", "metric": "revenue", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q1", "statedNumber": "81.6", "expected": "MATCH", "truth": "Q1 FY2027 revenue $81,615M; stated $81.6B ± $0.05B" },
+    { "id": "A2", "article": "a", "metric": "revenue", "kind": "change", "fiscalYear": 2027, "fiscalPeriod": "Q1", "statedNumber": "85", "expected": "MATCH", "truth": "(81,615 − 44,062) / 44,062 = 85.23%; stated 85% ± 0.5 pp" },
+    { "id": "A3", "article": "a", "metric": "revenue", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "Q1", "statedNumber": "44.1", "expected": "MATCH", "truth": "Q1 FY2026 revenue $44,062M; stated $44.1B ± $0.05B (diff $0.038B)" },
+    { "id": "A4", "article": "a", "metric": "gross_profit", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q1", "statedNumber": "61.2", "expected": "MATCH", "truth": "Q1 FY2027 gross profit $61,157M; stated $61.2B ± $0.05B" },
+    { "id": "A5", "article": "a", "metric": "net_income", "kind": "change", "fiscalYear": 2027, "fiscalPeriod": "Q1", "statedNumber": "211", "expected": "MATCH", "truth": "(58,321 − 18,775) / 18,775 = 210.63%; stated 211% ± 0.5 pp" },
+    { "id": "A6", "article": "a", "metric": "net_income", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q1", "statedNumber": "58.3", "expected": "MATCH", "truth": "Q1 FY2027 net income $58,321M; stated $58.3B ± $0.05B" },
+    { "id": "A7", "article": "a", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q1", "statedNumber": "2.93", "expected": "MISMATCH", "truth": "Q1 FY2027 diluted EPS $2.39; stated $2.93 (digits transposed)" },
+    { "id": "A8", "article": "a", "metric": "operating_income", "kind": "change", "fiscalYear": 2027, "fiscalPeriod": "Q1", "statedNumber": "5", "expected": "MISMATCH", "truth": "QoQ vs derived Q4 FY2026 ($130,387M − $86,088M = $44,299M): (53,536 − 44,299) / 44,299 = +20.85%; article says it fell 5%" },
+    { "id": "A9", "article": "a", "metric": "revenue", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "110", "expected": "SKIP", "truth": "forecast ('expects ... next quarter'); must not be extracted" },
+    { "id": "B1", "article": "b", "metric": "revenue", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "215.9", "expected": "MATCH", "truth": "FY2026 revenue $215,938M; stated $215.9B ± $0.05B" },
+    { "id": "B2", "article": "b", "metric": "revenue", "kind": "change", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "65", "expected": "MATCH", "truth": "(215,938 − 130,497) / 130,497 = 65.47%; stated 65% ± 0.5 pp" },
+    { "id": "B3", "article": "b", "metric": "net_income", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "120.1", "expected": "MATCH", "truth": "FY2026 net income $120,067M; stated $120.1B ± $0.05B" },
+    { "id": "B4", "article": "b", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "4.90", "expected": "MATCH", "truth": "FY2026 diluted EPS $4.90; stated $4.90 ± $0.005" },
+    { "id": "B5", "article": "b", "metric": "revenue", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "Q4", "statedNumber": "68.1", "expected": "MATCH", "truth": "Q4 FY2026 revenue derived as FY − 9M = $215,938M − $147,811M = $68,127M; stated $68.1B ± $0.05B" },
+    { "id": "B6", "article": "b", "metric": "revenue", "kind": "change", "fiscalYear": 2026, "fiscalPeriod": "Q4", "statedNumber": "20", "expected": "MISMATCH", "truth": "QoQ: (68,127 − 57,006) / 57,006 = 19.51%; article says 'more than 20%'" },
+    { "id": "B7", "article": "b", "metric": "other", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "75.0", "expected": "ABSTAIN", "truth": "adjusted gross margin: a non-GAAP ratio, not a supported statement line" },
+    { "id": "B8", "article": "b", "metric": "net_income", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "Q3", "statedNumber": "31.9", "expected": "MISMATCH", "truth": "Q3 FY2026 net income $31,910M; article says $31.9 million (units error)" }
+  ]
+}

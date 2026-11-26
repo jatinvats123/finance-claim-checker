@@ -78,6 +78,48 @@ export function Timeline({ run, onSelect }: { run: RunView; onSelect: (id: strin
 	)
 }
 
+const LANE_AGENT: Record<string, string> = { extractor: "Extractor", "extractor-fix": "Extractor", evidence: "Evidence", context: "Context", auditor: "Auditor" }
+
+/** Execution lanes: one bar per agent loop, from Mozaik's loop start/end events. */
+export function Lanes({ run, onSelect }: { run: RunView; onSelect: (id: string) => void }) {
+	const t = run.trace
+	if (!t || !t.lanes.length) return null
+	const total = Math.max(t.totalMs, 1)
+	const pct = (ms: number) => `${((ms / total) * 100).toFixed(2)}%`
+	return (
+		<div className="lanes" aria-label="Execution lanes">
+			<div className="lanes-head">
+				<strong className="num">Peak {t.peakActive} agent loops at once</strong>
+				<span className="muted small">
+					{t.lanes.length} loops · {t.timingNote}
+				</span>
+			</div>
+			<ol className="lane-list">
+				{t.lanes.map((l, i) => {
+					const end = l.endMs ?? t.totalMs
+					const label = `${l.task} · ${fmtSeconds(l.startMs)}–${l.endMs !== undefined ? fmtSeconds(l.endMs) : "running"}${l.failed ? " · failed" : ""}`
+					return (
+						<li key={i} className="lane">
+							<span className="lane-label">
+								{l.claimId ? (
+									<button className="link-btn inline" onClick={() => onSelect(l.claimId!)}>
+										{l.task}
+									</button>
+								) : (
+									l.task
+								)}
+							</span>
+							<span className="lane-track" title={label}>
+								<span className={`lane-bar lane-${LANE_AGENT[l.role]}${l.failed ? " lane-failed" : ""}`} style={{ left: pct(l.startMs), width: `max(2px, ${pct(end - l.startMs)})` }} />
+							</span>
+						</li>
+					)
+				})}
+			</ol>
+		</div>
+	)
+}
+
 /** Genuine corrections from this run (from the engine's correction records). */
 export function CorrectionsBar({ run, onView }: { run: RunView; onView: (id: string) => void }) {
 	const corrected = run.claims.filter((c) => c.corrections.length > 0)

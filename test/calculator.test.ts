@@ -101,6 +101,44 @@ describe("change claims", () => {
 		expect(calculate(meta, change({ statedNumber: "10", direction: "increase" }), fact(90), fact(100)).verdict).toBe("MISMATCH")
 	})
 
+	describe("qualifiers apply to the size of the move in the stated direction (base 100)", () => {
+		// [direction, qualifier, stated, current, expected]
+		const cases: [string, string, string, number, string][] = [
+			// decreases
+			["decrease", "more_than", "20", 70, "MATCH"], // fell 30%
+			["decrease", "more_than", "20", 90, "MISMATCH"], // fell 10%
+			["decrease", "less_than", "20", 70, "MISMATCH"],
+			["decrease", "less_than", "20", 90, "MATCH"],
+			["decrease", "at_least", "20", 80, "MATCH"], // exactly 20%
+			["decrease", "at_least", "20", 81, "MISMATCH"],
+			["decrease", "exact", "20", 80, "MATCH"],
+			["decrease", "exact", "20", 79, "MISMATCH"], // 21% vs 20 ± 0.5
+			["decrease", "about", "20", 79, "MATCH"], // ±1 pp for "about"
+			// increases
+			["increase", "more_than", "20", 130, "MATCH"],
+			["increase", "more_than", "20", 110, "MISMATCH"],
+			["increase", "less_than", "20", 110, "MATCH"],
+			["increase", "less_than", "20", 130, "MISMATCH"],
+			["increase", "at_least", "20", 120, "MATCH"],
+			["increase", "exact", "20", 120, "MATCH"],
+			// movement in the opposite direction never satisfies the claim
+			["decrease", "less_than", "20", 105, "MISMATCH"], // "fell less than 20%" but rose 5%
+			["increase", "less_than", "20", 95, "MISMATCH"], // "rose less than 20%" but fell 5%
+			["decrease", "exact", "5", 105, "MISMATCH"],
+			["increase", "more_than", "1", 90, "MISMATCH"],
+		]
+		for (const [direction, qualifier, stated, cur, expected] of cases) {
+			it(`${direction} ${qualifier} ${stated}%: 100 → ${cur} is ${expected}`, () => {
+				const r = calculate(meta, change({ direction: direction as any, qualifier: qualifier as any, statedNumber: stated }), fact(cur), fact(100))
+				expect(r.verdict).toBe(expected)
+			})
+		}
+		it("explains a move in the opposite direction", () => {
+			const r = calculate(meta, change({ direction: "decrease", qualifier: "less_than", statedNumber: "20" }), fact(105), fact(100))
+			expect(r.notes[0]).toMatch(/says the figure fell, but it rose 5\.00%/)
+		})
+	})
+
 	it("refuses a percentage from a zero base", () => {
 		const r = calculate(meta, change({ statedNumber: "50" }), fact(10), fact(0))
 		expect(r.verdict).toBe("NOT_COMPUTABLE")

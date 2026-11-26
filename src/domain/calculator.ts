@@ -151,7 +151,11 @@ export function calculate(meta: Meta, c: ClaimInterpretation, current?: Evidence
 		const pct = ((current.value - base.value) / Math.abs(base.value)) * 100
 		const signed = c.direction === "decrease" ? -stated : stated
 		const tol = c.qualifier === "about" ? Math.max(roundingTolerance(c.statedNumber), 1) : roundingTolerance(c.statedNumber)
-		const ok = compare(pct, signed, tol, c.qualifier)
+		// Qualifiers apply to the size of the move in the stated direction: "fell more than 20%" means a
+		// decline larger than 20%, i.e. pct < −20. A move the other way never satisfies the claim.
+		const moved = c.direction === "decrease" ? -pct : pct
+		const wrongWay = moved < -tol
+		const ok = !wrongWay && compare(moved, stated, tol, c.qualifier)
 		return result(meta, c, ok ? "MATCH" : "MISMATCH", {
 			formula: `change% = (${current.id} − ${base.id}) / abs(${base.id}) × 100`,
 			substituted: `(${fmtExact(current.value)} − ${fmtExact(base.value)}) / ${fmtExact(Math.abs(base.value))} × 100 = ${fmtPct(pct)}`,
@@ -160,7 +164,7 @@ export function calculate(meta: Meta, c: ClaimInterpretation, current?: Evidence
 			toleranceRule: c.qualifier === "exact" ? `rounding of stated digits: ±${tol} pp` : c.qualifier === "about" ? `"about": ±${tol} pp` : `qualifier "${c.qualifier.replace("_", " ")}"`,
 			difference: ok ? undefined : `actual − stated = ${(pct - signed).toFixed(2)} pp`,
 			inputs,
-			notes: [],
+			notes: wrongWay ? [`The article says the figure ${c.direction === "decrease" ? "fell" : "rose"}, but it ${pct < 0 ? "fell" : "rose"} ${fmtPct(Math.abs(pct))}.`] : [],
 		})
 	}
 	if (c.statedUnit === "multiple") {

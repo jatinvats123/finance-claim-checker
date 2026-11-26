@@ -29,6 +29,41 @@ describe("anchoring guard", () => {
 		expect(() => validateInterpretation(level({ quote: "diluted earnings per share came in at $2.46", metric: "eps_diluted", statedUnit: "usd_per_share", statedNumber: "2" }), text)).toThrow(/does not appear as a number/)
 	})
 
+	describe("complete numeric tokens (synthetic article)", () => {
+		const art = "Revenue was $100 million. Margin rose 2.5% while costs were $1,234.50 million. Net loss was -$3.2 billion. Sales rose 18% to $18 billion. Orders tripled; shipments grew 2.5 times."
+		const lv = (quote: string, statedNumber: string, scale = "million") => level({ quote, statedNumber, scale })
+		it("rejects a prefix or partial token", () => {
+			expect(() => validateInterpretation(lv("Revenue was $100 million", "10"), art)).toThrow(/does not appear as a number/)
+			expect(() => validateInterpretation(lv("Revenue was $100 million", "100"), art)).not.toThrow()
+			expect(() => validateInterpretation(lv("Revenue was $100 million", "00"), art)).toThrow()
+		})
+		it("handles decimals and preserves stated precision", () => {
+			expect(() => validateInterpretation(change({ quote: "Margin rose 2.5%", statedNumber: "2.5", comparison: "unspecified" }), art)).not.toThrow()
+			expect(() => validateInterpretation(change({ quote: "Margin rose 2.5%", statedNumber: "2", comparison: "unspecified" }), art)).toThrow()
+			expect(() => validateInterpretation(change({ quote: "Margin rose 2.5%", statedNumber: "2.50", comparison: "unspecified" }), art)).toThrow() // adds precision the article did not state
+		})
+		it("handles comma-separated thousands", () => {
+			expect(() => validateInterpretation(lv("costs were $1,234.50 million", "1234.50"), art)).not.toThrow()
+			expect(() => validateInterpretation(lv("costs were $1,234.50 million", "1234.5"), art)).toThrow()
+			expect(() => validateInterpretation(lv("costs were $1,234.50 million", "234.50"), art)).toThrow()
+		})
+		it("signs: a level may carry the article's minus sign; a change uses direction instead", () => {
+			expect(() => validateInterpretation(lv("Net loss was -$3.2 billion", "-3.2", "billion"), art)).toThrow() // the minus sits before "$", not the number
+			expect(() => validateInterpretation(lv("Net loss was -$3.2 billion", "3.2", "billion"), art)).not.toThrow()
+			expect(() => validateInterpretation(change({ quote: "Margin rose 2.5%", statedNumber: "-2.5", comparison: "unspecified" }), art)).toThrow(/direction/)
+		})
+		it("repeated numbers: any occurrence with the right unit counts", () => {
+			expect(() => validateInterpretation(change({ quote: "Sales rose 18% to $18 billion", statedNumber: "18", comparison: "unspecified" }), art)).not.toThrow()
+			expect(() => validateInterpretation(lv("Sales rose 18% to $18 billion", "18", "billion"), art)).not.toThrow()
+			expect(() => validateInterpretation(lv("Sales rose 18% to $18 billion", "18", "million"), art)).toThrow()
+		})
+		it("textual multiples must match the stated multiple", () => {
+			expect(() => validateInterpretation(change({ quote: "Orders tripled", statedNumber: "3", statedUnit: "multiple", comparison: "unspecified" }), art)).not.toThrow()
+			expect(() => validateInterpretation(change({ quote: "Orders tripled", statedNumber: "2", statedUnit: "multiple", comparison: "unspecified" }), art)).toThrow(/not the multiple/)
+			expect(() => validateInterpretation(change({ quote: "shipments grew 2.5 times", statedNumber: "2.5", statedUnit: "multiple", comparison: "unspecified" }), art)).not.toThrow()
+		})
+	})
+
 	it("a percentage needs a % sign; a multiple needs multiple wording", () => {
 		expect(() => validateInterpretation(change({ quote: "rising 126%", comparison: "yoy", statedNumber: "126" }), text)).not.toThrow()
 		expect(() => validateInterpretation(change({ quote: "revenue of $96.2 billion", comparison: "unspecified", statedNumber: "96.2" }), text)).toThrow(/percent/)

@@ -2,13 +2,22 @@ import { existsSync, readdirSync } from "node:fs"
 import { join } from "node:path"
 import { loadCassette, type Cassette } from "./runner.js"
 
-/** Recordings first (data/replay/recordings/*.json), then hand-written fixtures (data/replay/*.fixtures.json). */
-export function defaultCassettePaths(): string[] {
-	const dirs = [
-		["data/replay/recordings", (f: string) => f.endsWith(".json")],
-		["data/replay", (f: string) => f.endsWith(".fixtures.json")],
-	] as const
-	return dirs.flatMap(([d, ok]) => (existsSync(d) ? readdirSync(d).filter(ok).map((f) => join(d, f)) : []))
+/** Which replay data to use. "recorded" = genuine model responses only (no fixture fallback). */
+export type ReplaySource = "fixtures" | "recorded" | "all"
+
+export const RECORDINGS_DIR = "data/replay/recordings"
+
+/** Recordings (data/replay/recordings/*.json) and/or hand-written fixtures (data/replay/*.fixtures.json). */
+export function defaultCassettePaths(source: ReplaySource = "all"): string[] {
+	const recorded = existsSync(RECORDINGS_DIR) ? readdirSync(RECORDINGS_DIR).filter((f) => f.endsWith(".json")).map((f) => join(RECORDINGS_DIR, f)) : []
+	const fixtures = existsSync("data/replay") ? readdirSync("data/replay").filter((f) => f.endsWith(".fixtures.json")).map((f) => join("data/replay", f)) : []
+	return source === "recorded" ? recorded : source === "fixtures" ? fixtures : [...recorded, ...fixtures]
+}
+
+export function parseReplaySource(v: string | undefined): ReplaySource {
+	if (v === undefined) return "fixtures"
+	if (v === "fixtures" || v === "recorded" || v === "all") return v
+	throw new Error(`replay source must be fixtures, recorded or all (got "${v}")`)
 }
 
 /** Load cassettes; recorded responses take priority over hand-written fixtures. */

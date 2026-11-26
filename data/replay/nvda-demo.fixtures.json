@@ -1,9 +1,10 @@
 {
  "provenance": "fixture",
  "description": "Hand-written model responses for the NVIDIA Q2 FY2027 demo article (not recorded model output). Includes simulated latency and two deliberate agent mistakes to exercise the auditor's correction paths.",
- "createdAt": "2026-11-26T11:57:44.618Z",
+ "createdAt": "2026-11-26T12:30:37.712Z",
+ "keyVersion": 2,
  "entries": {
-  "f6f1e807f15332f04ce05159": {
+  "674f95a23439b4e9d7ceb3b5": {
    "task": "extractor:article",
    "turn": 0,
    "delayMs": 120,
@@ -26,7 +27,7 @@
     }
    ]
   },
-  "b6e906fafbbb0600571a2489": {
+  "fd2904a094a5ab9099a6aadb": {
    "task": "context:c1@r1",
    "turn": 0,
    "delayMs": 120,
@@ -37,7 +38,7 @@
     }
    ]
   },
-  "ce76dc2e7724cc502afeffe2": {
+  "c6262496062e21f9bf783ff6": {
    "task": "extractor:article",
    "turn": 1,
    "delayMs": 120,
@@ -62,7 +63,7 @@
     }
    ]
   },
-  "6b7a0ddfe02cc73c89c059c6": {
+  "ee93664f6e315cb67420fa6b": {
    "task": "evidence:c1@r1#1",
    "turn": 0,
    "delayMs": 120,
@@ -78,7 +79,7 @@
     }
    ]
   },
-  "081c7e52fbd023e66eb730a5": {
+  "eb32c4e6cd33177d297a9c8c": {
    "task": "context:c2@r1",
    "turn": 0,
    "delayMs": 120,
@@ -89,7 +90,7 @@
     }
    ]
   },
-  "cf3a088ea04bf6ca32a261b5": {
+  "02bf878318ab59e8dc01fc7e": {
    "task": "extractor:article",
    "turn": 2,
    "delayMs": 120,
@@ -114,23 +115,7 @@
     }
    ]
   },
-  "50ac894157adff65d96d6ee3": {
-   "task": "evidence:c2@r1#1",
-   "turn": 0,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "search_facts",
-     "args": {
-      "metric": "revenue",
-      "fiscalYear": 2027,
-      "fiscalPeriod": "Q2"
-     }
-    }
-   ]
-  },
-  "cc103f718a765fbd5e806c8e": {
+  "5704e26d7d278ca5ff8a23b2": {
    "task": "evidence:c1@r1#1",
    "turn": 1,
    "delayMs": 120,
@@ -146,7 +131,23 @@
     }
    ]
   },
-  "ea6ffe83eb8658d4bb6e1eab": {
+  "492bdfdf5937369f2069b5ad": {
+   "task": "evidence:c2@r1#1",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "revenue",
+      "fiscalYear": 2027,
+      "fiscalPeriod": "Q2"
+     }
+    }
+   ]
+  },
+  "930df3c67aedbf1ff9402dd9": {
    "task": "context:c3@r1",
    "turn": 0,
    "delayMs": 120,
@@ -163,7 +164,7 @@
     }
    ]
   },
-  "d3aa19da4cfbbb83dc672f44": {
+  "9a381a8e760f5c188f05f721": {
    "task": "extractor:article",
    "turn": 3,
    "delayMs": 120,
@@ -188,7 +189,18 @@
     }
    ]
   },
-  "8a10f9b4d262f7449a2951a9": {
+  "558b323fb78cdb96a88bfdcf": {
+   "task": "evidence:c1@r1#1",
+   "turn": 2,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "147ca60f56dbf68d7f815f97": {
    "task": "evidence:c2@r1#1",
    "turn": 1,
    "delayMs": 120,
@@ -204,18 +216,7 @@
     }
    ]
   },
-  "283c854da25b99822f7a0371": {
-   "task": "evidence:c1@r1#1",
-   "turn": 2,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "79d495163ec5d76fe7bbe027": {
+  "9281991241304c72a27ae6a3": {
    "task": "evidence:c3@r1#1",
    "turn": 0,
    "delayMs": 120,
@@ -231,7 +232,7 @@
     }
    ]
   },
-  "19b889d5008038bb9da31125": {
+  "d7a8a7e9b28aae2b8f0cac37": {
    "task": "auditor:c1@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -248,7 +249,7 @@
     }
    ]
   },
-  "0b46fe75f11a65fec745cc8c": {
+  "d502448bc6c6db9a02cb2efb": {
    "task": "context:c3@r1",
    "turn": 1,
    "delayMs": 120,
@@ -259,7 +260,7 @@
     }
    ]
   },
-  "a4bee3ea17964fbf80d3b78c": {
+  "ba232e46dd9b4452d6ff9b1e": {
    "task": "context:c4@r1",
    "turn": 0,
    "delayMs": 2500,
@@ -276,7 +277,7 @@
     }
    ]
   },
-  "137a1e996d55032cfa4ba9ed": {
+  "0c00f5f58e9fb69b45bdd9e8": {
    "task": "extractor:article",
    "turn": 4,
    "delayMs": 120,
@@ -299,7 +300,23 @@
     }
    ]
   },
-  "76a4cff3bcdbcbab01a2a5fa": {
+  "42db4ab8a83d7fa198c2ce00": {
+   "task": "evidence:c4@r1#1",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "net_income",
+      "fiscalYear": 2027,
+      "fiscalPeriod": "Q2"
+     }
+    }
+   ]
+  },
+  "6e0fbac4c6a5cd349e10e571": {
    "task": "evidence:c2@r1#1",
    "turn": 2,
    "delayMs": 120,
@@ -316,23 +333,7 @@
     }
    ]
   },
-  "69614a9c25e2700de2181a06": {
-   "task": "evidence:c4@r1#1",
-   "turn": 0,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "search_facts",
-     "args": {
-      "metric": "net_income",
-      "fiscalYear": 2027,
-      "fiscalPeriod": "Q2"
-     }
-    }
-   ]
-  },
-  "307f2b3b3ed7c2b701334f26": {
+  "a51be80b0294a4fabe29a4ee": {
    "task": "evidence:c3@r1#1",
    "turn": 1,
    "delayMs": 120,
@@ -348,7 +349,7 @@
     }
    ]
   },
-  "8d1d642cff56e572af040499": {
+  "517d71b60d090bd5842a72cd": {
    "task": "auditor:c1@r1.e1",
    "turn": 1,
    "delayMs": 120,
@@ -359,7 +360,7 @@
     }
    ]
   },
-  "1eabb2192eb17843199d085b": {
+  "f6486ed6f42d26b4af8ab751": {
    "task": "context:c5@r1",
    "turn": 0,
    "delayMs": 120,
@@ -370,7 +371,7 @@
     }
    ]
   },
-  "375415662b164b98645fa103": {
+  "d6a359be535eb595fe95926f": {
    "task": "extractor:article",
    "turn": 5,
    "delayMs": 120,
@@ -393,18 +394,7 @@
     }
    ]
   },
-  "04aea9c675f3283780cae8d7": {
-   "task": "evidence:c2@r1#1",
-   "turn": 3,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "a403121d0cebe6afa240e81d": {
+  "f98dc2d75574ad5ffd0f9b1e": {
    "task": "evidence:c5@r1#1",
    "turn": 0,
    "delayMs": 120,
@@ -420,7 +410,7 @@
     }
    ]
   },
-  "13e904a595582a4b9f0f655d": {
+  "3ba63705a16d3f0f2b406592": {
    "task": "evidence:c4@r1#1",
    "turn": 1,
    "delayMs": 120,
@@ -436,7 +426,18 @@
     }
    ]
   },
-  "628f6122147ed96d25e1ebd3": {
+  "5e9087afd3b8fdc7dad319a1": {
+   "task": "evidence:c2@r1#1",
+   "turn": 3,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "e003dab4914ca186e7804019": {
    "task": "evidence:c3@r1#1",
    "turn": 2,
    "delayMs": 120,
@@ -453,7 +454,7 @@
     }
    ]
   },
-  "d5cb3b596782deac6b00cdad": {
+  "9222b36062647d4830e27095": {
    "task": "auditor:c2@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -470,7 +471,7 @@
     }
    ]
   },
-  "12ccfe64a128a8de5327914e": {
+  "845e0454b051f2ea8f19f390": {
    "task": "context:c6@r1",
    "turn": 0,
    "delayMs": 120,
@@ -481,7 +482,7 @@
     }
    ]
   },
-  "7a4846d9e7833057ec0f4517": {
+  "daa3414224b08587f39801db": {
    "task": "extractor:article",
    "turn": 6,
    "delayMs": 120,
@@ -504,50 +505,7 @@
     }
    ]
   },
-  "e2b59cd8dbdc3eafebaee2c8": {
-   "task": "evidence:c5@r1#1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "bind_evidence",
-     "args": {
-      "claimId": "c5",
-      "claimRevision": 1,
-      "currentFactId": "NetIncomeLoss/Q2-FY2027/26-000075"
-     }
-    }
-   ]
-  },
-  "913d4fedb6b2f990e4e5ba7a": {
-   "task": "evidence:c4@r1#1",
-   "turn": 2,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "search_facts",
-     "args": {
-      "metric": "net_income",
-      "fiscalYear": 2027,
-      "fiscalPeriod": "Q1"
-     }
-    }
-   ]
-  },
-  "0053eed348ad080d83078403": {
-   "task": "evidence:c3@r1#1",
-   "turn": 3,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "f91ea7fdd703c459fcf5b1aa": {
+  "0a685c7397df8f6e207d704b": {
    "task": "evidence:c6@r1#1",
    "turn": 0,
    "delayMs": 120,
@@ -563,7 +521,50 @@
     }
    ]
   },
-  "10fbb7ae7d73d07e4325bdbe": {
+  "efa24b39484326659cf5a962": {
+   "task": "evidence:c5@r1#1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimId": "c5",
+      "claimRevision": 1,
+      "currentFactId": "NetIncomeLoss/Q2-FY2027/26-000075"
+     }
+    }
+   ]
+  },
+  "320c831775a7a83572160170": {
+   "task": "evidence:c4@r1#1",
+   "turn": 2,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "net_income",
+      "fiscalYear": 2027,
+      "fiscalPeriod": "Q1"
+     }
+    }
+   ]
+  },
+  "6af3963d700d0da208e47ede": {
+   "task": "evidence:c3@r1#1",
+   "turn": 3,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "e3fb3f43af662fc27cd59c88": {
    "task": "auditor:c2@r1.e1",
    "turn": 1,
    "delayMs": 120,
@@ -574,7 +575,7 @@
     }
    ]
   },
-  "88bb1ddb2ed440001bb1f877": {
+  "9a74ab90edaa614becf8fc1d": {
    "task": "evidence:c3@r1#2",
    "turn": 0,
    "delayMs": 120,
@@ -590,7 +591,7 @@
     }
    ]
   },
-  "c23ae3fcc7ef02591765804c": {
+  "830dc5b3d0d7c4390f1d3fe6": {
    "task": "context:c7@r1",
    "turn": 0,
    "delayMs": 120,
@@ -607,7 +608,7 @@
     }
    ]
   },
-  "67a335c0711eb69eb5a64c1f": {
+  "5ce35771338639d79f7843cb": {
    "task": "extractor:article",
    "turn": 7,
    "delayMs": 120,
@@ -630,7 +631,23 @@
     }
    ]
   },
-  "ee3a1581bc0a680e94c844e2": {
+  "b713b1405b3209b9f05acc03": {
+   "task": "evidence:c6@r1#1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimId": "c6",
+      "claimRevision": 1,
+      "currentFactId": "EarningsPerShareDiluted/Q2-FY2027/26-000075"
+     }
+    }
+   ]
+  },
+  "b4cb2c467900ffa9acff16da": {
    "task": "evidence:c5@r1#1",
    "turn": 2,
    "delayMs": 120,
@@ -641,7 +658,7 @@
     }
    ]
   },
-  "39b0fdef671addecb8c519e3": {
+  "dd5fb65faa63cfe38147a164": {
    "task": "evidence:c4@r1#1",
    "turn": 3,
    "delayMs": 120,
@@ -659,40 +676,7 @@
     }
    ]
   },
-  "df317a05f44af9506478c0db": {
-   "task": "evidence:c6@r1#1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "bind_evidence",
-     "args": {
-      "claimId": "c6",
-      "claimRevision": 1,
-      "currentFactId": "EarningsPerShareDiluted/Q2-FY2027/26-000075"
-     }
-    }
-   ]
-  },
-  "9d8704321534c5d377e4ecc4": {
-   "task": "evidence:c3@r1#2",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "bind_evidence",
-     "args": {
-      "claimId": "c3",
-      "claimRevision": 1,
-      "currentFactId": "Revenues/Q2-FY2027/26-000075",
-      "baseFactId": "Revenues/Q2-FY2026/26-000075"
-     }
-    }
-   ]
-  },
-  "faa23b8c467334b6c277431e": {
+  "7e7d8fc8ee39aa3916029fa5": {
    "task": "auditor:c5@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -709,7 +693,24 @@
     }
    ]
   },
-  "2ec4cf0870276ac97aec52ee": {
+  "fcf58c1baf6384ea4cad1dce": {
+   "task": "evidence:c3@r1#2",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimId": "c3",
+      "claimRevision": 1,
+      "currentFactId": "Revenues/Q2-FY2027/26-000075",
+      "baseFactId": "Revenues/Q2-FY2026/26-000075"
+     }
+    }
+   ]
+  },
+  "6e19b2f3ca66a04e23b235e3": {
    "task": "context:c7@r1",
    "turn": 1,
    "delayMs": 120,
@@ -720,7 +721,7 @@
     }
    ]
   },
-  "d8811bb028243535c40c4436": {
+  "f8b993a8dfe9300a918eadba": {
    "task": "context:c8@r1",
    "turn": 0,
    "delayMs": 120,
@@ -731,7 +732,7 @@
     }
    ]
   },
-  "214c34ea1ae33168873302de": {
+  "b09d0c1e38e2c6234d01c6ed": {
    "task": "extractor:article",
    "turn": 8,
    "delayMs": 120,
@@ -754,18 +755,7 @@
     }
    ]
   },
-  "73dab6e39b9e212b44397c2f": {
-   "task": "evidence:c4@r1#1",
-   "turn": 4,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "db2921e41ec158608caed2b4": {
+  "7e16c7c4874ceb9bba4a1967": {
    "task": "evidence:c6@r1#1",
    "turn": 2,
    "delayMs": 120,
@@ -776,7 +766,7 @@
     }
    ]
   },
-  "26ef04fd3eca17d92fe68dc5": {
+  "71cc3aad648def8cf00fb22b": {
    "task": "evidence:c8@r1#1",
    "turn": 0,
    "delayMs": 120,
@@ -792,18 +782,18 @@
     }
    ]
   },
-  "2ebf210dfdaa462bd394155a": {
-   "task": "evidence:c3@r1#2",
-   "turn": 2,
+  "cecb0992bfc4212c71911c5d": {
+   "task": "evidence:c4@r1#1",
+   "turn": 4,
    "delayMs": 120,
    "items": [
     {
      "type": "message",
-     "text": "Rebound with the year-over-year comparative from the same 10-Q."
+     "text": "done"
     }
    ]
   },
-  "08141a47c21ccde153662cbd": {
+  "f9ea25a2d7d4108a2b46978a": {
    "task": "auditor:c5@r1.e1",
    "turn": 1,
    "delayMs": 120,
@@ -814,7 +804,24 @@
     }
    ]
   },
-  "f8b1da04f22885e3e76e53ce": {
+  "b5b83a828e64838ac181a4ac": {
+   "task": "auditor:c6@r1.e1",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "claimId": "c6",
+      "claimRevision": 1,
+      "evidenceRevision": 1,
+      "note": "Diluted EPS for Q2 FY2027 read correctly."
+     }
+    }
+   ]
+  },
+  "d1c84169ea2142621aae8220": {
    "task": "auditor:c4@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -832,24 +839,18 @@
     }
    ]
   },
-  "ff0397882e7de525a0c6113c": {
-   "task": "auditor:c6@r1.e1",
-   "turn": 0,
+  "5cbbe32ad41ad0fd6100d6f6": {
+   "task": "evidence:c3@r1#2",
+   "turn": 2,
    "delayMs": 120,
    "items": [
     {
-     "type": "function_call",
-     "name": "approve",
-     "args": {
-      "claimId": "c6",
-      "claimRevision": 1,
-      "evidenceRevision": 1,
-      "note": "Diluted EPS for Q2 FY2027 read correctly."
-     }
+     "type": "message",
+     "text": "Rebound with the year-over-year comparative from the same 10-Q."
     }
    ]
   },
-  "c08aa234b6a4e6ce3d785445": {
+  "cf875171b26d35ea2d627707": {
    "task": "auditor:c3@r1.e2",
    "turn": 0,
    "delayMs": 120,
@@ -866,7 +867,7 @@
     }
    ]
   },
-  "01ce4898377f1246e5f71ffb": {
+  "fac9fab9aff6b50965bc7dc2": {
    "task": "context:c9@r1",
    "turn": 0,
    "delayMs": 120,
@@ -877,7 +878,7 @@
     }
    ]
   },
-  "d4a1c22491d3591b8be40001": {
+  "9756e4270a40c84df7fddf08": {
    "task": "extractor:article",
    "turn": 9,
    "delayMs": 120,
@@ -900,7 +901,23 @@
     }
    ]
   },
-  "410fe3f81724057b75eb01fb": {
+  "9373afcbd3fb504578a85473": {
+   "task": "evidence:c9@r1#1",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "revenue",
+      "fiscalYear": 2026,
+      "fiscalPeriod": "FY"
+     }
+    }
+   ]
+  },
+  "537acc83f85112db15c5e9e1": {
    "task": "evidence:c8@r1#1",
    "turn": 1,
    "delayMs": 120,
@@ -916,7 +933,18 @@
     }
    ]
   },
-  "4cc356fc7855d0eeabf64fb9": {
+  "c64f0ca49b49e2262b5f1aa9": {
+   "task": "auditor:c6@r1.e1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "44d2217573a8f7c587fb1666": {
    "task": "extractor-fix:c4@r1",
    "turn": 0,
    "delayMs": 120,
@@ -944,7 +972,7 @@
     }
    ]
   },
-  "48090b1b9b02408b7929693d": {
+  "334a103e5487840117c6218c": {
    "task": "auditor:c4@r1.e1",
    "turn": 1,
    "delayMs": 120,
@@ -955,18 +983,7 @@
     }
    ]
   },
-  "fc08bfa044f54321c6413d3e": {
-   "task": "auditor:c6@r1.e1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "6b2cf4d3566abb0308977089": {
+  "0d897e9b3f77c1900a519d98": {
    "task": "auditor:c3@r1.e2",
    "turn": 1,
    "delayMs": 120,
@@ -977,23 +994,7 @@
     }
    ]
   },
-  "f7c7ae20f3b7e477a491481d": {
-   "task": "evidence:c9@r1#1",
-   "turn": 0,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "search_facts",
-     "args": {
-      "metric": "revenue",
-      "fiscalYear": 2026,
-      "fiscalPeriod": "FY"
-     }
-    }
-   ]
-  },
-  "98903a087ce5520eff7989a2": {
+  "d05116f30b138b7276eda138": {
    "task": "context:c10@r1",
    "turn": 0,
    "delayMs": 120,
@@ -1010,7 +1011,7 @@
     }
    ]
   },
-  "2c4c166e47dd8d40a04cef6c": {
+  "9a633da99512accda1ad6f87": {
    "task": "extractor:article",
    "turn": 10,
    "delayMs": 120,
@@ -1021,62 +1022,7 @@
     }
    ]
   },
-  "ab3fb6f1dbdf615f7c1c8b84": {
-   "task": "evidence:c8@r1#1",
-   "turn": 2,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "ef019c7a6ccda92fe5bf955c": {
-   "task": "context:c4@r2",
-   "turn": 0,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "add_context_warning",
-     "args": {
-      "claimId": "c4",
-      "claimRevision": 2,
-      "code": "MISLEADING_FRAMING",
-      "message": "The growth rate is placed next to the dollar figure without saying what it is measured against, so readers will assume a year-over-year comparison."
-     }
-    }
-   ]
-  },
-  "e4e0cfb903953cf0a650e415": {
-   "task": "extractor-fix:c4@r1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "08daa9d25bb30f5f9ef63936": {
-   "task": "evidence:c9@r1#1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "bind_evidence",
-     "args": {
-      "claimId": "c9",
-      "claimRevision": 1,
-      "currentFactId": "Revenues/FY-FY2026/26-000021"
-     }
-    }
-   ]
-  },
-  "04f79fa269dd16ccb918b63b": {
+  "e74fdc2239cc5fe1b4adb72c": {
    "task": "evidence:c10@r1#1",
    "turn": 0,
    "delayMs": 120,
@@ -1092,23 +1038,34 @@
     }
    ]
   },
-  "bdcde8f202c8d4f9fe4a22bc": {
-   "task": "evidence:c4@r2#1",
-   "turn": 0,
+  "2f3056dbf4cdbd70f9b88607": {
+   "task": "evidence:c9@r1#1",
+   "turn": 1,
    "delayMs": 120,
    "items": [
     {
      "type": "function_call",
-     "name": "search_facts",
+     "name": "bind_evidence",
      "args": {
-      "metric": "net_income",
-      "fiscalYear": 2027,
-      "fiscalPeriod": "Q2"
+      "claimId": "c9",
+      "claimRevision": 1,
+      "currentFactId": "Revenues/FY-FY2026/26-000021"
      }
     }
    ]
   },
-  "6be0b66acf52f3fe85f582b9": {
+  "dc1671ecc1e27ed326d8c66c": {
+   "task": "evidence:c8@r1#1",
+   "turn": 2,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "55121991b145876dc868c090": {
    "task": "auditor:c8@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -1125,7 +1082,51 @@
     }
    ]
   },
-  "b1a4fdf63a4838cdf63917bb": {
+  "4a427d8e1f18ccc0c23ff505": {
+   "task": "context:c4@r2",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "add_context_warning",
+     "args": {
+      "claimId": "c4",
+      "claimRevision": 2,
+      "code": "MISLEADING_FRAMING",
+      "message": "The growth rate is placed next to the dollar figure without saying what it is measured against, so readers will assume a year-over-year comparison."
+     }
+    }
+   ]
+  },
+  "ab7d6288162c5c044bf10002": {
+   "task": "extractor-fix:c4@r1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "09e7efdc8f1205e44b7bef63": {
+   "task": "evidence:c4@r2#1",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "net_income",
+      "fiscalYear": 2027,
+      "fiscalPeriod": "Q2"
+     }
+    }
+   ]
+  },
+  "6e0f58242fca466db935d685": {
    "task": "context:c10@r1",
    "turn": 1,
    "delayMs": 120,
@@ -1136,29 +1137,7 @@
     }
    ]
   },
-  "57d3718a100bc73efe2501b1": {
-   "task": "context:c4@r2",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "60f6ee5384735026bdef6678": {
-   "task": "evidence:c9@r1#1",
-   "turn": 2,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "5cd2ff79d6e83651f0bcd720": {
+  "65df0dfc91b7e21245791184": {
    "task": "evidence:c10@r1#1",
    "turn": 1,
    "delayMs": 120,
@@ -1173,7 +1152,40 @@
     }
    ]
   },
-  "cd84354fc25d5599e9deacfa": {
+  "e09a6ef634e60ce32fc0deef": {
+   "task": "evidence:c9@r1#1",
+   "turn": 2,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "32168086f86fae8a4b88b3e5": {
+   "task": "auditor:c8@r1.e1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "1c8ca4e40d4e6fcef2ee8119": {
+   "task": "context:c4@r2",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "fe60d1f9084b6a3eeed451ac": {
    "task": "evidence:c4@r2#1",
    "turn": 1,
    "delayMs": 120,
@@ -1189,18 +1201,7 @@
     }
    ]
   },
-  "7bb065a0f5237a61661d3d24": {
-   "task": "auditor:c8@r1.e1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "470edf1d705a58c6e384318f": {
+  "d8cb3254af4b0718e564e722": {
    "task": "auditor:c9@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -1217,7 +1218,7 @@
     }
    ]
   },
-  "ee0bcf7ca7845685a00af2e5": {
+  "7a8fe565d744b5cc439bd903": {
    "task": "evidence:c10@r1#1",
    "turn": 2,
    "delayMs": 120,
@@ -1228,7 +1229,7 @@
     }
    ]
   },
-  "e9d54c2ed4b41cb8a3a89482": {
+  "50f6ad8cbd3d6a7af5256918": {
    "task": "evidence:c4@r2#1",
    "turn": 2,
    "delayMs": 120,
@@ -1244,7 +1245,7 @@
     }
    ]
   },
-  "6dc732074bbe6f2dc656c6b6": {
+  "3b59dfc0dbab5d44d71feb6e": {
    "task": "auditor:c9@r1.e1",
    "turn": 1,
    "delayMs": 120,
@@ -1255,7 +1256,7 @@
     }
    ]
   },
-  "66a9db1d7bae96dba5b0b7e9": {
+  "048402aee933c0ac57c6b249": {
    "task": "evidence:c4@r2#1",
    "turn": 3,
    "delayMs": 120,
@@ -1273,7 +1274,7 @@
     }
    ]
   },
-  "01a56ed63594a931e92eb04f": {
+  "e5082a9ae5117ae09335b8c4": {
    "task": "evidence:c4@r2#1",
    "turn": 4,
    "delayMs": 120,
@@ -1284,7 +1285,7 @@
     }
    ]
   },
-  "9d43484d41810e0f6b2526f3": {
+  "0631e05a48806bc31543781f": {
    "task": "auditor:c4@r2.e2",
    "turn": 0,
    "delayMs": 120,
@@ -1301,7 +1302,7 @@
     }
    ]
   },
-  "fec77694ab56141b435001a9": {
+  "e2f9fc3caf9bd682d7e2d20c": {
    "task": "auditor:c4@r2.e2",
    "turn": 1,
    "delayMs": 120,
@@ -1312,7 +1313,7 @@
     }
    ]
   },
-  "9b428e4396344c0ff0ad4127": {
+  "db35e3b128e31bead942a423": {
    "task": "context:c4@r1",
    "turn": 1,
    "delayMs": 120,

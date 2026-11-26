@@ -31,7 +31,15 @@ export type RunOptions = {
 	onEvent?: (event: SemanticEvent, names: Map<string, string>, state: CheckerState) => void
 }
 
-export type RunResult = { state: CheckerState; tasks: TaskTracker; timedOut: boolean; names: Map<string, string>; elapsedMs: number }
+export type RunResult = {
+	state: CheckerState
+	tasks: TaskTracker
+	timedOut: boolean
+	names: Map<string, string>
+	elapsedMs: number
+	/** Reviewer challenge of one settled claim (re-runs only that claim; never sets a verdict). */
+	challenge: (claimId: string, reason: string, timeoutMs?: number, model?: string) => Promise<{ timedOut: boolean }>
+}
 
 export async function runChecker(opts: RunOptions): Promise<RunResult> {
 	const t0 = Date.now()
@@ -43,15 +51,28 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 	const ctx = makeCtx(rt, state, opts.tasks, opts.model)
 	const names = new Map<string, string>()
 
-	let resolveDone!: (timedOut: boolean) => void
-	const done = new Promise<boolean>((r) => (resolveDone = r))
-	let finished = false
+	// Completion is re-entrant: the first wait covers the run; a later challenge waits again.
+	let waiters: ((timedOut: boolean) => void)[] = []
 	const checkDone = () => {
-		if (!finished && state.allSettled() && opts.tasks.open().length === 0) {
-			finished = true
-			resolveDone(false)
+		if (waiters.length && state.allSettled() && opts.tasks.open().length === 0) {
+			const ws = waiters
+			waiters = []
+			for (const w of ws) w(false)
 		}
 	}
+	const waitSettled = (ms: number) =>
+		new Promise<boolean>((resolve) => {
+			const timer = setTimeout(() => {
+				waiters = waiters.filter((w) => w !== wake)
+				resolve(true)
+			}, ms)
+			const wake = (timedOut: boolean) => {
+				clearTimeout(timer)
+				resolve(timedOut)
+			}
+			waiters.push(wake)
+			setImmediate(checkDone)
+		})
 
 	/** Called when a task's loop ends (normally, or via a runner failure). Fills in any missing outcome. */
 	function finishTask(task: Task) {
@@ -88,7 +109,14 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 			}
 			case "extractor-fix": {
 				const c = state.claims.get(claimId!)
-				if (c && c.revision === claimRevision && !state.auditFinal(claimId!)) {
+				const unchanged = c && c.revision === claimRevision
+				if (unchanged && state.challengeRestore.has(claimId!)) {
+					// a reviewer's challenge the extractor did not accept: the earlier outcome stands
+					if (state.declineChallenge(claimId!, fail ? `extractor could not answer (${fail})` : "extractor kept its interpretation")) {
+						const a = state.audits.get(claimId!)!
+						ctx.emit(EV.AUDIT_FINAL, ctx.deskId, { claimId, claimRevision, evidenceRevision: a.evidenceRevision })
+					}
+				} else if (unchanged && !state.auditFinal(claimId!)) {
 					const a = state.audits.get(claimId!)!
 					state.setAudit(claimId!, claimRevision!, a.evidenceRevision, { status: "unresolved", reason: fail ? `extractor could not revise (${fail})` : "extractor kept its interpretation; auditor's objection stands" })
 					ctx.emit(EV.AUDIT_FINAL, ctx.deskId, { claimId, claimRevision, evidenceRevision: a.evidenceRevision })
@@ -127,15 +155,22 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 		rt.join(p)
 	}
 
-	const timer = setTimeout(() => {
-		if (!finished) {
-			finished = true
-			resolveDone(true)
-		}
-	}, opts.timeoutMs ?? 10 * 60_000)
-
+	const done = waitSettled(opts.timeoutMs ?? 10 * 60_000)
 	ctx.emit(EV.ARTICLE_SUBMITTED, desk.getId(), { title: opts.article.title, ticker: opts.article.ticker })
 	const timedOut = await done
-	clearTimeout(timer)
-	return { state, tasks: opts.tasks, timedOut, names, elapsedMs: Date.now() - t0 }
+
+	/** Reviewer challenge: reopen one settled claim, let the extractor answer, re-run only that claim's work. */
+	async function challenge(claimId: string, reason: string, timeoutMs = 5 * 60_000, model?: string): Promise<{ timedOut: boolean }> {
+		if (model) ctx.model = model // a replayed run rechecks with the live model
+		const claim = state.claims.get(claimId)
+		if (!claim) throw new Error(`unknown claim ${claimId}`)
+		const reopened = state.reopenForChallenge(claimId, reason, "reviewer (human)")
+		if (!reopened.ok) throw new Error(reopened.reason)
+		const a = state.audits.get(claimId)!
+		const wait = waitSettled(timeoutMs)
+		ctx.emit(EV.CORRECTION_REQUESTED, desk.getId(), { claimId, claimRevision: claim.revision, evidenceRevision: a.evidenceRevision, target: "claim", reason, by: "reviewer (human)" })
+		return { timedOut: await wait }
+	}
+
+	return { state, tasks: opts.tasks, timedOut, names, elapsedMs: Date.now() - t0, challenge }
 }

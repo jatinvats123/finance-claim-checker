@@ -1,10 +1,10 @@
 # Finance Claim Checker
 
-**Concurrent Mozaik agents that check every number in a finance article against the company's SEC 10-Q/10-K financial statements, and show a receipt for each verdict.**
+**Concurrent Mozaik agents that check the earnings figures in a finance article (revenue, net income, gross profit, operating income and EPS) against the company's SEC 10-Q/10-K financial statements, and show a receipt for each verdict.**
 
 > Not financial advice. This tool checks whether numbers in a text match a company's SEC financial statements. It does not evaluate the company or recommend any action.
 
-Finance news and earnings coverage often get numbers wrong. Growth rates get transposed between table rows, "million" becomes "billion", a quarter's figure gets reported as the full year, adjusted profit gets presented as plain profit, or a percentage has no stated basis. Readers act on these numbers. This project reads an article, extracts each numerical claim, and checks it against the audited financial statements. Every check comes with the filing, the line item, the dates, the input values and the formula.
+Finance news and earnings coverage often get numbers wrong. Growth rates get transposed between table rows, "million" becomes "billion", a quarter's figure gets reported as the full year, adjusted profit gets presented as plain profit, or a percentage has no stated basis. Readers act on these numbers. This project reads an article, extracts its claims about six supported earnings metrics (revenue, net income, gross profit, operating income, diluted and basic EPS; anything else is reported as not verifiable), and checks them against the financial statements the company filed with the SEC: quarterly 10-Q statements (unaudited) and annual 10-K statements (audited). Every check comes with the filing, the line item, the dates, the input values and the formula.
 
 ```
 npm install
@@ -14,7 +14,7 @@ npm start          # same keyless demo in the terminal
 
 ## Web app (`npm run web`)
 
-`npm run web` builds the frontend and starts a small local server at **http://localhost:4317**. The workspace opens on the included NVIDIA example, labelled *Synthetic example · Fixture model responses · Real calculations*. From there you can:
+`npm run web` builds the frontend and starts a small local server at **http://localhost:4317**. The workspace opens on the included NVIDIA example, with a choice of model responses: the **genuine recorded Gemini run** (default, labelled *Synthetic example · Recorded gemini-3.5-flash-lite responses · Real calculations*) or the **hand-written fixtures** (a scripted run that shows the correction paths). From there you can:
 
 1. **Run included example.** This starts the real agent workflow on the server, with no credentials. Claims, agent activity and reviews stream in as they happen over Server-Sent Events.
 2. **Select a claim** from the results or from its highlight in the article. The evidence inspector shows:
@@ -22,7 +22,7 @@ npm start          # same keyless demo in the terminal
    - the current and comparison periods with dates, values, units and filing links
    - the formula with values substituted, and the tolerance rule
    - context warnings, the audit outcome, and the correction history
-3. **View correction.** After a run, this opens each claim the auditor actually blocked (in the demo, c3's wrong comparison period and c4's profit figure wrongly labelled GAAP), with its real revision history.
+3. **View correction.** After a run, this opens each claim the auditor actually blocked (in the hand-written fixture run, c3's wrong comparison period and c4's profit figure wrongly labelled GAAP), with its real revision history.
 4. **Download** the existing Markdown or JSON report for the run.
 5. **Check your own article.** This uses live mode when a provider key is set on the server. Without one, the dialog explains how to configure it. Replay-only mode on edited text shows an explicit cache miss and offers to restore the example.
 
@@ -56,12 +56,12 @@ c9   ✘ MISMATCH            “That compares with revenue of $57.0 billion for 
       actual $215.938B vs stated $57.0 billion  [Revenues/FY-FY2026/26-000021]
       context: VALUE_MATCHES_OTHER_PERIOD
       audit: approved by auditor (LLM review)
-c10  ⧗ NO 10-Q/10-K YET    “Last week Nvidia said third-quarter revenue reached $115.8 billion”
+c10  ⧗ NO 10-Q/10-K IN DATASET “Last week Nvidia said third-quarter revenue reached $115.8 billion”
       context: ATTRIBUTION, EARNINGS_RELEASE_ONLY
       audit: approved by auditor (rule)
 ```
 
-`VALUE_MATCHES_OTHER_PERIOD` on c9 means the stated $57.0B is Q3 FY2026's *quarterly* revenue, not the full year. `EARNINGS_RELEASE_ONLY` on c10 means only the 8-K press release (filed 2026-11-17) exists for that quarter, and checking a release against itself would be circular.
+`VALUE_MATCHES_OTHER_PERIOD` on c9 means the stated $57.0B is Q3 FY2026's *quarterly* revenue, not the full year. `EARNINGS_RELEASE_ONLY` on c10 means that in the SEC snapshot (fetched 2026-11-26) only the 8-K press release (filed 2026-11-17) covers that quarter; checking a release against itself would be circular, and a 10-Q filed after the snapshot would not be seen.
 
 Full receipts are written to `out/report.md` (human-readable) and `out/report.json` (machine-readable).
 
@@ -95,11 +95,11 @@ flowchart LR
 | **Supervisor** | observer | every event | Maps Mozaik loops to tasks, finalises failed or silent tasks, and detects completion. |
 | **Desk** | human participant | – | Submits the article. |
 
-While one claim is blocked and being corrected, the others keep moving. In the demo, claims c3, c6, c8 and c9 are approved while c4 is being re-extracted.
+While one claim is blocked and being corrected, the others keep moving. In the fixture run, claims c3, c6, c8 and c9 are approved while c4 is being re-extracted.
 
 ## Design choices that make the numbers trustworthy
 
-**1. The correct reference document.** Evidence comes only from **10-Q/10-K financial statements** (XBRL facts from SEC EDGAR). 8-K earnings releases are never used, because an earnings release is often the source of the article, so comparing the two would be circular. If no 10-Q/10-K covers a period yet, the result is `REFERENCE_NOT_YET_FILED`, and the release that *was* found is disclosed. Each receipt names the filing (form, accession number, filed date, link).
+**1. The correct reference document.** Evidence comes only from **10-Q/10-K financial statements** (XBRL facts from SEC EDGAR; 10-Q statements are reviewed but unaudited, 10-K statements are audited). 8-K earnings releases are never used, because an earnings release is often the source of the article, so comparing the two would be circular. If no 10-Q/10-K in the SEC snapshot covers a period, the result is `REFERENCE_NOT_YET_FILED` (shown as "Reference unavailable in this dataset", with the snapshot date: a filing may exist after that date), and the release that *was* found is disclosed. Each receipt names the filing (form, accession number, filed date, link).
 
 **2. Numbers and context are reported separately.** The *numerical result* (`MATCH`, `MISMATCH`, `NOT_COMPUTABLE`, `NOT_VERIFIABLE`, `REFERENCE_NOT_YET_FILED`) is shown separately from *context warnings*. The checker handles:
 - **Quarterly vs annual vs year-to-date:** periods are identified from start/end dates and their position in the fiscal year, so a 6-month figure is never used for a quarter. Q4 is derived as FY − 9M and labelled as derived. Per-share Q4 values are not derived, because share counts differ between periods.
@@ -136,24 +136,57 @@ The calculator **resolves values from validated evidence ids**. Agents can't pas
 |---|---|---|
 | `--mode live` | the real provider | `live` |
 | `--mode record` | the real provider, saved to `data/replay/recordings/` | `live` (saved as `recorded`) |
-| `--mode replay` (default) | recordings first, then fixtures | `recorded` / `fixture` |
+| `--mode replay` (default) | `--replay-source fixtures` (default), `recorded` (genuine recordings only, no fixture fallback) or `all` | `recorded` / `fixture` |
 | `--mode author` | `fixtures/*.script.ts`, sealed to `data/replay/*.fixtures.json` | `fixture` |
 
-- The bundled demo uses **hand-written fixtures**, not recorded model output, and the report says so.
-- Replay keys are a hash of the full request: instructions, task message, earlier tool calls and their exact outputs. A different article, refreshed SEC data or a changed prompt produces an explicit **`CACHE_MISS`**. Nothing is substituted.
+- Two replay sources ship with the repo and are never mixed in one run:
+  - **a genuine recording** (`data/replay/recordings/`): real `gemini-3.5-flash-lite` responses from a `--mode record` run; the web app uses it by default;
+  - **hand-written fixtures** (`data/replay/*.fixtures.json`): a scripted run with two deliberate agent mistakes, to show the auditor's correction paths.
+- Replay keys (cache policy version 2) hash everything the model sees: instructions, task message, earlier tool calls and their exact outputs, and every tool's name, description, parameter schema and strict flag. A different article, refreshed SEC data, a changed prompt or a changed tool schema produces an explicit **`CACHE_MISS`**; nothing is substituted. Cassettes record the key version, and replay refuses a cassette from another version.
+- Recordings store each call's measured latency; replay waits recorded latency ÷ 10 so the live run's ordering is preserved. That timing is labelled as replay timing, never as model latency.
 - In keyless mode, everything except the model text runs for real: SEC lookup, period identification, calculations, the rule gate, revision control and the receipts.
 - Provider errors are isolated to their task. The claim is marked `FAILED`, or shown "unaudited" when only the review failed, and the run finishes.
 
 ## Running it
 
-Requires Node ≥ 20.12.
+Requires Node `^20.19.0` or `>=22.12.0` (what Vite 7 and its React plugin need).
 
 ```bash
 npm install
-npm start                       # keyless replay of the bundled NVIDIA demo
-npm test                        # 56 tests, no key needed
+npm start                       # keyless replay of the hand-written demo fixtures
+npm run check -- --replay-source recorded   # keyless replay of the genuine Gemini recording only
+npm test                        # 107 tests, no key needed
 npm run typecheck               # server + web
+npm run eval                    # independent evaluation, replayed from eval/recordings (no key)
 ```
+
+### Genuine model run (verified)
+
+`npm run check -- --mode record --model gemini-3.5-flash-lite --rpm 10` ran the full workflow against Google's Gemini API:
+
+- 76 requests (1 retried), 100,136 input + 3,239 output tokens;
+- 10 of 10 claims extracted, every verdict correct, every claim audited;
+- the units error ($177.8 *million*) stayed a mismatch, and the unstated basis on "18%" was flagged.
+
+Replaying **only** that recording reproduced all 75 recorded calls with 0 cache misses and a field-by-field identical report: interpretations, verdicts, formulas, evidence inputs, context warnings and audits.
+
+Earlier live runs found and fixed three real problems:
+- Gemini 3 rejects tool calls whose thought signature is dropped: fixed with a signature-preserving mapper (`src/llm/gemini.ts`).
+- The LLM auditor once "corrected" the article's $177.8 *million* to billion, turning a units error into a match. Now code rejects any interpretation whose number, unit, scale or comparison basis contradicts the quoted sentence (`checkAnchoring` in `src/agents/extractor.ts`).
+- The extractor missed a claim about a quarter with no filing yet: the extractor's fiscal calendar now lists upcoming periods.
+
+### Safety limits for live runs
+
+Live and record runs stop cleanly, keeping partial results, when any of these limits is reached (`src/llm/limits.ts`; flags in brackets):
+
+- a call cap of 150 requests (`--max-calls`)
+- a turn cap of 12 per agent task and 40 for the article extractor (`--max-turns`)
+- an optional USD budget computed from the token usage the provider reports (`--budget-usd`, prices built in for Claude, `--price in,out` for others)
+- pacing: 4 requests in flight at most (`--max-concurrent`), optionally a requests-per-minute limit (`--rpm`)
+- retries with backoff on 429/5xx/overload
+- a per-request timeout (`--request-timeout`)
+
+Every live run prints its measured token usage and cost.
 
 **Check your own article** (needs a provider key in `.env`, see `.env.example`):
 
@@ -177,7 +210,12 @@ npm run check -- --article path/to/article.md --ticker NVDA --mode record   # al
 | `test/checks.test.ts` | Rule gate: YTD-for-quarter, QoQ-as-YoY, wrong line item, split-adjusted comparatives, no-reference verification, misread units; context rules |
 | `test/store.test.ts` | Stale calculations, audits and context rejected; unaffected claims preserved; invalid evidence ids rejected; final audits immutable |
 | `test/pipeline.test.ts` | Full keyless run: expected verdicts, ≥3 loops in flight, both correction paths, stale rejection, explicit cache miss, provider failures isolated |
-| `test/web.test.ts` | Web adapter: canonical example article, duplicate-run guard, SSE snapshots, UI values identical to the engine report, exact highlight offsets (overlapping/repeated quotes), real corrections, provenance, downloads, cache miss, live-without-key, failed audit/context never shown as reviewed |
+| `test/web.test.ts` | Web adapter: canonical example article, visitors never block each other, replay/live load caps, SSE snapshots, UI values identical to the engine report, exact highlight offsets (overlapping/repeated quotes), real corrections, provenance, recording-only replay, measured trace, downloads, cache miss, live-without-key, failed audit/context never shown as reviewed |
+| `test/extractor.test.ts` | Anchoring: complete numeric tokens (prefixes, decimals and precision, thousands separators, signs, repeated numbers), textual multiples, scale/unit/% must match the quote, comparison basis must be stated |
+| `test/replay.test.ts` | Replay key covers tool descriptions/schemas/strict flag; order-insensitive; old responses miss after a schema change; incompatible cassette versions refused |
+| `test/limits.test.ts` | Call/turn caps, USD budget from measured usage, retries and retry hints, pacing, request timeout, a capped run finishing cleanly |
+| `test/gemini.test.ts` | Gemini thought signatures and call ids round-trip |
+| `test/challenge.test.ts` | Reviewer recheck: accepted change → new revision, only that claim re-run; declined → earlier outcome restored; a recheck cannot launder a units error |
 
 ## Notes on Mozaik 6.0.0 (found while building)
 
@@ -186,11 +224,39 @@ npm run check -- --article path/to/article.md --ticker NVDA --mode record   # al
 - The Anthropic adapter sends `max_tokens` from `maxOutputTokens` with no default. We always set it.
 - `InferenceInputValidator` isn't exported. To keep Mozaik's request validation in live mode, we get the default runner through `initializeRuntime(...).getInferenceRunner()`.
 - `runLoop` appends to the `ModelContext` it receives. We give every task a fresh context; that keeps loops independent and makes the replay hashes deterministic.
+- The Gemini adapter drops Gemini 3's `thoughtSignature` on function calls, so multi-turn tool use fails with a 400. `src/llm/gemini.ts` is the same mapping plus the signature, plugged into Mozaik's public `GeminiGenerateContent` endpoint.
+
+## Measured concurrency
+
+Every run exports `trace.json` (CLI `out/trace.json`, web "Trace" download): one lane per agent loop, opened and closed by Mozaik's own `message_received.started` / `model.answer` events, with task, claim and revision ids, and the computed peak number of loops active at once.
+
+| Run | Peak loops at once | Loops | Timing |
+|---|---|---|---|
+| Live Gemini recording run | 9 | 28 | live wall-clock (4 provider requests in flight at most, 10/min pacing) |
+| Hand-written fixture replay | 12 | 33 | simulated delays, not model latency |
+
+"Active" means the loop was started and had not yet produced its final answer. A loop waiting on the model counts.
+
+## Rechecking a claim
+
+In the evidence inspector, "Challenge interpretation" sends a reviewer's concern to the extractor:
+- If the extractor revises and the code validates the change (the anchoring rules above), a new claim revision is created, and only that claim's evidence, context and audit re-run. Other claims are untouched.
+- If the extractor declines, the earlier outcome is restored and the decline is logged.
+
+The button never sets a verdict; the calculator does. Rechecks call the model, so they need a provider key on the server. Recheck calls on a replayed run are labelled `live`, which makes the run's provenance visibly mixed.
+
+## Public deployment and load
+
+The server has no global lock:
+- Each visitor's example run is independent. Up to 8 replay runs run at once, each with a 2-minute timeout; above that a visitor gets "busy, retry".
+- Live runs and rechecks run one at a time, with a 5-minute timeout plus the per-run call and turn caps.
+
+On a host, bind `HOST=0.0.0.0` and the platform's `PORT`. Never set a provider key on a public deployment: without one, live mode and rechecks are disabled and explain why.
 
 ## Limitations
 
-- **Live mode hasn't been tried against a real provider in this repo yet.** The prompts have only been run through the hand-written fixtures. Run `--mode record` with a key to produce real recordings.
-- The checker covers six statement line items (revenue, net income, gross profit, operating income, diluted and basic EPS) for one company per article, and only US SEC filers.
+- Live runs have been verified with one provider and model (`gemini-3.5-flash-lite`). Claude and OpenAI paths go through Mozaik's adapters and our safety limits but have not been run against the real APIs here.
+- The checker covers six statement line items (revenue, net income, gross profit, operating income, diluted and basic EPS) for one company per article, and only US SEC filers. Ratios such as margins are not representable and are reported as not verifiable or skipped. The bundled SEC data covers NVIDIA only; custom articles are checked against NVIDIA.
 - Fiscal periods in the article are mapped by the extractor model, using the fiscal calendar it is given. The auditor's LLM review is the check on that mapping.
 - Tolerance choices are deliberate policies: rounding of stated digits, "about" = 1%, multiples ±5%.
 - Non-GAAP figures can't be verified against financial statements by design.
