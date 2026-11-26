@@ -28,10 +28,14 @@ export class CheckerState extends RuntimeState {
 	readonly warnings = new Map<string, ContextWarning[]>()
 	/** claimId -> claim revision the context review finished for */
 	readonly contextDone = new Map<string, number>()
+	/** claimId -> why the context review for that revision did not complete (provider error, cache miss) */
+	readonly contextFailures = new Map<string, { claimRevision: number; reason: string }>()
 	/** claimId -> evidence-correction attempts for the current claim revision */
 	readonly evidenceAttempts = new Map<string, number>()
 	readonly history: HistoryEntry[] = []
 	readonly staleRejections: HistoryEntry[] = []
+	/** Every correction request (rule gate or LLM review), in order. */
+	readonly corrections: { claimId: string; at: number; by: string; target: "claim" | "evidence"; reason: string; claimRevision: number; evidenceRevision: number }[] = []
 	extraction: "running" | "done" | "failed" = "running"
 	extractionError?: string
 	private nextClaim = 1
@@ -75,6 +79,7 @@ export class CheckerState extends RuntimeState {
 		this.audits.delete(claimId)
 		this.warnings.delete(claimId)
 		this.contextDone.delete(claimId)
+		this.contextFailures.delete(claimId)
 		this.evidenceAttempts.delete(claimId)
 		this.log("claim.revised", `r${old.revision} → r${claim.revision}: ${reason} (evidence, calculation, audit and context for r${old.revision} invalidated)`, claimId)
 		return { ok: true, value: claim }
@@ -131,7 +136,8 @@ export class CheckerState extends RuntimeState {
 		}
 		if (state.status === "approved" && !this.calcs.has(claimId)) return { ok: false, stale: false, reason: "nothing to approve: no calculation for the current revision" }
 		this.audits.set(claimId, { claimRevision, evidenceRevision, state })
-		const d = state.status === "approved" ? state.note : state.status === "investigating" ? `${state.target}: ${state.reason}` : "reason" in state ? state.reason : ""
+		if (state.status === "investigating") this.corrections.push({ claimId, at: Date.now() - this.t0, by: state.by, target: state.target, reason: state.reason, claimRevision, evidenceRevision })
+		const d =state.status === "approved" ? state.note : state.status === "investigating" ? `${state.target}: ${state.reason}` : "reason" in state ? state.reason : ""
 		this.log(`audit.${state.status}`, `r${claimRevision}.e${evidenceRevision} ${d}`, claimId)
 		return { ok: true, value: state }
 	}
@@ -167,7 +173,10 @@ export class CheckerState extends RuntimeState {
 		const bad = this.checkClaimRev<number>("context review", claimId, claimRevision)
 		if (bad) return bad
 		this.contextDone.set(claimId, claimRevision)
-		if (note) this.log("context.unavailable", `r${claimRevision} ${note}`, claimId)
+		if (note) {
+			this.contextFailures.set(claimId, { claimRevision, reason: note })
+			this.log("context.unavailable", `r${claimRevision} ${note}`, claimId)
+		}
 		return { ok: true, value: claimRevision }
 	}
 

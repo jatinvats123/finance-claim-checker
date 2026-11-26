@@ -12,17 +12,27 @@
     "start": "tsx src/cli.ts --mode replay",
     "check": "tsx src/cli.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p web",
     "snapshot:sec": "tsx scripts/snapshot-sec.ts",
-    "fixtures:seal": "tsx src/cli.ts --mode author --script fixtures/nvda-demo.script.ts --out out/author"
+    "fixtures:seal": "tsx src/cli.ts --mode author --script fixtures/nvda-demo.script.ts --out out/author",
+    "web": "vite build && tsx src/web/server.ts",
+    "web:build": "vite build",
+    "web:serve": "tsx src/web/server.ts",
+    "web:dev": "vite"
   },
   "dependencies": {
-    "@mozaik-ai/core": "6.0.0"
+    "@mozaik-ai/core": "6.0.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
     "@types/node": "22.19.1",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "5.1.1",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
+    "vite": "7.3.8",
     "vitest": "3.2.4"
   }
 }

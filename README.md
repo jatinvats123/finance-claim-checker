@@ -8,8 +8,40 @@ Finance news and earnings coverage often get numbers wrong. Growth rates get tra
 
 ```
 npm install
-npm start          # keyless demo: replays hand-written model responses; all checks run for real
+npm run web        # verification workspace at http://localhost:4317 (no API key needed)
+npm start          # same keyless demo in the terminal
 ```
+
+## Web app (`npm run web`)
+
+`npm run web` builds the frontend and starts a small local server at **http://localhost:4317**. The workspace opens on the included NVIDIA example, labelled *Synthetic example · Fixture model responses · Real calculations*. From there you can:
+
+1. **Run included example.** This starts the real agent workflow on the server, with no credentials. Claims, agent activity and reviews stream in as they happen over Server-Sent Events.
+2. **Select a claim** from the results or from its highlight in the article. The evidence inspector shows:
+   - the quote and how it was read
+   - the current and comparison periods with dates, values, units and filing links
+   - the formula with values substituted, and the tolerance rule
+   - context warnings, the audit outcome, and the correction history
+3. **View correction.** After a run, this opens each claim the auditor actually blocked (in the demo, c3's wrong comparison period and c4's misread basis), with its real revision history.
+4. **Download** the existing Markdown or JSON report for the run.
+5. **Check your own article.** This uses live mode when a provider key is set on the server. Without one, the dialog explains how to configure it. Replay-only mode on edited text shows an explicit cache miss and offers to restore the example.
+
+Each claim shows its numerical status and its review status separately. A claim counts as *Reviewed* only when the current calculation was approved by the auditor and the context review finished. Failed, pending or unresolved reviews are shown as such. Provenance (live, recorded, fixture or mixed) comes from the server's model-call records, and replay timings are labelled as replay timing, not live model latency.
+
+Layout:
+- **Wide screens:** article, results and inspector side by side.
+- **Laptop widths:** the inspector opens as a right-hand drawer.
+- **Phones:** Article / Results / Evidence tabs.
+
+Keyboard navigation works throughout: highlights are focusable, the drawer and dialog trap focus, and Escape closes them. Reduced-motion settings are respected.
+
+| Command | What it does |
+|---|---|
+| `npm run web` | Build the frontend and serve app + API on port 4317 (`PORT`/`HOST` env to change) |
+| `npm run web:dev` | Vite dev server with hot reload, proxying `/api` to `npm run web:serve` |
+| `npm run web:build` / `npm run web:serve` | Build only / serve only |
+
+The server is a thin adapter (`src/web/`) around `runChecker()`. `viewmodel.ts` turns the engine's state, tasks and call records into display data, and the browser does no financial logic.
 
 ```
 c3   ✘ MISMATCH            “Revenue more than doubled from a year earlier, rising 126%”
@@ -119,8 +151,8 @@ Requires Node ≥ 20.12.
 ```bash
 npm install
 npm start                       # keyless replay of the bundled NVIDIA demo
-npm test                        # 39 tests, no key needed
-npm run typecheck
+npm test                        # 56 tests, no key needed
+npm run typecheck               # server + web
 ```
 
 **Check your own article** (needs a provider key in `.env`, see `.env.example`):
@@ -145,6 +177,7 @@ npm run check -- --article path/to/article.md --ticker NVDA --mode record   # al
 | `test/checks.test.ts` | Rule gate: YTD-for-quarter, QoQ-as-YoY, wrong line item, split-adjusted comparatives, no-reference verification, misread units; context rules |
 | `test/store.test.ts` | Stale calculations, audits and context rejected; unaffected claims preserved; invalid evidence ids rejected; final audits immutable |
 | `test/pipeline.test.ts` | Full keyless run: expected verdicts, ≥3 loops in flight, both correction paths, stale rejection, explicit cache miss, provider failures isolated |
+| `test/web.test.ts` | Web adapter: canonical example article, duplicate-run guard, SSE snapshots, UI values identical to the engine report, exact highlight offsets (overlapping/repeated quotes), real corrections, provenance, downloads, cache miss, live-without-key, failed audit/context never shown as reviewed |
 
 ## Notes on Mozaik 6.0.0 (found while building)
 
@@ -171,6 +204,8 @@ src/agents/     Extractor, Evidence, Context, Calculator, Auditor participants
 src/runtime/    Mozaik wiring, task tracking, pipeline/supervisor
 src/llm/        provenance-labelled runner (live / record / replay / author)
 src/report/     live terminal view, Markdown and JSON receipts
+src/web/        web server (SSE + downloads) and view model
+web/            React workspace (Vite)
 data/           SEC snapshot (NVDA), demo article, sealed fixtures, recordings
 fixtures/       hand-written demo script (source of the sealed fixtures)
 ```

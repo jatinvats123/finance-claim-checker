@@ -6,12 +6,13 @@
  *   npm run check -- ... --mode record         live + save responses to data/replay/recordings/
  *   npm run check -- ... --mode author --script fixtures/nvda-demo.script.ts   seal hand-written fixtures
  */
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { basename, join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { parseArgs } from "node:util"
 import { readArticle } from "./article.js"
-import { CheckerRunner, loadCassette, type AuthorScript, type Cassette, type LlmMode } from "./llm/runner.js"
+import { defaultCassettePaths, defaultModel, loadCassettes, providerConfigured } from "./llm/cassettes.js"
+import { CheckerRunner, type AuthorScript, type LlmMode } from "./llm/runner.js"
 import { liveLine, renderMarkdown, renderTerminalSummary, toJson, DISCLAIMER, type ReportMeta } from "./report/render.js"
 import { runChecker } from "./runtime/pipeline.js"
 import { TaskTracker } from "./runtime/tasks.js"
@@ -36,28 +37,12 @@ process.on("unhandledRejection", (err) => {
 	console.error("[warn] unhandled rejection (run continues):", err instanceof Error ? err.message : err)
 })
 
-function defaultModel(): string {
-	if (process.env.CHECKER_MODEL) return process.env.CHECKER_MODEL
-	if (process.env.ANTHROPIC_API_KEY) return "claude-sonnet-5-5"
-	if (process.env.OPENAI_API_KEY) return "gpt-5.5"
-	if (process.env.GEMINI_API_KEY) return "gemini-3.5-flash"
-	return "claude-sonnet-5-5"
-}
-
-function defaultCassettes(): string[] {
-	const dirs = [
-		["data/replay/recordings", (f: string) => f.endsWith(".json")],
-		["data/replay", (f: string) => f.endsWith(".fixtures.json")],
-	] as const
-	return dirs.flatMap(([d, ok]) => (existsSync(d) ? readdirSync(d).filter(ok).map((f) => join(d, f)) : []))
-}
-
 async function main() {
 	if (existsSync(".env")) process.loadEnvFile(".env")
 	const mode = args.mode as LlmMode
 	if (!["live", "record", "replay", "author"].includes(mode)) throw new Error(`--mode must be live, record, replay or author`)
 	const model = args.model ?? defaultModel()
-	if ((mode === "live" || mode === "record") && !process.env.ANTHROPIC_API_KEY && !process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY) {
+	if ((mode === "live" || mode === "record") && !providerConfigured()) {
 		throw new Error("live/record mode needs ANTHROPIC_API_KEY, OPENAI_API_KEY or GEMINI_API_KEY (see README). Use --mode replay for the keyless demo.")
 	}
 
@@ -65,13 +50,7 @@ async function main() {
 	const snapshot = await getSnapshot(article.ticker, args["live-sec"]!)
 	const tasks = new TaskTracker()
 
-	const cassettePaths = mode === "replay" ? (args.cassette?.length ? args.cassette : defaultCassettes()) : []
-	const cassettes: { path: string; data: Cassette }[] = cassettePaths.flatMap((p) => {
-		const data = loadCassette(p)
-		return data ? [{ path: p, data }] : []
-	})
-	// Recorded responses take priority over hand-written fixtures.
-	cassettes.sort((a, b) => Number(b.data.provenance === "recorded") - Number(a.data.provenance === "recorded"))
+	const cassettes = mode === "replay" ? loadCassettes(args.cassette?.length ? args.cassette : defaultCassettePaths()) : []
 
 	let script: AuthorScript | undefined
 	let writeTo: string | undefined
