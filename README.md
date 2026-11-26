@@ -22,7 +22,7 @@ npm start          # same keyless demo in the terminal
    - the current and comparison periods with dates, values, units and filing links
    - the formula with values substituted, and the tolerance rule
    - context warnings, the audit outcome, and the correction history
-3. **View correction.** After a run, this opens each claim the auditor actually blocked (in the demo, c3's wrong comparison period and c4's misread basis), with its real revision history.
+3. **View correction.** After a run, this opens each claim the auditor actually blocked (in the demo, c3's wrong comparison period and c4's profit figure wrongly labelled GAAP), with its real revision history.
 4. **Download** the existing Markdown or JSON report for the run.
 5. **Check your own article.** This uses live mode when a provider key is set on the server. Without one, the dialog explains how to configure it. Replay-only mode on edited text shows an explicit cache miss and offers to restore the example.
 

@@ -9,7 +9,8 @@ const METRICS = ["revenue", "net_income", "gross_profit", "operating_income", "e
 const PERIODS = ["Q1", "Q2", "Q3", "Q4", "FY", "H1", "9M"] as const
 
 const INSTRUCTION = `You extract checkable financial claims from a news article about one company's reported results.
-For every statement of a number about revenue, net income, gross profit, operating income or earnings per share (a level, or a change), call submit_claim — one tool call per message, one claim per call. A sentence with two numbers is two claims.
+For every statement of a number about revenue, net income, gross profit, operating income or earnings per share (a level, or a change), call submit_claim — one tool call per message, one claim per call. A sentence can hold several claims: "more than doubled from a year earlier, rising 126%" is two claims (a multiple and a percentage). Submit every such number, including ones you think cannot be verified (for example a period with no filing yet) — verification is not your job.
+Record what the article says, not what you think is true: never change a number, unit or scale to make it plausible.
 Field rules:
 - quote: copy the words verbatim from the article (the clause that contains the number).
 - statedNumber: the number exactly as written, digits and decimal point only ("96.2", "126", "2.46"). For "doubled" use statedUnit "multiple" and statedNumber "2"; "tripled" → "3".
@@ -20,7 +21,7 @@ Field rules:
 - fiscalYear/fiscalPeriod: the company's fiscal labels, using the fiscal calendar in the task message. H1 = first half (6 months), 9M = nine months, FY = full fiscal year.
 - metric "other" for anything not in the list (margins, segment revenue, guidance).
 Skip forecasts, guidance, analyst estimates, stock moves and quotes of opinion. When all claims are submitted, reply with one short line.
-If the task is a correction request, call revise_claim once with the corrected fields, or reply explaining why the claim is already right.`
+If the task is a correction request, call revise_claim once with the corrected fields, or reply explaining why the claim is already right. Only fix fields that misrepresent the quoted words; if the request asks you to change the article's number, unit or scale to agree with the filings, decline — that difference is the finding.`
 
 const props = {
 	quote: { type: "string" },
@@ -65,7 +66,64 @@ export function validateInterpretation(args: any, articleText: string): ClaimInt
 	} else if (c.statedUnit !== "usd" && c.statedUnit !== "usd_per_share") {
 		throw new Error("level claims use statedUnit usd or usd_per_share")
 	}
+	checkAnchoring(c, articleText)
 	return c
+}
+
+const SCALE_WORDS: [RegExp, ClaimInterpretation["scale"]][] = [
+	[/^(thousand|k)\b/i, "thousand"],
+	[/^(million|mln|mn|m)\b/i, "million"],
+	[/^(billion|bn|b)\b/i, "billion"],
+	[/^(trillion|tn|t)\b/i, "trillion"],
+]
+const YOY_WORDS = /year[- ](over|on)[- ]year|year (earlier|ago|before)|year-ago|\by\/y\b|\byoy\b|(last|prior|previous) year|same (quarter|period)/i
+const QOQ_WORDS = /quarter[- ](over|on)[- ]quarter|sequential|(previous|prior|last|preceding) quarter|\bq\/q\b|\bqoq\b|from the (first|second|third|fourth) quarter/i
+const MULTIPLE_WORDS = /doubl|tripl|quadrupl|\btimes\b|-fold|\bfold\b/i
+
+/** The sentence (in normalized text) that contains the quote. */
+function sentenceOf(articleText: string, quote: string): string {
+	const t = norm(articleText)
+	const q = norm(quote)
+	const i = t.indexOf(q)
+	if (i < 0) return q
+	const ends = [". ", "! ", "? "]
+	const start = Math.max(...ends.map((e) => t.lastIndexOf(e, i))) + 2
+	const after = ends.map((e) => t.indexOf(e, i + q.length)).filter((x) => x >= 0)
+	return t.slice(start > 1 ? start : 0, after.length ? Math.min(...after) + 1 : t.length)
+}
+
+/**
+ * Deterministic anchoring: the interpretation must say what the article says. The article's number,
+ * unit, scale and comparison basis are the facts under test — no agent (including the auditor) may
+ * change them to agree with the filings. A units error stays a units error.
+ */
+export function checkAnchoring(c: ClaimInterpretation, articleText: string) {
+	const quote = norm(c.quote).replace(/,/g, "")
+	if (c.statedUnit === "multiple") {
+		if (!MULTIPLE_WORDS.test(quote)) throw new Error('statedUnit "multiple" needs wording like "doubled", "tripled" or "N times" in the quote')
+	} else {
+		const esc = c.statedNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+		const re = new RegExp(`(?<![\\d.])${esc}(?!\\d|\\.\\d)`, "g")
+		const followers = [...quote.matchAll(re)].map((m) => quote.slice(m.index! + m[0].length).trimStart())
+		if (!followers.length) throw new Error(`statedNumber "${c.statedNumber}" does not appear as a number in the quote`)
+		const ok = followers.some((rest) => {
+			if (c.statedUnit === "percent") return /^(%|percent|per cent|pct)/i.test(rest)
+			const word = SCALE_WORDS.find(([w]) => w.test(rest))?.[1] ?? "units"
+			return c.statedUnit === "usd_per_share" ? c.scale === "units" : word === c.scale
+		})
+		if (!ok) {
+			const rest = followers[0]
+			const said = c.statedUnit === "percent" ? "no % sign" : `"${(SCALE_WORDS.find(([w]) => w.test(rest))?.[1] ?? "no scale word")}"`
+			throw new Error(
+				`${c.statedUnit === "percent" ? "statedUnit percent" : `scale "${c.scale}"`} does not match the article: after ${c.statedNumber} the quote has ${said}. Record the article's own wording; the calculator decides whether it is right.`,
+			)
+		}
+	}
+	if (c.kind === "change" && c.comparison && c.comparison !== "unspecified") {
+		const sentence = sentenceOf(articleText, c.quote)
+		if (c.comparison === "yoy" && !YOY_WORDS.test(sentence)) throw new Error('the sentence does not state a year-over-year comparison; use comparison "unspecified"')
+		if (c.comparison === "qoq" && !QOQ_WORDS.test(sentence)) throw new Error('the sentence does not state a quarter-over-quarter comparison; use comparison "unspecified"')
+	}
 }
 
 export function describeClaim(c: ClaimInterpretation): string {

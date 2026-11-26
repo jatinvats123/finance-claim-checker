@@ -162,7 +162,8 @@ export function createApp(opts: AppOptions = {}) {
 		const snapshot = loadSnapshot(article.ticker)
 		const tasks = new TaskTracker()
 		const cassettes = mode === "replay" ? loadCassettes(opts.cassettePaths ?? defaultCassettePaths()) : []
-		const runner = new CheckerRunner({ mode, tasks, cassettes: cassettes.map((c) => c.data), inner: mode === "live" ? opts.liveInner?.(tasks) : undefined })
+		// Live checks from the browser always run under the default safety limits (call/turn caps, pacing, retries).
+		const runner = new CheckerRunner({ mode, tasks, cassettes: cassettes.map((c) => c.data), inner: mode === "live" ? opts.liveInner?.(tasks) : undefined, model: mode === "live" ? defaultModel(env) : undefined })
 		const rec: RunRecord = {
 			id: `run-${++counter}-${Date.now().toString(36)}`,
 			source,
@@ -219,6 +220,7 @@ export function createApp(opts: AppOptions = {}) {
 			mozaikVersion,
 			calls: rec.runner.calls,
 			cassettes: rec.cassettes.map((c) => ({ path: c.path, provenance: c.data.provenance, description: c.data.description })),
+			usage: rec.mode === "live" ? rec.runner.usage.summary() : undefined,
 		}
 	}
 

@@ -21,6 +21,7 @@ import {
 	FunctionCallItem,
 	ModelMessageItem,
 	RuntimeState,
+	supportedModels,
 	type ContextItem,
 	type InferenceInput,
 	type InferenceOutput,
@@ -28,6 +29,8 @@ import {
 	type SemanticEvent,
 } from "@mozaik-ai/core"
 import type { TaskTracker } from "../runtime/tasks.js"
+import { geminiEndpoint } from "./gemini.js"
+import { DEFAULT_LIMITS, KNOWN_PRICES, LimitReached, Pacer, retryDelayMs, sleep, UsageMeter, withTimeout, type LiveLimits } from "./limits.js"
 
 export type LlmMode = "live" | "record" | "replay" | "author"
 export type Provenance = "live" | "recorded" | "fixture"
@@ -46,7 +49,7 @@ export type CassetteEntry = {
 }
 export type Cassette = { provenance: Provenance; description: string; createdAt: string; entries: Record<string, CassetteEntry> }
 
-export type CallRecord = { task: string; turn: number; key: string; provenance: Provenance | "cache-miss" | "provider-error"; detail?: string }
+export type CallRecord = { task: string; turn: number; key: string; provenance: Provenance | "cache-miss" | "provider-error" | "limit-reached"; detail?: string }
 
 export class CacheMiss extends Error {}
 
@@ -114,6 +117,9 @@ export class CheckerRunner implements InferenceRunner {
 	private readonly inner: InferenceRunner
 	private sealed?: Cassette
 	private recorded?: Cassette
+	readonly limits: LiveLimits
+	readonly usage: UsageMeter
+	private readonly pacer: Pacer
 
 	constructor(
 		private readonly opts: {
@@ -125,8 +131,17 @@ export class CheckerRunner implements InferenceRunner {
 			writeTo?: string
 			script?: AuthorScript
 			inner?: InferenceRunner
+			/** live/record: model id, used for pricing the measured token usage */
+			model?: string
+			limits?: Partial<LiveLimits>
 		},
 	) {
+		this.limits = { ...DEFAULT_LIMITS, ...opts.limits }
+		this.usage = new UsageMeter(opts.model ?? "unknown", this.limits.price ?? KNOWN_PRICES[opts.model ?? ""])
+		if (this.limits.budgetUsd !== undefined && !this.usage.price && (opts.mode === "live" || opts.mode === "record")) {
+			throw new Error(`No price known for model "${opts.model}", so a USD budget cannot be enforced. Pass --price <input>,<output> (USD per 1M tokens), or drop --budget-usd and rely on --max-calls.`)
+		}
+		this.pacer = new Pacer(this.limits.maxConcurrent, this.limits.rpm)
 		this.inner = opts.inner ?? mozaikDefaultRunner()
 		if (opts.mode === "author") this.sealed = { provenance: "fixture", description: opts.script?.description ?? "", createdAt: new Date().toISOString(), entries: {} }
 		if (opts.mode === "record") this.recorded = { provenance: "recorded", description: "Live model responses recorded by --mode record", createdAt: new Date().toISOString(), entries: {} }
@@ -164,18 +179,51 @@ export class CheckerRunner implements InferenceRunner {
 					return toOutput(entry)
 				}
 				default: {
-					const out = await this.inner.run(input)
+					const out = await this.liveCall(input, turn, taskKey)
 					if (this.recorded) this.recorded.entries[key] = { task: taskKey, turn, items: fromOutput(out), model: input.model, recordedAt: new Date().toISOString() }
 					this.calls.push({ task: taskKey, turn, key, provenance: "live" })
 					return out
 				}
 			}
 		} catch (err) {
-			const kind = err instanceof CacheMiss ? "CACHE_MISS" : "PROVIDER_ERROR"
+			const kind = err instanceof CacheMiss ? "CACHE_MISS" : err instanceof LimitReached ? "LIMIT_REACHED" : "PROVIDER_ERROR"
 			const message = err instanceof Error ? err.message : String(err)
 			if (task) task.failure = { kind, message }
-			this.calls.push({ task: taskKey, turn, key, provenance: kind === "CACHE_MISS" ? "cache-miss" : "provider-error", detail: message })
+			this.calls.push({ task: taskKey, turn, key, provenance: kind === "CACHE_MISS" ? "cache-miss" : kind === "LIMIT_REACHED" ? "limit-reached" : "provider-error", detail: message })
 			return { items: [ModelMessageItem.rehydrate({ text: `[runner ${kind}] ${message}` })], tokenUsage: undefined, rowResponse: null }
+		}
+	}
+
+	/** One provider request under the call/turn/budget caps, pacing and transient-error retries. */
+	private async liveCall(input: InferenceInput, turn: number, taskKey: string): Promise<InferenceOutput> {
+		const { limits, usage } = this
+		const stop = (why: string): never => {
+			usage.limitHit ??= why
+			throw new LimitReached(why)
+		}
+		const turnCap = taskKey === "extractor:article" ? limits.maxExtractorTurns : limits.maxTurnsPerTask
+		if (turn >= turnCap) stop(`task ${taskKey} reached the turn cap (${turnCap} model turns)`)
+		for (let attempt = 0; ; attempt++) {
+			const out = await this.pacer.run(async () => {
+				if (usage.requests >= limits.maxCalls) stop(`call cap reached (${limits.maxCalls} requests)`)
+				const cost = usage.costUsd()
+				if (limits.budgetUsd !== undefined && cost !== undefined && cost >= limits.budgetUsd) stop(`budget reached ($${cost.toFixed(4)} of $${limits.budgetUsd})`)
+				usage.requests++
+				try {
+					return await withTimeout(this.inner.run(input), limits.requestTimeoutMs)
+				} catch (err) {
+					return err instanceof Error ? err : new Error(String(err))
+				}
+			})
+			if (!(out instanceof Error)) {
+				usage.add(out)
+				return out
+			}
+			const wait = attempt < limits.retries ? retryDelayMs(out, attempt) : undefined
+			if (wait === undefined) throw out
+			usage.retries++
+			if (usage.retryNotes.length < 5) usage.retryNotes.push(`${taskKey}: ${out.message.slice(0, 140)}`)
+			await sleep(wait)
 		}
 	}
 
@@ -197,8 +245,10 @@ export class CheckerRunner implements InferenceRunner {
 /**
  * Mozaik's DefaultInferenceRunner with its built-in request validation. The validator class is not
  * exported in 6.0.0, so obtain the runner the runtime itself would build, via public API only.
+ * Google models use our signature-preserving Gemini mapper (see gemini.ts); everything else is stock.
  */
 function mozaikDefaultRunner(): InferenceRunner {
 	class Throwaway extends RuntimeState {}
-	return defineRuntime<Throwaway>().initializeRuntime({ state: new Throwaway() }).getInferenceRunner()
+	const models = supportedModels.map((m) => (m.specification.provider === "google" ? { ...m, endpoint: geminiEndpoint() } : m))
+	return defineRuntime<Throwaway>().initializeRuntime({ state: new Throwaway(), inferenceRunnerConfig: { supportedModels: models } }).getInferenceRunner()
 }

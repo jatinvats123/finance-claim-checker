@@ -8,7 +8,8 @@
  *
  * Two mistakes are scripted on purpose so the correction paths run:
  *  - c3: the evidence agent first binds the previous quarter as a year-over-year base (caught by the rule gate)
- *  - c4: the extractor first reads an unstated basis as quarter-over-quarter (caught by the LLM review)
+ *  - c4: the extractor first labels the profit figure "GAAP" although the sentence does not say so (caught by
+ *        the LLM review; code cannot tell whether an article's "net income" means GAAP)
  * The c4 r1 context review is given a long simulated delay so its late result arrives after r2 exists.
  *
  * Seal into replay fixtures with:  npm run fixtures:seal
@@ -27,10 +28,11 @@ const approve = (claimId: string, claimRevision: number, evidenceRevision: numbe
 const C4_R1 = claim({
 	quote: "Net income climbed 18% to $59.7 billion",
 	metric: "net_income",
+	accounting: "gaap",
 	kind: "change",
 	fiscalYear: 2027,
 	fiscalPeriod: "Q2",
-	comparison: "qoq",
+	comparison: "unspecified",
 	direction: "increase",
 	statedNumber: "18",
 	statedUnit: "percent",
@@ -60,7 +62,13 @@ const script: AuthorScript = {
 		// Deliberate mistake: previous quarter used as a year-over-year base. The rule gate blocks it.
 		"evidence:c3@r1#1": [search("revenue", 2027, "Q2"), search("revenue", 2027, "Q1"), bind("c3", 1, "Revenues/Q2-FY2027/26-000075", { baseFactId: "Revenues/Q1-FY2027/26-000052" }), say("done")],
 		"evidence:c3@r1#2": [search("revenue", 2026, "Q2"), bind("c3", 1, "Revenues/Q2-FY2027/26-000075", { baseFactId: "Revenues/Q2-FY2026/26-000075" }), say("Rebound with the year-over-year comparative from the same 10-Q.")],
-		"evidence:c4@r1#1": [search("net_income", 2027, "Q2"), search("net_income", 2027, "Q1"), bind("c4", 1, "NetIncomeLoss/Q2-FY2027/26-000075", { baseFactId: "NetIncomeLoss/Q1-FY2027/26-000052" }), say("done")],
+		"evidence:c4@r1#1": [
+			search("net_income", 2027, "Q2"),
+			search("net_income", 2026, "Q2"),
+			search("net_income", 2027, "Q1"),
+			bind("c4", 1, "NetIncomeLoss/Q2-FY2027/26-000075", { baseFactId: "NetIncomeLoss/Q2-FY2026/26-000075", alternateBaseFactId: "NetIncomeLoss/Q1-FY2027/26-000052" }),
+			say("done"),
+		],
 		"evidence:c4@r2#1": [
 			search("net_income", 2027, "Q2"),
 			search("net_income", 2026, "Q2"),
@@ -84,18 +92,18 @@ const script: AuthorScript = {
 				claimRevision: 1,
 				evidenceRevision: 1,
 				target: "claim",
-				reason: 'The sentence "Net income climbed 18% to $59.7 billion" does not say what the 18% is measured against. comparison must be "unspecified", not "qoq".',
+				reason: 'The sentence "Net income climbed 18% to $59.7 billion" does not say whether this is GAAP or adjusted net income. accounting must be "unspecified", not "gaap".',
 			}),
 			say("done"),
 		],
-		"auditor:c4@r2.e2": approve("c4", 2, 2, "Basis now correctly unspecified; checked year-over-year by convention, with the quarter-over-quarter figure shown as context."),
+		"auditor:c4@r2.e2": approve("c4", 2, 2, "Accounting basis now correctly unspecified; checked against GAAP net income, year-over-year by convention, with the quarter-over-quarter figure shown as context."),
 		"auditor:c5@r1.e1": approve("c5", 1, 1, "GAAP net income level for Q2 FY2027 read correctly."),
 		"auditor:c6@r1.e1": approve("c6", 1, 1, "Diluted EPS for Q2 FY2027 read correctly."),
 		"auditor:c8@r1.e1": approve("c8", 1, 1, 'The article literally says "million"; interpretation is faithful, the article is off by a factor of 1,000.'),
 		"auditor:c9@r1.e1": approve("c9", 1, 1, '"All of fiscal 2026" is the full fiscal year; interpretation is faithful.'),
 
 		// ---- extractor correction ----
-		"extractor-fix:c4@r1": [call("revise_claim", { claimId: "c4", fromRevision: 1, reason: "comparison basis is not stated in the sentence", ...C4_R1, comparison: "unspecified" }), say("done")],
+		"extractor-fix:c4@r1": [call("revise_claim", { claimId: "c4", fromRevision: 1, reason: "the sentence does not say GAAP or adjusted", ...C4_R1, accounting: "unspecified" }), say("done")],
 
 		// ---- context agent ----
 		"context:c1@r1": [say("no context issues")],

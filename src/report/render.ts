@@ -2,6 +2,7 @@ import type { SemanticEvent } from "@mozaik-ai/core"
 import { fmtExact } from "../domain/calculator.js"
 import type { CheckerState } from "../domain/store.js"
 import type { AuditState, Calculation, Claim } from "../domain/types.js"
+import type { UsageSummary } from "../llm/limits.js"
 import type { CallRecord } from "../llm/runner.js"
 import type { RunResult } from "../runtime/pipeline.js"
 import { describeClaim } from "../agents/extractor.js"
@@ -96,6 +97,8 @@ export type ReportMeta = {
 	mozaikVersion: string
 	calls: CallRecord[]
 	cassettes: { path: string; provenance: string; description: string }[]
+	/** live/record runs: measured token usage and cost */
+	usage?: UsageSummary
 }
 
 function provenanceSummary(calls: CallRecord[]) {
@@ -195,6 +198,11 @@ export function renderMarkdown(result: RunResult, meta: ReportMeta): string {
 	out.push("")
 	out.push(`- Mode: \`${meta.mode}\`${meta.mode === "replay" ? " (no API key used)" : ""}; model setting: \`${meta.model}\`; Mozaik \`@mozaik-ai/core@${meta.mozaikVersion}\``)
 	out.push(`- Model calls by source: ${Object.entries(prov).map(([k, v]) => `${k}: ${v}`).join(", ") || "none"}`)
+	if (meta.usage) {
+		const u = meta.usage
+		const cost = u.costUsd !== undefined ? `$${u.costUsd.toFixed(4)}` : "cost not computed (no price for this model)"
+		out.push(`- Measured usage (${u.model}): ${u.requests} requests, ${u.inputTokens} input + ${u.outputTokens + u.reasoningTokens} output tokens, ${cost}${u.limitHit ? `; stopped by limit: ${u.limitHit}` : ""}`)
+	}
 	for (const cs of meta.cassettes) out.push(`- Cassette \`${cs.path}\` — provenance **${cs.provenance}**: ${cs.description}`)
 	out.push(`- SEC data: [company facts](${snap.source.companyFactsUrl}), [filing index](${snap.source.submissionsUrl}), fetched ${snap.source.fetchedAt}.`)
 	out.push(`- Calculations, period/unit checks, evidence validation and revision control ran for real in this mode; only model responses are replayed when the mode is \`replay\`.`)
@@ -233,7 +241,7 @@ export function toJson(result: RunResult, meta: ReportMeta) {
 		article: { title: state.article!.title, path: meta.articlePath },
 		company: { ticker: state.registry.snapshot.ticker, cik: state.registry.snapshot.cik, name: state.registry.snapshot.entityName },
 		secSource: state.registry.snapshot.source,
-		run: { mode: meta.mode, model: meta.model, mozaik: meta.mozaikVersion, timedOut: result.timedOut, elapsedMs: result.elapsedMs, modelCalls: meta.calls, cassettes: meta.cassettes },
+		run: { mode: meta.mode, model: meta.model, mozaik: meta.mozaikVersion, timedOut: result.timedOut, elapsedMs: result.elapsedMs, modelCalls: meta.calls, cassettes: meta.cassettes, usage: meta.usage },
 		claims: [...state.claims.values()].map((cl) => ({
 			...cl,
 			evidence: state.bindings.get(cl.id),

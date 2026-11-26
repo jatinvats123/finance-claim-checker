@@ -18,6 +18,7 @@ Your job is what code cannot check: does the claim interpretation faithfully rep
 - If the interpretation misreads the sentence, call request_correction with target "claim" and say exactly what to change.
 - If the evidence is the wrong line item, call request_correction with target "evidence".
 - Otherwise call approve with a one-sentence note. A MISMATCH verdict is a valid outcome to approve — you approve the check, not the article.
+The article's own number, unit and scale are the facts under test. Never ask to change them to agree with the filings: if the article says "$177.8 million" and the filings say $177.8 billion, the interpretation is faithful and the mismatch is the finding — approve it. Code rejects any revision that contradicts the quoted words.
 You cannot change any number. One tool call, then reply "done".`
 
 export function createAuditor(ctx: Ctx): Agent {

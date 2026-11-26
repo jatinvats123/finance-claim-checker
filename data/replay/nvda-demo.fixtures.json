@@ -1,9 +1,9 @@
 {
  "provenance": "fixture",
  "description": "Hand-written model responses for the NVIDIA Q2 FY2027 demo article (not recorded model output). Includes simulated latency and two deliberate agent mistakes to exercise the auditor's correction paths.",
- "createdAt": "2026-11-26T09:31:30.330Z",
+ "createdAt": "2026-11-26T11:57:44.618Z",
  "entries": {
-  "66bc1fd827bb2a0343fbee75": {
+  "f6f1e807f15332f04ce05159": {
    "task": "extractor:article",
    "turn": 0,
    "delayMs": 120,
@@ -37,7 +37,7 @@
     }
    ]
   },
-  "8bb75497379818ddf66280b8": {
+  "ce76dc2e7724cc502afeffe2": {
    "task": "extractor:article",
    "turn": 1,
    "delayMs": 120,
@@ -89,7 +89,7 @@
     }
    ]
   },
-  "8e94e55932dc8a33c50dd2da": {
+  "cf3a088ea04bf6ca32a261b5": {
    "task": "extractor:article",
    "turn": 2,
    "delayMs": 120,
@@ -114,22 +114,6 @@
     }
    ]
   },
-  "cc103f718a765fbd5e806c8e": {
-   "task": "evidence:c1@r1#1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "bind_evidence",
-     "args": {
-      "claimId": "c1",
-      "claimRevision": 1,
-      "currentFactId": "Revenues/Q2-FY2027/26-000075"
-     }
-    }
-   ]
-  },
   "50ac894157adff65d96d6ee3": {
    "task": "evidence:c2@r1#1",
    "turn": 0,
@@ -142,6 +126,22 @@
       "metric": "revenue",
       "fiscalYear": 2027,
       "fiscalPeriod": "Q2"
+     }
+    }
+   ]
+  },
+  "cc103f718a765fbd5e806c8e": {
+   "task": "evidence:c1@r1#1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimId": "c1",
+      "claimRevision": 1,
+      "currentFactId": "Revenues/Q2-FY2027/26-000075"
      }
     }
    ]
@@ -163,7 +163,7 @@
     }
    ]
   },
-  "4ea75e80673dfad445b2321c": {
+  "d3aa19da4cfbbb83dc672f44": {
    "task": "extractor:article",
    "turn": 3,
    "delayMs": 120,
@@ -172,7 +172,7 @@
      "type": "function_call",
      "name": "submit_claim",
      "args": {
-      "accounting": "unspecified",
+      "accounting": "gaap",
       "qualifier": "exact",
       "scale": "units",
       "quote": "Net income climbed 18% to $59.7 billion",
@@ -180,10 +180,26 @@
       "kind": "change",
       "fiscalYear": 2027,
       "fiscalPeriod": "Q2",
-      "comparison": "qoq",
+      "comparison": "unspecified",
       "direction": "increase",
       "statedNumber": "18",
       "statedUnit": "percent"
+     }
+    }
+   ]
+  },
+  "8a10f9b4d262f7449a2951a9": {
+   "task": "evidence:c2@r1#1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "revenue",
+      "fiscalYear": 2026,
+      "fiscalPeriod": "Q2"
      }
     }
    ]
@@ -215,23 +231,7 @@
     }
    ]
   },
-  "8a10f9b4d262f7449a2951a9": {
-   "task": "evidence:c2@r1#1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "search_facts",
-     "args": {
-      "metric": "revenue",
-      "fiscalYear": 2026,
-      "fiscalPeriod": "Q2"
-     }
-    }
-   ]
-  },
-  "9eca630d878d0cb60c8ed647": {
+  "19b889d5008038bb9da31125": {
    "task": "auditor:c1@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -259,7 +259,7 @@
     }
    ]
   },
-  "4a84a77fa4ee55cb08462142": {
+  "a4bee3ea17964fbf80d3b78c": {
    "task": "context:c4@r1",
    "turn": 0,
    "delayMs": 2500,
@@ -276,7 +276,7 @@
     }
    ]
   },
-  "6313934c5c2c5efd6d70eba9": {
+  "137a1e996d55032cfa4ba9ed": {
    "task": "extractor:article",
    "turn": 4,
    "delayMs": 120,
@@ -299,38 +299,6 @@
     }
    ]
   },
-  "307f2b3b3ed7c2b701334f26": {
-   "task": "evidence:c3@r1#1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "search_facts",
-     "args": {
-      "metric": "revenue",
-      "fiscalYear": 2027,
-      "fiscalPeriod": "Q1"
-     }
-    }
-   ]
-  },
-  "efcd9e528bad77c277452e6c": {
-   "task": "evidence:c4@r1#1",
-   "turn": 0,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "search_facts",
-     "args": {
-      "metric": "net_income",
-      "fiscalYear": 2027,
-      "fiscalPeriod": "Q2"
-     }
-    }
-   ]
-  },
   "76a4cff3bcdbcbab01a2a5fa": {
    "task": "evidence:c2@r1#1",
    "turn": 2,
@@ -348,7 +316,39 @@
     }
    ]
   },
-  "da8882d4c354fea2b1679346": {
+  "69614a9c25e2700de2181a06": {
+   "task": "evidence:c4@r1#1",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "net_income",
+      "fiscalYear": 2027,
+      "fiscalPeriod": "Q2"
+     }
+    }
+   ]
+  },
+  "307f2b3b3ed7c2b701334f26": {
+   "task": "evidence:c3@r1#1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "revenue",
+      "fiscalYear": 2027,
+      "fiscalPeriod": "Q1"
+     }
+    }
+   ]
+  },
+  "8d1d642cff56e572af040499": {
    "task": "auditor:c1@r1.e1",
    "turn": 1,
    "delayMs": 120,
@@ -370,7 +370,7 @@
     }
    ]
   },
-  "3cde1fc275c21f52104c002d": {
+  "375415662b164b98645fa103": {
    "task": "extractor:article",
    "turn": 5,
    "delayMs": 120,
@@ -389,39 +389,6 @@
       "fiscalPeriod": "Q2",
       "statedNumber": "2.46",
       "statedUnit": "usd_per_share"
-     }
-    }
-   ]
-  },
-  "628f6122147ed96d25e1ebd3": {
-   "task": "evidence:c3@r1#1",
-   "turn": 2,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "bind_evidence",
-     "args": {
-      "claimId": "c3",
-      "claimRevision": 1,
-      "currentFactId": "Revenues/Q2-FY2027/26-000075",
-      "baseFactId": "Revenues/Q1-FY2027/26-000052"
-     }
-    }
-   ]
-  },
-  "9ae743d1d57b672668b005f9": {
-   "task": "evidence:c4@r1#1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "search_facts",
-     "args": {
-      "metric": "net_income",
-      "fiscalYear": 2027,
-      "fiscalPeriod": "Q1"
      }
     }
    ]
@@ -453,7 +420,40 @@
     }
    ]
   },
-  "fd2cc03024407585a2b568a4": {
+  "13e904a595582a4b9f0f655d": {
+   "task": "evidence:c4@r1#1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "net_income",
+      "fiscalYear": 2026,
+      "fiscalPeriod": "Q2"
+     }
+    }
+   ]
+  },
+  "628f6122147ed96d25e1ebd3": {
+   "task": "evidence:c3@r1#1",
+   "turn": 2,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimId": "c3",
+      "claimRevision": 1,
+      "currentFactId": "Revenues/Q2-FY2027/26-000075",
+      "baseFactId": "Revenues/Q1-FY2027/26-000052"
+     }
+    }
+   ]
+  },
+  "d5cb3b596782deac6b00cdad": {
    "task": "auditor:c2@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -481,7 +481,7 @@
     }
    ]
   },
-  "4ee33922bc9a26c28d30212e": {
+  "7a4846d9e7833057ec0f4517": {
    "task": "extractor:article",
    "turn": 6,
    "delayMs": 120,
@@ -504,34 +504,6 @@
     }
    ]
   },
-  "0053eed348ad080d83078403": {
-   "task": "evidence:c3@r1#1",
-   "turn": 3,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "e226c07c1952483db2287cfd": {
-   "task": "evidence:c4@r1#1",
-   "turn": 2,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "bind_evidence",
-     "args": {
-      "claimId": "c4",
-      "claimRevision": 1,
-      "currentFactId": "NetIncomeLoss/Q2-FY2027/26-000075",
-      "baseFactId": "NetIncomeLoss/Q1-FY2027/26-000052"
-     }
-    }
-   ]
-  },
   "e2b59cd8dbdc3eafebaee2c8": {
    "task": "evidence:c5@r1#1",
    "turn": 1,
@@ -545,6 +517,33 @@
       "claimRevision": 1,
       "currentFactId": "NetIncomeLoss/Q2-FY2027/26-000075"
      }
+    }
+   ]
+  },
+  "913d4fedb6b2f990e4e5ba7a": {
+   "task": "evidence:c4@r1#1",
+   "turn": 2,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "net_income",
+      "fiscalYear": 2027,
+      "fiscalPeriod": "Q1"
+     }
+    }
+   ]
+  },
+  "0053eed348ad080d83078403": {
+   "task": "evidence:c3@r1#1",
+   "turn": 3,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
     }
    ]
   },
@@ -564,7 +563,7 @@
     }
    ]
   },
-  "9f2040e6770aaadda9d01750": {
+  "10fbb7ae7d73d07e4325bdbe": {
    "task": "auditor:c2@r1.e1",
    "turn": 1,
    "delayMs": 120,
@@ -608,7 +607,7 @@
     }
    ]
   },
-  "09d383edf873e6bc2e586872": {
+  "67a335c0711eb69eb5a64c1f": {
    "task": "extractor:article",
    "turn": 7,
    "delayMs": 120,
@@ -631,17 +630,6 @@
     }
    ]
   },
-  "06767c263302cf161da120b2": {
-   "task": "evidence:c4@r1#1",
-   "turn": 3,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
   "ee3a1581bc0a680e94c844e2": {
    "task": "evidence:c5@r1#1",
    "turn": 2,
@@ -650,6 +638,24 @@
     {
      "type": "message",
      "text": "done"
+    }
+   ]
+  },
+  "39b0fdef671addecb8c519e3": {
+   "task": "evidence:c4@r1#1",
+   "turn": 3,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimId": "c4",
+      "claimRevision": 1,
+      "currentFactId": "NetIncomeLoss/Q2-FY2027/26-000075",
+      "baseFactId": "NetIncomeLoss/Q2-FY2026/26-000075",
+      "alternateBaseFactId": "NetIncomeLoss/Q1-FY2027/26-000052"
+     }
     }
    ]
   },
@@ -686,25 +692,7 @@
     }
    ]
   },
-  "62feb2360eb1e543f376cee0": {
-   "task": "auditor:c4@r1.e1",
-   "turn": 0,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "request_correction",
-     "args": {
-      "claimId": "c4",
-      "claimRevision": 1,
-      "evidenceRevision": 1,
-      "target": "claim",
-      "reason": "The sentence \"Net income climbed 18% to $59.7 billion\" does not say what the 18% is measured against. comparison must be \"unspecified\", not \"qoq\"."
-     }
-    }
-   ]
-  },
-  "a4fd87a7797279c84a7004f1": {
+  "faa23b8c467334b6c277431e": {
    "task": "auditor:c5@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -743,7 +731,7 @@
     }
    ]
   },
-  "5d9e2cd67c18d0250d3a59dd": {
+  "214c34ea1ae33168873302de": {
    "task": "extractor:article",
    "turn": 8,
    "delayMs": 120,
@@ -766,70 +754,20 @@
     }
    ]
   },
+  "73dab6e39b9e212b44397c2f": {
+   "task": "evidence:c4@r1#1",
+   "turn": 4,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
   "db2921e41ec158608caed2b4": {
    "task": "evidence:c6@r1#1",
    "turn": 2,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "2ebf210dfdaa462bd394155a": {
-   "task": "evidence:c3@r1#2",
-   "turn": 2,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "Rebound with the year-over-year comparative from the same 10-Q."
-    }
-   ]
-  },
-  "f416bd5a7a600dd6acb41b2b": {
-   "task": "extractor-fix:c4@r1",
-   "turn": 0,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "revise_claim",
-     "args": {
-      "claimId": "c4",
-      "fromRevision": 1,
-      "reason": "comparison basis is not stated in the sentence",
-      "accounting": "unspecified",
-      "qualifier": "exact",
-      "scale": "units",
-      "quote": "Net income climbed 18% to $59.7 billion",
-      "metric": "net_income",
-      "kind": "change",
-      "fiscalYear": 2027,
-      "fiscalPeriod": "Q2",
-      "comparison": "unspecified",
-      "direction": "increase",
-      "statedNumber": "18",
-      "statedUnit": "percent"
-     }
-    }
-   ]
-  },
-  "1d703dfeef5440a43e0b9935": {
-   "task": "auditor:c4@r1.e1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "e34aace2274036d72779850c": {
-   "task": "auditor:c5@r1.e1",
-   "turn": 1,
    "delayMs": 120,
    "items": [
     {
@@ -854,7 +792,47 @@
     }
    ]
   },
-  "4a51926d560cb9cc4e7c2d4d": {
+  "2ebf210dfdaa462bd394155a": {
+   "task": "evidence:c3@r1#2",
+   "turn": 2,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "Rebound with the year-over-year comparative from the same 10-Q."
+    }
+   ]
+  },
+  "08141a47c21ccde153662cbd": {
+   "task": "auditor:c5@r1.e1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "f8b1da04f22885e3e76e53ce": {
+   "task": "auditor:c4@r1.e1",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "request_correction",
+     "args": {
+      "claimId": "c4",
+      "claimRevision": 1,
+      "evidenceRevision": 1,
+      "target": "claim",
+      "reason": "The sentence \"Net income climbed 18% to $59.7 billion\" does not say whether this is GAAP or adjusted net income. accounting must be \"unspecified\", not \"gaap\"."
+     }
+    }
+   ]
+  },
+  "ff0397882e7de525a0c6113c": {
    "task": "auditor:c6@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -871,7 +849,7 @@
     }
    ]
   },
-  "310179bab47f453b9f79424b": {
+  "c08aa234b6a4e6ce3d785445": {
    "task": "auditor:c3@r1.e2",
    "turn": 0,
    "delayMs": 120,
@@ -899,7 +877,7 @@
     }
    ]
   },
-  "2d5f507cb65ddda81666a41d": {
+  "d4a1c22491d3591b8be40001": {
    "task": "extractor:article",
    "turn": 9,
    "delayMs": 120,
@@ -922,50 +900,6 @@
     }
    ]
   },
-  "f7c7ae20f3b7e477a491481d": {
-   "task": "evidence:c9@r1#1",
-   "turn": 0,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "search_facts",
-     "args": {
-      "metric": "revenue",
-      "fiscalYear": 2026,
-      "fiscalPeriod": "FY"
-     }
-    }
-   ]
-  },
-  "ef019c7a6ccda92fe5bf955c": {
-   "task": "context:c4@r2",
-   "turn": 0,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "function_call",
-     "name": "add_context_warning",
-     "args": {
-      "claimId": "c4",
-      "claimRevision": 2,
-      "code": "MISLEADING_FRAMING",
-      "message": "The growth rate is placed next to the dollar figure without saying what it is measured against, so readers will assume a year-over-year comparison."
-     }
-    }
-   ]
-  },
-  "d7609049b4d52ba50a0ef3d7": {
-   "task": "extractor-fix:c4@r1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
   "410fe3f81724057b75eb01fb": {
    "task": "evidence:c8@r1#1",
    "turn": 1,
@@ -982,23 +916,46 @@
     }
    ]
   },
-  "bdcde8f202c8d4f9fe4a22bc": {
-   "task": "evidence:c4@r2#1",
+  "4cc356fc7855d0eeabf64fb9": {
+   "task": "extractor-fix:c4@r1",
    "turn": 0,
    "delayMs": 120,
    "items": [
     {
      "type": "function_call",
-     "name": "search_facts",
+     "name": "revise_claim",
      "args": {
+      "claimId": "c4",
+      "fromRevision": 1,
+      "reason": "the sentence does not say GAAP or adjusted",
+      "accounting": "unspecified",
+      "qualifier": "exact",
+      "scale": "units",
+      "quote": "Net income climbed 18% to $59.7 billion",
       "metric": "net_income",
+      "kind": "change",
       "fiscalYear": 2027,
-      "fiscalPeriod": "Q2"
+      "fiscalPeriod": "Q2",
+      "comparison": "unspecified",
+      "direction": "increase",
+      "statedNumber": "18",
+      "statedUnit": "percent"
      }
     }
    ]
   },
-  "2167e13809b1373ed292c52c": {
+  "48090b1b9b02408b7929693d": {
+   "task": "auditor:c4@r1.e1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "fc08bfa044f54321c6413d3e": {
    "task": "auditor:c6@r1.e1",
    "turn": 1,
    "delayMs": 120,
@@ -1009,7 +966,7 @@
     }
    ]
   },
-  "a86cd13c28252b818df53dc7": {
+  "6b2cf4d3566abb0308977089": {
    "task": "auditor:c3@r1.e2",
    "turn": 1,
    "delayMs": 120,
@@ -1017,6 +974,22 @@
     {
      "type": "message",
      "text": "done"
+    }
+   ]
+  },
+  "f7c7ae20f3b7e477a491481d": {
+   "task": "evidence:c9@r1#1",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "revenue",
+      "fiscalYear": 2026,
+      "fiscalPeriod": "FY"
+     }
     }
    ]
   },
@@ -1037,7 +1010,7 @@
     }
    ]
   },
-  "d0cff312439508d4b8caa8ea": {
+  "2c4c166e47dd8d40a04cef6c": {
    "task": "extractor:article",
    "turn": 10,
    "delayMs": 120,
@@ -1045,6 +1018,45 @@
     {
      "type": "message",
      "text": "Submitted 10 claims."
+    }
+   ]
+  },
+  "ab3fb6f1dbdf615f7c1c8b84": {
+   "task": "evidence:c8@r1#1",
+   "turn": 2,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "ef019c7a6ccda92fe5bf955c": {
+   "task": "context:c4@r2",
+   "turn": 0,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "add_context_warning",
+     "args": {
+      "claimId": "c4",
+      "claimRevision": 2,
+      "code": "MISLEADING_FRAMING",
+      "message": "The growth rate is placed next to the dollar figure without saying what it is measured against, so readers will assume a year-over-year comparison."
+     }
+    }
+   ]
+  },
+  "e4e0cfb903953cf0a650e415": {
+   "task": "extractor-fix:c4@r1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
     }
    ]
   },
@@ -1064,28 +1076,6 @@
     }
    ]
   },
-  "57d3718a100bc73efe2501b1": {
-   "task": "context:c4@r2",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
-  "ab3fb6f1dbdf615f7c1c8b84": {
-   "task": "evidence:c8@r1#1",
-   "turn": 2,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
   "04f79fa269dd16ccb918b63b": {
    "task": "evidence:c10@r1#1",
    "turn": 0,
@@ -1102,9 +1092,9 @@
     }
    ]
   },
-  "cd84354fc25d5599e9deacfa": {
+  "bdcde8f202c8d4f9fe4a22bc": {
    "task": "evidence:c4@r2#1",
-   "turn": 1,
+   "turn": 0,
    "delayMs": 120,
    "items": [
     {
@@ -1112,13 +1102,13 @@
      "name": "search_facts",
      "args": {
       "metric": "net_income",
-      "fiscalYear": 2026,
+      "fiscalYear": 2027,
       "fiscalPeriod": "Q2"
      }
     }
    ]
   },
-  "127fa66a90d6606084aaf8ce": {
+  "6be0b66acf52f3fe85f582b9": {
    "task": "auditor:c8@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -1137,6 +1127,17 @@
   },
   "b1a4fdf63a4838cdf63917bb": {
    "task": "context:c10@r1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
+  "57d3718a100bc73efe2501b1": {
+   "task": "context:c4@r2",
    "turn": 1,
    "delayMs": 120,
    "items": [
@@ -1172,9 +1173,9 @@
     }
    ]
   },
-  "e9d54c2ed4b41cb8a3a89482": {
+  "cd84354fc25d5599e9deacfa": {
    "task": "evidence:c4@r2#1",
-   "turn": 2,
+   "turn": 1,
    "delayMs": 120,
    "items": [
     {
@@ -1182,13 +1183,13 @@
      "name": "search_facts",
      "args": {
       "metric": "net_income",
-      "fiscalYear": 2027,
-      "fiscalPeriod": "Q1"
+      "fiscalYear": 2026,
+      "fiscalPeriod": "Q2"
      }
     }
    ]
   },
-  "d6bc87cf588a73c940b01606": {
+  "7bb065a0f5237a61661d3d24": {
    "task": "auditor:c8@r1.e1",
    "turn": 1,
    "delayMs": 120,
@@ -1199,7 +1200,7 @@
     }
    ]
   },
-  "143f990329bb5d3a6eb16cb7": {
+  "470edf1d705a58c6e384318f": {
    "task": "auditor:c9@r1.e1",
    "turn": 0,
    "delayMs": 120,
@@ -1227,6 +1228,33 @@
     }
    ]
   },
+  "e9d54c2ed4b41cb8a3a89482": {
+   "task": "evidence:c4@r2#1",
+   "turn": 2,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "net_income",
+      "fiscalYear": 2027,
+      "fiscalPeriod": "Q1"
+     }
+    }
+   ]
+  },
+  "6dc732074bbe6f2dc656c6b6": {
+   "task": "auditor:c9@r1.e1",
+   "turn": 1,
+   "delayMs": 120,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ]
+  },
   "66a9db1d7bae96dba5b0b7e9": {
    "task": "evidence:c4@r2#1",
    "turn": 3,
@@ -1245,17 +1273,6 @@
     }
    ]
   },
-  "b55611882c60f64b2f32935c": {
-   "task": "auditor:c9@r1.e1",
-   "turn": 1,
-   "delayMs": 120,
-   "items": [
-    {
-     "type": "message",
-     "text": "done"
-    }
-   ]
-  },
   "01a56ed63594a931e92eb04f": {
    "task": "evidence:c4@r2#1",
    "turn": 4,
@@ -1267,7 +1284,7 @@
     }
    ]
   },
-  "3dc4a76d2795ef9e40e451b8": {
+  "9d43484d41810e0f6b2526f3": {
    "task": "auditor:c4@r2.e2",
    "turn": 0,
    "delayMs": 120,
@@ -1279,12 +1296,12 @@
       "claimId": "c4",
       "claimRevision": 2,
       "evidenceRevision": 2,
-      "note": "Basis now correctly unspecified; checked year-over-year by convention, with the quarter-over-quarter figure shown as context."
+      "note": "Accounting basis now correctly unspecified; checked against GAAP net income, year-over-year by convention, with the quarter-over-quarter figure shown as context."
      }
     }
    ]
   },
-  "c6ea33aba0ab15300cdba1b8": {
+  "fec77694ab56141b435001a9": {
    "task": "auditor:c4@r2.e2",
    "turn": 1,
    "delayMs": 120,
@@ -1295,7 +1312,7 @@
     }
    ]
   },
-  "55c10326dd14c7cea6954a08": {
+  "9b428e4396344c0ff0ad4127": {
    "task": "context:c4@r1",
    "turn": 1,
    "delayMs": 120,

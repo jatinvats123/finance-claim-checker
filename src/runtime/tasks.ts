@@ -13,7 +13,7 @@ export type Task = {
 	evidenceRevision?: number
 	contextId: string
 	loopId?: string
-	failure?: { kind: "CACHE_MISS" | "PROVIDER_ERROR"; message: string }
+	failure?: { kind: "CACHE_MISS" | "PROVIDER_ERROR" | "LIMIT_REACHED"; message: string }
 	done: boolean
 }
 

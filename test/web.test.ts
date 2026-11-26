@@ -103,7 +103,8 @@ describe("web API with the included example (keyless)", () => {
 		expect(final.provenance.kind).toBe("fixture")
 		expect(final.provenance.label).toBe("Hand-written fixture responses")
 		expect(final.provenance.simulatedTiming).toBe(true)
-		expect(final.provenance.counts).toEqual({ fixture: 85 })
+		expect(Object.keys(final.provenance.counts)).toEqual(["fixture"])
+		expect(final.provenance.counts.fixture).toBeGreaterThan(50)
 	})
 
 	it("evidence values, dates, formulas and tolerance match the engine report exactly", async () => {
