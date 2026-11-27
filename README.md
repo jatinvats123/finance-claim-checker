@@ -38,7 +38,7 @@ Verified on 27 Nov 2026 with a real model (`gemini-3.1-flash-lite`) on fresh art
 | SEC XBRL, **20-F**, IFRS, **USD only** | ✅ works | Infosys: dollar claims checked; rupee claims reported as *not comparable* (no exchange rate is applied) |
 | SEC XBRL, **40-F** | ⚠ supported in code, not run | same path as 20-F |
 | SEC XBRL, bank income statements | ✅ unit-tested | JPMorgan's `RevenuesNetOfInterestExpense` is used as revenue |
-| **Official report PDF** with a text layer (results tables) | ✅ works, tested on generated PDFs | quarter, half-year and year columns; same-date columns; "(Rs. in crore)" unit notes; consolidated vs standalone statements; EPS rows. **Not yet run on a real company PDF** |
+| **Official report PDF** with a text layer (results tables) | ✅ figures read and verified on a **real company PDF** | TCS's Ind AS consolidated interim statements for Q2 FY27 (58 pages): two live Reader runs each ended with **20/20 figures verified** on the profit and loss page (revenue, both profit lines, EPS, four columns), values exact. Also generated test PDFs: quarter/half/year columns, same-date columns, "(Rs. in crore)", consolidated vs standalone. The full claim check of the TCS article is **pending**: Gemini's free daily quota ran out mid-run (details under [A real company report](#a-real-company-report-tcs)) |
 | Scanned PDFs (no text layer) | ❌ not supported | reported as `REPORT_NO_TEXT`; no OCR |
 | HTML report pages, XLSX, iXBRL documents | ❌ not supported | an HTML URL is reported as `REPORT_NOT_PDF` |
 | Earnings releases (8-K, 6-K) | ❌ deliberately excluded | they are often the article's source, so using them would be circular |
@@ -47,7 +47,7 @@ Verified on 27 Nov 2026 with a real model (`gemini-3.1-flash-lite`) on fresh art
 | Metric | SEC concepts (priority order) | From a report PDF |
 |---|---|---|
 | Revenue | `Revenues`, `RevenueFromContractWithCustomer…`, `SalesRevenueNet`, `RevenuesNetOfInterestExpense`, IFRS `Revenue`, `RevenueFromContractsWithCustomers` | "Revenue from operations", "Total revenue", "Net sales" (never "Total income") |
-| Net income | `NetIncomeLoss`, IFRS `ProfitLossAttributableToOwnersOfParent`, then `ProfitLoss` (incl. non-controlling interests) | profit attributable to owners, else "Net profit for the period" |
+| Net income | `NetIncomeLoss`, IFRS `ProfitLossAttributableToOwnersOfParent`, then `ProfitLoss` (incl. non-controlling interests) | profit attributable to shareholders (also an indented "Shareholders of the Company" row read with its "attributable to:" heading), then "Profit for the period"; kept as two separate line items |
 | Gross profit | `GrossProfit` (US GAAP, IFRS) | rows labelled gross profit |
 | Operating income | `OperatingIncomeLoss`, IFRS `ProfitLossFromOperatingActivities` | rows labelled operating profit / income from operations |
 | Diluted / basic EPS | `EarningsPerShareDiluted/Basic`, IFRS `Diluted/BasicEarningsLossPerShare` | "(b) Diluted" / "(a) Basic" rows |
@@ -160,7 +160,7 @@ flowchart LR
 |---|---|---|---|
 | **Reader** | LLM agent + code | `article.submitted` (report runs only) | Reads the statement pages that code selected (pages with revenue, profit and EPS rows, a unit note and column dates) and proposes facts with `record_facts`: metric, page, row label, column, value as printed. Code verifies each one on the page (`src/docs/verify.ts`) before it becomes evidence. The run continues only if at least one figure was verified. |
 | **Extractor** | LLM agent | `reference.ready`, claim corrections | Turns sentences into structured claims (`submit_claim`) and fixes a claim when the auditor asks (`revise_claim`). Code checks that each quote appears verbatim in the article, that the stated number, scale and basis match the quote, and reads the currency and consolidated/standalone basis from the text itself. |
-| **Evidence** | LLM agent | `claim.revised`, evidence corrections | Searches statement facts (SEC XBRL or verified report facts) and binds them **by id only** (`search_facts`, `bind_evidence`, `report_no_reference`). It never passes numbers. |
+| **Evidence** | code + LLM agent | `claim.revised`, evidence corrections | Binds statement facts (SEC XBRL or verified report facts) **by id only**; it never passes numbers. **Clear cases are bound by code with no model call** (`src/domain/evidence-plan.ts`): a level claim with exactly one figure for its metric, period, currency and consolidation, consistent across filings; or a period no statement covers. Change claims, conflicting or restated figures, a line item the article names, or a missing standalone figure go to the LLM agent. Its first prompt lists the candidate facts for the claim's period and comparison periods, so it can `bind_evidence` on its first turn; `search_facts` and `report_no_reference` stay available. |
 | **Context** | LLM agent | `claim.revised` | Flags framing problems such as cherry-picking, attribution and superlatives, kept separate from the numerical verdict. |
 | **Calculator** | code | `evidence.bound` | Resolves values from evidence ids, computes, and attaches rule-based context warnings. |
 | **Auditor** | code + LLM | `calculation.completed` | The rule gate blocks bad evidence and sends a correction request. The LLM review checks that the interpretation matches the sentence, then approves or requests a correction. |
@@ -202,6 +202,12 @@ The value used is the printed number × the note's scale, computed exactly in de
 - **Restatements and stock splits:** the comparison value is taken *as presented in the same filing*, so it's split-adjusted. Material differences between filings are flagged as `RESTATED`.
 
 **3. The auditor can correct, not just comment.** The rule gate checks source form, line item, period, duration, comparison base, same-filing comparatives and revision numbers. When a check fails, it **blocks** the result and sends a correction request to the agent that owns the faulty part: the evidence agent or the extractor. The fix triggers re-binding and **recalculation**. The LLM review can do the same for interpretation errors. Each claim has a budget of two corrections; after that it is marked `UNRESOLVED`.
+
+A binding made by code goes through exactly the same calculator, rule gate, LLM review and correction flow as an agent's binding. An evidence correction on it is handled by the Evidence agent (`test/evidence-fastpath.test.ts`).
+
+Before binding, code checks for restatements and conflicting figures. If the same line item and period appears with different values, for example Wipro's FY2024 diluted EPS (₹20.82 as first reported, ₹10.41 restated after a bonus issue), the claim goes to the agent with both figures listed, and the receipt carries a `RESTATED` warning.
+
+In the hand-written demo this cuts model calls from 86 to 68.
 
 **4. Claims and evidence are versioned.** Every claim has a revision (`r1`, `r2`…), and every evidence binding has an evidence revision (`e1`, `e2`…). Every derived result is stamped with the revisions it was computed from:
 - Revising a claim invalidates that claim's evidence, calculation, audit and context warnings. Rebinding evidence invalidates its calculation and audit.
@@ -313,7 +319,8 @@ npm run check -- --article my-article.md --mode record                        # 
 | `test/limits.test.ts` | Call/turn caps, USD budget from measured usage, retries and retry hints, pacing, request timeout, a capped run finishing cleanly |
 | `test/gemini.test.ts` | Gemini thought signatures and call ids round-trip |
 | `test/challenge.test.ts` | Reviewer recheck: accepted change → new revision, only that claim re-run; declined → earlier outcome restored; a recheck cannot launder a units error |
-| `test/multicompany.test.ts` | Company resolution over SEC's full list (tickers, names, mentions, ambiguity, unknown companies, no fallback); currency and consolidation read from the text; lakh / crore / lakh crore and Indian digit grouping; 20-F reporting currency vs convenience translation; ₹ crore vs INR statements; rupee claim vs USD-only filer → not comparable; primary vs named line item; JPMorgan bank revenue; report PDF verification (row, column, period type, same-date columns, unit note, consolidation); a full pipeline run against a report; a PDF without statement pages stops with a reason |
+| `test/multicompany.test.ts` | Company resolution over SEC's full list (tickers, names, mentions, ambiguity, unknown companies, no fallback); currency and consolidation read from the text; lakh / crore / lakh crore and Indian digit grouping; 20-F reporting currency vs convenience translation; ₹ crore vs INR statements; rupee claim vs USD-only filer → not comparable; primary vs named line item; JPMorgan bank revenue; report PDF verification (row, column, period type, same-date columns, unit note, consolidation); a real-world interim layout (four-line column headers, an indented attributable-profit row, no annual column, fiscal year from "year ended" in the text); a full pipeline run against a report; a PDF without statement pages stops with a reason |
+| `test/evidence-fastpath.test.ts` | Evidence triage: the single unambiguous figure bound by code (Wipro ₹12.25 EPS → figures differ, ₹12.52, audit complete, zero Evidence model calls); stated vs unstated currency and convenience translations; "no statement for the period" by code; change claims, conflicting/restated filings, named line items and missing standalone figures go to the agent with the candidates preloaded (YoY bound on the first turn, no search); an evidence correction on a code binding still reaches the agent |
 
 ## Notes on Mozaik 6.0.0 (found while building)
 
@@ -372,6 +379,22 @@ The Walmart numbers in that table are from run 2, after the fixes, so they are n
 | An uploaded file that is HTML, not PDF | `422 REPORT_NOT_PDF` |
 | A report URL on `localhost` or a private network | `422 REPORT_URL_REJECTED` (a public server must not fetch internal addresses) |
 | A PDF with no statement pages | the run stops with `REFERENCE_UNAVAILABLE: no financial-statement page … was found` |
+
+### A real company report (TCS)
+
+TCS files no financial statements with the SEC, so its articles are checked against its own report. The test used TCS's official **Ind AS consolidated interim statements for Q2 FY27** (`Consolidated.pdf` from tcs.com investor relations, 58 pages, sha256 `07e79089…10193`) and a fresh article with real figures, two deliberate errors, a standalone figure and a margin (`data/articles/tcs-q2-fy2027-inr.md`; ground truth T1–T10 in `eval/multi-company.json`).
+
+- **Getting the PDF.** tcs.com answers `403 Forbidden` to any server download. The app reports that (`REPORT_FETCH_FAILED`) and the PDF is used through the upload instead. The PDF is TCS's document, so it is not committed: save it to `eval/reports/TCS-Q2FY27-IndAS-Consolidated.pdf` to re-run the evaluation.
+- **What the real PDF exposed, and what changed** (none of it showed up in the generated test PDFs):
+  1. Column headers printed over four lines ("Three months" / "ended" / "September 30," / "2026"). Code now groups stacked header cells into columns and reads each top to bottom.
+  2. Profit attributable to shareholders (₹13,884 crore) is an indented row, "Shareholders of the Company", under "Profit for the period attributable to:". Code now reads the row together with its heading, and rejects the same label under "Total comprehensive income … attributable to:".
+  3. Profit for the period (₹13,934 crore, incl. non-controlling interests) and profit attributable to shareholders are now separate line items, like `ProfitLoss` and `NetIncomeLoss` in SEC data.
+  4. The statement has only three- and six-month columns, no annual one. The fiscal year end is now taken from "year ended March 31, 2026" in the report's own text, so the quarter is labelled Q2 FY2027.
+  5. The ₹ sign is printed with a font that extracts as a backtick: "( \` crore)". The unit-note reader accepts it.
+- **Reader results on the real page.** Two live runs (`gemini-3.1-flash-lite`, then `gemini-3.5-flash`) each ended with the same 20 facts verified on page 2: revenue, profit for the period, profit attributable to shareholders, and basic and diluted EPS, for Q2 FY27, Q2 FY26, H1 FY27 and H1 FY26. Every value is exact.
+  - The first run also proposed "Operating income" from the segment note 8 times. Code rejected each one: that table names its period in the page title, so the figure cannot be placed under a dated column.
+  - That run also showed two weaknesses, both fixed. The Reader kept resubmitting rejected figures, and now gets at most two submissions. When a provider error ended its last turn, the run discarded figures code had already verified; verified figures are now kept and the early stop is logged.
+- **Not finished yet.** Both runs stopped on Google's free daily quotas: 500 requests for `gemini-3.1-flash-lite` (used up by the recordings above) and 20 for `gemini-3.5-flash`. So the TCS article's claims (T1–T10) have not been checked end to end yet. No paid model was used. The run resumes when the free quota resets.
 
 **Rechecking with a real model.** A reviewer challenge on the Apple sample ("Is this the fourth quarter only, or the full fiscal year?") was answered by the live model in 9 calls:
 - the extractor kept Q4 FY2026, which created revision r2;
@@ -473,7 +496,7 @@ A real `docker build` has not been run here.
 
 ## Limitations
 
-- Live runs have been verified with Google Gemini only (`gemini-3.5-flash-lite` on 26 Nov, `gemini-3.1-flash-lite` on 27 Nov). Claude and OpenAI paths go through Mozaik's adapters and our safety limits but have not been run against the real APIs here.
+- Live runs have been verified with Google Gemini only (`gemini-3.5-flash-lite` on 26 Nov, `gemini-3.1-flash-lite` on 27 Nov, and `gemini-3.5-flash` for one Reader run on the TCS report). Claude and OpenAI paths go through Mozaik's adapters and our safety limits but have not been run against the real APIs here.
 - The checker covers six statement line items (revenue, net income, gross profit, operating income, diluted and basic EPS) for one company per article. Ratios such as margins are not representable and are reported as not verifiable or skipped.
 - Report PDFs: text-based PDFs with results tables only. No OCR, no HTML or XLSX reports. Column and label alignment is heuristic: a layout the checks cannot read leads to rejected figures (reported), never to a guessed value.
 - Foreign issuers' quarterly results (6-K) are not in SEC XBRL, so their quarters need the report PDF.

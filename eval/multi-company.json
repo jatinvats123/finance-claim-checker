@@ -1,6 +1,12 @@
 {
-	"description": "Fresh articles about four other companies (two fiscal calendars besides NVIDIA's, two 20-F filers, INR and USD) plus an unknown company. Ground truth computed by hand from the committed SEC snapshots (data/sec-snapshot/*.json, fetched 2026-11-26/27).",
+	"description": "Fresh articles about five other companies (two fiscal calendars besides NVIDIA's, two 20-F filers, INR and USD, and TCS, which files no statements with the SEC and is checked against its own report PDF) plus an unknown company. Ground truth computed by hand from the committed SEC snapshots (data/sec-snapshot/*.json, fetched 2026-11-26/27) and from page 2 of TCS's Ind AS consolidated interim statements for Q2 FY27.",
 	"articles": {
+		"tcs": {
+			"path": "data/articles/tcs-q2-fy2027-inr.md",
+			"company": "Tata Consultancy Services",
+			"reportFile": "eval/reports/TCS-Q2FY27-IndAS-Consolidated.pdf",
+			"reportSource": "https://www.tcs.com/content/dam/tcs/investor-relations/financial-statements/2026-27/q2/IND%20AS/Consolidated.pdf (sha256 07e79089771b413feeb29d2dd6c4de931bfc94bb031136791e9dace147c10193; tcs.com refuses server downloads, so open it in a browser and save it)"
+		},
 		"apple": { "path": "data/articles/apple-fy2026.md" },
 		"walmart": { "path": "data/articles/walmart-q2-fy2027.md" },
 		"wipro": { "path": "data/articles/wipro-fy2025-inr.md" },
@@ -42,6 +48,17 @@
 		{ "id": "I3", "article": "infosys", "metric": "revenue", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "19.28", "expected": "MATCH", "truth": "FY2025 revenue $19.277B (20-F accn 0000950170-25-091925)" },
 		{ "id": "I4", "article": "infosys", "metric": "revenue", "kind": "change", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "3.9", "expected": "MATCH", "truth": "19.277 / 18.562 = +3.85%" },
 		{ "id": "I5", "article": "infosys", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "0.76", "expected": "MATCH", "truth": "diluted EPS $0.76" },
-		{ "id": "I6", "article": "infosys", "metric": "revenue", "kind": "change", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "3", "expected": "SKIP", "truth": "guidance for the coming year" }
+		{ "id": "I6", "article": "infosys", "metric": "revenue", "kind": "change", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "3", "expected": "SKIP", "truth": "guidance for the coming year" },
+
+		{ "id": "T1", "article": "tcs", "metric": "revenue", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "73188", "expected": "MATCH", "truth": "revenue from operations ₹73,188 crore, three months ended Sep 30, 2026 (report p.2)" },
+		{ "id": "T2", "article": "tcs", "metric": "revenue", "kind": "change", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "11.2", "expected": "MATCH", "truth": "73,188 / 65,799 = +11.23%" },
+		{ "id": "T3", "article": "tcs", "metric": "net_income", "kind": "change", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "15", "expected": "MATCH", "truth": "profit attributable to shareholders 13,884 / 12,075 = +14.98%" },
+		{ "id": "T4", "article": "tcs", "metric": "net_income", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "13884", "expected": "MATCH", "truth": "profit for the period attributable to shareholders of the Company ₹13,884 crore" },
+		{ "id": "T5", "article": "tcs", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "38.37", "expected": "MATCH", "truth": "EPS basic and diluted ₹38.37" },
+		{ "id": "T6", "article": "tcs", "metric": "net_income", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "13934", "expected": "MISMATCH", "truth": "attributable to shareholders ₹13,884 crore; ₹13,934 crore is profit for the period including non-controlling interests" },
+		{ "id": "T7", "article": "tcs", "metric": "revenue", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "H1", "statedNumber": "1.45", "expected": "MATCH", "truth": "six months revenue ₹1,45,463 crore = ₹1.45 lakh crore" },
+		{ "id": "T8", "article": "tcs", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "H1", "statedNumber": "72.57", "expected": "MISMATCH", "truth": "six months EPS ₹75.27 (digits transposed)" },
+		{ "id": "T9", "article": "tcs", "metric": "net_income", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "12400", "expected": "ABSTAIN", "truth": "a standalone figure: the consolidated report cannot confirm it" },
+		{ "id": "T10", "article": "tcs", "metric": "other", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "24.0", "expected": "ABSTAIN", "truth": "operating margin: not a statement line item" }
 	]
 }

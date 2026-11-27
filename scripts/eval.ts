@@ -8,7 +8,7 @@
  * kind, fiscal year/period and the stated number; nothing is fuzzy-matched.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
-import { join } from "node:path"
+import { basename, join } from "node:path"
 import { parseArgs } from "node:util"
 import { readArticle } from "../src/article.js"
 import { loadCompanyIndex } from "../src/company/companies.js"
@@ -20,7 +20,8 @@ import { prepareReference, ReferenceError } from "../src/runtime/reference.js"
 import { TaskTracker } from "../src/runtime/tasks.js"
 
 type Expected = { id: string; article: string; metric: string; kind: string; fiscalYear: number; fiscalPeriod: string; statedNumber: string; expected: "MATCH" | "MISMATCH" | "ABSTAIN" | "SKIP"; truth: string }
-type ArticleSpec = string | { path: string; company?: string; report?: string; expectReferenceError?: string }
+/** report: a PDF URL fetched by the server; reportFile: a local copy (for sites that block server downloads), with reportSource saying where it came from. */
+type ArticleSpec = string | { path: string; company?: string; report?: string; reportFile?: string; reportSource?: string; expectReferenceError?: string }
 
 const { values: args } = parseArgs({
 	options: {
@@ -53,8 +54,17 @@ for (const [art, a] of Object.entries(spec.articles)) {
 	const article = readArticle(as.path)
 	// the company and its reference are resolved exactly as for any custom article (committed SEC snapshots)
 	let ref: Awaited<ReturnType<typeof prepareReference>>
+	if (as.reportFile && !existsSync(as.reportFile)) {
+		// the PDF is the company's document and is not committed: say how to get it instead of skipping silently
+		runs[art] = { status: `not run: ${as.reportFile} is missing. Download it from ${as.reportSource ?? "the company's investor-relations site"} and save it there.` }
+		console.log(`[${art}] not run (report file missing: ${as.reportFile})`)
+		for (const x of spec.claims.filter((c) => c.article === art)) rows.push({ id: x.id, expected: x.expected, outcome: "not run (report PDF missing locally)", correct: false, truth: x.truth })
+		runFailures++
+		continue
+	}
+	const report = as.report ? { url: as.report } : as.reportFile ? { file: { name: basename(as.reportFile), base64: readFileSync(as.reportFile).toString("base64") } } : undefined
 	try {
-		ref = await prepareReference({ article, company: as.company ? { query: as.company, name: as.company } : undefined, report: as.report ? { url: as.report } : undefined, preferCommitted: true }, companyIndex)
+		ref = await prepareReference({ article, company: as.company ? { query: as.company, name: as.company } : undefined, report, preferCommitted: true }, companyIndex)
 	} catch (e) {
 		if (!(e instanceof ReferenceError)) throw e
 		const ok = as.expectReferenceError === e.code

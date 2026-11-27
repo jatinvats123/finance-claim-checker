@@ -15,7 +15,7 @@ import { createEvidenceAgent } from "../agents/evidence-agent.js"
 import { createExtractor } from "../agents/extractor.js"
 import { createReader } from "../agents/reader.js"
 import type { ReportDoc } from "../docs/pdf.js"
-import { documentBasis, documentCurrency, selectStatementPages } from "../docs/verify.js"
+import { documentBasis, documentCurrency, documentFiscalYearEnd, selectStatementPages } from "../docs/verify.js"
 import { CheckerState } from "../domain/store.js"
 import type { InferenceRunner, SemanticEvent } from "@mozaik-ai/core"
 import { EvidenceRegistry, type ReferenceInfo } from "../sec/evidence.js"
@@ -110,8 +110,11 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 		switch (task.role) {
 			case "reader": {
 				const r = state.report!
-				if (!fail && r.accepted.length) {
-					state.registry = new EvidenceRegistry({ kind: "report", info: r.info, facts: r.accepted })
+				// facts are verified by code as they are recorded, so they stand even if the Reader's last turn failed (e.g. a provider quota error)
+				if (fail && r.accepted.length) state.log("reader.stopped", `the Reader stopped early (${fail}); using the ${r.accepted.length} facts already verified on their pages`)
+				if (r.accepted.length) {
+					// fiscal years from the report's annual columns, else from "year ended <date>" stated in the report
+					state.registry = new EvidenceRegistry({ kind: "report", info: r.info, facts: r.accepted, fiscalYearEnd: documentFiscalYearEnd(r.doc) })
 					const labelled = state.registry.all().filter((f) => !f.derivation).length
 					if (labelled) {
 						r.status = "ready"
@@ -121,7 +124,7 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 					}
 				}
 				r.status = "failed"
-				r.error = fail ?? (r.accepted.length ? "verified facts could not be placed in a fiscal year (the report has no annual column)" : `no figure could be verified on the report's statement pages (${r.rejected.length} proposals rejected)`)
+				r.error = fail ?? (r.accepted.length ? "verified facts could not be placed in a fiscal year (the report has no annual column and states no \"year ended\" date)" : `no figure could be verified on the report's statement pages (${r.rejected.length} proposals rejected)`)
 				state.extraction = "failed"
 				state.extractionError = fail ?? `REFERENCE_UNAVAILABLE: ${r.error}`
 				state.log("reference.failed", r.error)

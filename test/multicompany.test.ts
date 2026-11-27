@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest"
 import { loadCompanyIndex, resolveCompany, searchCompanies } from "../src/company/companies.js"
 import { checkAnchoring, consolidationOf, currencyOf, validateInterpretation } from "../src/agents/extractor.js"
 import { parsePdf } from "../src/docs/pdf.js"
-import { selectStatementPages, verifyProposed, type ProposedFact } from "../src/docs/verify.js"
+import { documentFiscalYearEnd, selectStatementPages, verifyProposed, type ProposedFact } from "../src/docs/verify.js"
 import { calculate } from "../src/domain/calculator.js"
 import { factChoice, priorPeriodAttribution, ruleWarnings } from "../src/domain/checks.js"
 import type { Claim, ClaimInterpretation } from "../src/domain/types.js"
@@ -17,7 +17,7 @@ import { prepareReference, ReferenceError } from "../src/runtime/reference.js"
 import { TaskTracker } from "../src/runtime/tasks.js"
 import { loadSnapshot } from "../src/sec/edgar.js"
 import { EvidenceRegistry } from "../src/sec/evidence.js"
-import { makePdf, resultsPage } from "./helpers/pdf.js"
+import { interimPage, makePdf, resultsPage } from "./helpers/pdf.js"
 
 const index = loadCompanyIndex()
 
@@ -192,7 +192,7 @@ describe("official report: every figure verified on its page", () => {
 				],
 				"extractor:article": [call("submit_claim", c1), call("submit_claim", c2), call("submit_claim", c3), { say: "3 claims" }],
 				"evidence:c1@r1#1": [call("bind_evidence", { claimId: "c1", claimRevision: 1, currentFactId: "Revenue/Q2-FY2026/p1" }), { say: "done" }],
-				"evidence:c2@r1#1": [call("bind_evidence", { claimId: "c2", claimRevision: 1, currentFactId: "NetIncome.standalone/Q2-FY2026/p2" }), { say: "done" }],
+				"evidence:c2@r1#1": [call("bind_evidence", { claimId: "c2", claimRevision: 1, currentFactId: "ProfitLoss.standalone/Q2-FY2026/p2" }), { say: "done" }],
 				"evidence:c3@r1#1": [call("bind_evidence", { claimId: "c3", claimRevision: 1, currentFactId: "Revenue/Q2-FY2026/p1", baseFactId: "Revenue/Q2-FY2025/p1" }), { say: "done" }],
 				"context:c1@r1": [{ say: "no context issues" }],
 				"context:c2@r1": [{ say: "no context issues" }],
@@ -228,5 +228,30 @@ describe("official report: every figure verified on its page", () => {
 		expect(res.state.extraction).toBe("failed")
 		expect(res.state.extractionError).toMatch(/^REFERENCE_UNAVAILABLE: no financial-statement page/)
 		expect(res.state.claims.size).toBe(0)
+	})
+
+	it("reads a real-world interim layout: stacked headers, indented attributable profit, fiscal year from the text", async () => {
+		const notes = Array.from({ length: 6 }, (_, i) => ({ x: 40, y: 700 - i * 16, text: `Note ${i + 1}: dividends paid during the year ended March 31, 2026 were approved by the Board.` }))
+		const bytes = makePdf([interimPage(), notes])
+		const pages = await parsePdf(bytes)
+		const doc = { fileName: "interim.pdf", sha256: "abcdef0123456789", bytes: bytes.length, pageCount: pages.length, pages, fetchedAt: "2026-11-27T00:00:00.000Z" }
+		expect(documentFiscalYearEnd(doc)).toBe("03-31")
+		expect(selectStatementPages(doc).map((p) => p.n)).toEqual([1])
+		const p: ProposedFact = { metric: "revenue", consolidation: "consolidated", page: 1, row: "Revenue from operations", column: "", periodType: "quarter", periodEnd: "2026-09-30", value: "73,188" }
+		const v = (o: Partial<ProposedFact>) => verifyProposed(doc, { ...p, ...o }, { basis: "Ind AS", docCurrency: "INR" })
+		expect(v({})).toMatchObject({ ok: true, fact: { value: 731880000000, start: "2026-07-01", location: { column: "Three months ended September 30, 2026" } } })
+		expect(v({ value: "1,45,463", periodType: "half" })).toMatchObject({ ok: true, fact: { value: 1454630000000, start: "2026-04-01" } })
+		expect(v({ value: "1,45,463" })).toMatchObject({ ok: false, reason: expect.stringMatching(/is a half column, not quarter/) })
+		expect(v({ value: "65,799" })).toMatchObject({ ok: false, reason: expect.stringMatching(/column dated 2025-09-30/) })
+		expect(v({ metric: "net_income", row: "Shareholders of the Company", value: "13,884" })).toMatchObject({ ok: true, fact: { concept: "report:NetIncome", location: { row: "Profit for the period attributable to: Shareholders of the Company" } } })
+		expect(v({ metric: "net_income", row: "PROFIT FOR THE PERIOD", value: "13,934" })).toMatchObject({ ok: true, fact: { concept: "report:ProfitLoss" } })
+		expect(v({ metric: "net_income", row: "Shareholders of the Company", value: "13,695" })).toMatchObject({ ok: false, reason: expect.stringMatching(/comprehensive income/i) })
+		expect(v({ row: "TOTAL INCOME", value: "74,525" })).toMatchObject({ ok: false })
+		expect(v({ metric: "eps_diluted", row: "Earnings per equity share:- Basic and diluted (Rs.)", value: "75.27", periodType: "half" })).toMatchObject({ ok: true, fact: { unit: "INR/shares", value: 75.27 } })
+
+		// without an annual column, the fiscal year comes from "year ended March 31" in the text: Q2 and H1 of FY2027
+		const facts = [v({}), v({ value: "65,799", periodEnd: "2025-09-30" }), v({ value: "1,45,463", periodType: "half" })].map((r) => (r.ok ? r.fact : undefined)!)
+		const reg = new EvidenceRegistry({ kind: "report", info: { kind: "report", entityName: "TestCo", fetchedAt: doc.fetchedAt, label: "test", sources: [] }, facts, fiscalYearEnd: documentFiscalYearEnd(doc) })
+		expect(reg.all().map((f) => `${f.fiscalPeriod}-FY${f.fiscalYear}`).sort()).toEqual(["H1-FY2027", "Q2-FY2026", "Q2-FY2027"])
 	})
 })

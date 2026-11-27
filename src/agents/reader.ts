@@ -11,11 +11,11 @@ import { VERIFIABLE_METRICS } from "../sec/types.js"
 const INSTRUCTION = `You read the financial statements in a company's official results report and record where each figure is printed. Code verifies every fact you record against the page (row, value on that row, column date, unit note, consolidated/standalone heading); rejected facts come back with a reason.
 For every statement table on the pages given (consolidated and standalone separately), and for every period column in it (quarter, half year, nine months, year), record these rows when the table has them:
 - revenue: "Revenue from operations", "Total revenue(s)" or "Net sales" (never "Total income" or "Other income").
-- net_income: profit attributable to owners/shareholders of the company if the table shows it; otherwise "Net profit / Profit for the period".
-- eps_basic and eps_diluted: the "Basic" and "Diluted" earnings-per-share rows.
+- net_income: record BOTH lines when printed — the profit attributable to owners/shareholders of the company, and the total "Net profit / Profit for the period". Code tells them apart. An indented row such as "Shareholders of the Company" under "Profit for the period attributable to:" is recorded with its printed label; code reads the heading above it (never use the comprehensive-income rows).
+- eps_basic and eps_diluted: the "Basic" and "Diluted" earnings-per-share rows (a single "Basic and diluted" row counts for both).
 - gross_profit and operating_income: only rows literally labelled gross profit / operating profit (or income from operations).
 Fields: page (number), row (the row label exactly as printed, e.g. "Revenue from operations" or "(a) Basic"), column (the column header as printed), periodType (quarter | half | nine_months | year), periodEnd (YYYY-MM-DD from the column header), value (exactly as printed, with its commas, decimals and parentheses), consolidation (consolidated | standalone, from the statement heading), metric.
-Call record_facts once with all facts. If some are rejected and the reason shows a fixable reading error, call record_facts once more with only the corrected ones. Never compute, convert or round a value, and never record a row that is not printed. Then reply "done".`
+Call record_facts once with all facts. If some are rejected and the reason shows a fixable reading error (a wrong column or period), call record_facts once more with only the corrected ones; do not resubmit figures code could not place on the page (they are not verifiable). At most two calls. Never compute, convert or round a value, and never record a row that is not printed. Then reply "done".`
 
 const FACT = {
 	type: "object",
@@ -35,6 +35,8 @@ const FACT = {
 export function createReader(ctx: Ctx): Agent {
 	const { state } = ctx
 	let selfId = ""
+	let submissions = 0
+	const MAX_SUBMISSIONS = 2
 
 	const recordFacts: Tool = {
 		type: "function",
@@ -45,6 +47,8 @@ export function createReader(ctx: Ctx): Agent {
 		invoke: async (args) => {
 			const r = state.report
 			if (!r) return reply("REJECTED: no report in this run")
+			// a figure code could not place on its page will not become verifiable by resubmitting it: two submissions, then stop
+			if (++submissions > MAX_SUBMISSIONS) return reply(`REJECTED: record_facts accepts ${MAX_SUBMISSIONS} submissions; ${r.accepted.length} facts are verified. Reply "done".`)
 			const list: ProposedFact[] = Array.isArray(args?.facts) ? args.facts.slice(0, 120) : []
 			if (!list.length) return reply("REJECTED: facts must be a non-empty array")
 			const rejected: { i: number; reason: string }[] = []
@@ -84,7 +88,7 @@ export function createReader(ctx: Ctx): Agent {
 					role: "reader",
 					key: "reader:report",
 					message: `Company: ${r.info.entityName}.
-Report: ${r.doc.url ?? r.doc.fileName ?? "uploaded PDF"} (${r.doc.pageCount} pages). Code selected these statement pages: ${r.pages.map((p) => p.n).join(", ")}.
+Report: official report PDF, ${r.doc.pageCount} pages, sha256 ${r.doc.sha256.slice(0, 16)} (identified by content, so the same file replays whether fetched or uploaded). Code selected these statement pages: ${r.pages.map((p) => p.n).join(", ")}.
 Each line below is one printed row; " | " separates cells.
 
 ${r.pages.map((p) => pageForModel(p)).join("\n\n")}`,

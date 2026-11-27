@@ -72,6 +72,8 @@ export function CheckForm({ meta, draft, setDraft, busy, onStart, onRunExample }
 	const needsReport = res?.status === "not_found" || (ref?.kind === "unavailable" && ref.needsReport) || error?.code === "COMPANY_NOT_FOUND" || error?.code === "SEC_DATA_UNAVAILABLE"
 	const secCompany = res?.status === "resolved" ? res.company : undefined
 	const [reportOpen, setReportOpen] = useState(false)
+	/** a sample's instructions for getting its report (e.g. a site that only serves the PDF to browsers) */
+	const [sampleReportNote, setSampleReportNote] = useState<string>()
 	useEffect(() => {
 		if (needsReport || hasReport) setReportOpen(true)
 	}, [needsReport, hasReport])
@@ -131,6 +133,7 @@ export function CheckForm({ meta, draft, setDraft, busy, onStart, onRunExample }
 							title={s.note}
 							onClick={() => {
 								setError(undefined)
+								setSampleReportNote(/\bPDF\b/.test(s.note) && /upload|download/i.test(s.note) ? s.note : undefined)
 								setDraft({ ...draft, title: s.title, text: s.text, company: s.company ?? "", cik: undefined, reportUrl: s.reportUrl ?? "", reportFile: undefined, companyName: s.reportUrl ? (s.company ?? "") : "" })
 							}}
 						>
@@ -205,6 +208,7 @@ export function CheckForm({ meta, draft, setDraft, busy, onStart, onRunExample }
 			<details className="report-box" open={reportOpen} onToggle={(e) => setReportOpen((e.target as HTMLDetailsElement).open)}>
 				<summary>Official report (PDF){needsReport ? " — needed for this company" : " — optional"}</summary>
 				<p className="hint">For a company without usable SEC data (for example an Indian company reporting in ₹ crore), give its official results PDF. Figures are read from the statement pages and verified by code against the page; anything that cannot be verified is reported, never filled in.</p>
+				{sampleReportNote && <p className="hint hint-warn">{sampleReportNote}</p>}
 				<div className="field">
 					<label htmlFor="report-url">PDF URL</label>
 					<input id="report-url" className="input" type="url" value={draft.reportUrl} onChange={(e) => set({ reportUrl: e.target.value, reportFile: undefined })} placeholder="https://… /results.pdf" />

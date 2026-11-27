@@ -44,10 +44,10 @@ export function datesIn(s: string): { date: string; at: number; len: number }[] 
 }
 
 const TYPE_LABEL: [PeriodType, RegExp][] = [
-	["half", /half[\s-]*year(?:ly)?\s+ended|six\s+months\s+ended|6\s+months\s+ended|\bh1\b/i],
-	["nine_months", /nine\s+months\s+ended|9\s+months\s+ended/i],
-	["quarter", /quarter\s+ended|three\s+months\s+ended|3\s+months\s+ended|\bquarter\b/i],
-	["year", /(?<!half[\s-]*)year\s+ended|twelve\s+months\s+ended|12\s+months\s+ended|financial\s+year|\byear\b/i],
+	["half", /half[\s-]*year(?:ly)?\s+ended|(?:six|6)[\s-]+months?(?:\s+period)?\s+ended|\bh1\b/i],
+	["nine_months", /(?:nine|9)[\s-]+months?(?:\s+period)?\s+ended/i],
+	["quarter", /quarter\s+ended|(?:three|3)[\s-]+months?(?:\s+period)?\s+ended|\bquarter\b/i],
+	["year", /(?<!half[\s-]*)year\s+ended|(?:twelve|12)[\s-]+months?(?:\s+period)?\s+ended|financial\s+year|\byear\b/i],
 ]
 const typeOf = (s: string): PeriodType | undefined => TYPE_LABEL.find(([, re]) => re.test(s))?.[0]
 
@@ -152,6 +152,71 @@ function headerDates(page: PdfPage, belowY: number): DateHeader[] {
 
 const xc = (it: PdfItem) => (it.x0 + it.x1) / 2
 
+const HDR_WORDS = new Set(
+	"note notes three six nine twelve month months quarter quarters half year years ended ending period periods as at audited unaudited reviewed refer for the and of jan january feb february mar march apr april may jun june jul july aug august sep sept september oct october nov november dec december".split(" "),
+)
+const STRONG = /^(ended|ending|months?|quarters?|year|half|period|jan|january|feb|february|mar|march|apr|april|may|jun|june|jul|july|aug|august|sep|sept|september|oct|october|nov|november|dec|december|(19|20)\d{2})$/
+const hdrTokens = (s: string) => s.toLowerCase().replace(/[(),.:/\-–]/g, " ").split(/\s+/).filter(Boolean)
+const isHeaderCell = (s: string) => {
+	const t = hdrTokens(s)
+	return t.length > 0 && t.every((w) => HDR_WORDS.has(w) || /^\d{1,2}(st|nd|rd|th)?$/.test(w) || /^(19|20)\d{2}$/.test(w))
+}
+const isHeaderLine = (l: PdfLine) => l.items.length >= 2 && l.items.filter((it) => isHeaderCell(it.str)).length >= 0.75 * l.items.length && l.items.some((it) => hdrTokens(it.str).some((w) => STRONG.test(w)))
+
+/**
+ * Column headers printed over several lines ("Three months" / "ended" / "September 30," / "2026"):
+ * take the block of header lines nearest above the row, group its cells into columns by horizontal
+ * overlap, and read each column top to bottom ("Three months ended September 30, 2026").
+ */
+function stackedColumns(page: PdfPage, aboveIdx: number): DateHeader[] {
+	let i = aboveIdx - 1
+	while (i >= 0 && !isHeaderLine(page.lines[i])) i--
+	if (i < 0) return []
+	const block: PdfLine[] = []
+	while (i >= 0 && isHeaderLine(page.lines[i])) block.unshift(page.lines[i--])
+	const cells = block.flatMap((l) => l.items.map((it) => ({ it, y: l.y }))).sort((a, b) => xc(a.it) - xc(b.it))
+	const cols: { x0: number; x1: number; cells: { it: PdfItem; y: number }[] }[] = []
+	for (const c of cells) {
+		const col = cols.find((k) => c.it.x0 <= k.x1 + 2 && c.it.x1 >= k.x0 - 2)
+		if (col) {
+			col.cells.push(c)
+			col.x0 = Math.min(col.x0, c.it.x0)
+			col.x1 = Math.max(col.x1, c.it.x1)
+		} else cols.push({ x0: c.it.x0, x1: c.it.x1, cells: [c] })
+	}
+	const out: DateHeader[] = []
+	for (const k of cols) {
+		const text = k.cells
+			.sort((a, b) => b.y - a.y || a.it.x0 - b.it.x0)
+			.map((c) => c.it.str.trim())
+			.join(" ")
+			.replace(/\s+/g, " ")
+		const d = datesIn(text)
+		if (d.length === 1) out.push({ date: d[0].date, x: (k.x0 + k.x1) / 2, y: k.cells[0].y, text })
+	}
+	return out
+}
+
+/** The nearest label line above a row that carries no numbers (e.g. "Profit for the period attributable to:"). */
+function rowHeading(page: PdfPage, idx: number): string {
+	for (let i = idx - 1; i >= Math.max(0, idx - 4); i--) {
+		const l = page.lines[i]
+		if (l.items.every((it) => parsePrinted(it.str) === undefined)) return l.text
+	}
+	return ""
+}
+
+/** "year ended March 31, 2026" in the report text → the fiscal year end ("03-31"), when no annual column states it. */
+export function documentFiscalYearEnd(doc: ReportDoc): string | undefined {
+	const counts = new Map<string, number>()
+	for (const p of doc.pages)
+		for (const m of p.text.matchAll(/(?:financial\s+|fiscal\s+)?year\s+end(?:ed|ing)\s+([^\n|]{6,32})/gi)) {
+			const d = datesIn(m[1])[0]
+			if (d && d.at <= 3) counts.set(d.date.slice(5), (counts.get(d.date.slice(5)) ?? 0) + 1)
+		}
+	return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0]
+}
+
 function startOf(end: string, type: PeriodType): string {
 	const months = { quarter: 3, half: 6, nine_months: 9, year: 12 }[type]
 	const d = new Date(`${end}T00:00:00Z`)
@@ -169,7 +234,7 @@ export function selectStatementPages(doc: ReportDoc, max = 4): PdfPage[] {
 		if (/profit for the (period|year|quarter)|net (profit|income)|profit attributable/i.test(t)) s += 3
 		if (/earnings per (equity )?share|\beps\b|per share/i.test(t)) s += 3
 		if (unitNotes(p).length) s += 2
-		if (headerDates(p, -Infinity).length >= 2) s += 2
+		if (headerDates(p, -Infinity).length >= 2 || stackedColumns(p, p.lines.length).length >= 2) s += 2
 		if (/statement of .*(results|profit and loss|income|operations)|consolidated statements? of (income|operations)/i.test(t)) s += 2
 		if (/independent auditor|auditor'?s report|limited review report/i.test(t)) s -= 4
 		return { p, s }
@@ -205,7 +270,10 @@ export function verifyProposed(doc: ReportDoc, p: ProposedFact, ctx: { basis: st
 	if (!/^\d{4}-\d{2}-\d{2}$/.test(p.periodEnd)) return fail(`periodEnd "${p.periodEnd}" must be YYYY-MM-DD`)
 	const row = norm(p.row ?? "")
 	if (row.length < 3) return fail("row label is missing")
-	if (!ROW_OK[p.metric]?.(p.row, page.text)) return fail(`row "${p.row}" is not a ${p.metric} line`)
+	if (!ROW_OK[p.metric]) return fail(`unknown metric "${p.metric}"`)
+	// rows that cannot be this metric are refused before looking at values; indented shareholder rows are checked with their heading below
+	const maybeAttributable = p.metric === "net_income" && /shareholders|owners|equity holders|parent|attributable/i.test(p.row)
+	if (!ROW_OK[p.metric](p.row, page.text) && !maybeAttributable) return fail(`row "${p.row}" is not a ${p.metric} line`)
 	const printed = parsePrinted(p.value ?? "")
 	if (printed === undefined) return fail(`value "${p.value}" is not a printed number`)
 
@@ -225,10 +293,14 @@ export function verifyProposed(doc: ReportDoc, p: ProposedFact, ctx: { basis: st
 		if (hit) break
 	}
 	if (!hit) return fail(`value "${target}" is not printed on the row "${p.row}" (page ${page.n})`)
-	const verified = [`row "${p.row}" found on page ${page.n}`, `value ${target} printed on that row`]
+	// the row must be a line of this metric; an indented row ("Shareholders of the Company") is read with its heading
+	const heading = rowHeading(page, hit.idx)
+	const attributableRow = p.metric === "net_income" && /shareholders|owners|equity holders|parent|attributable/i.test(p.row) && /profit|net income|earnings/i.test(`${p.row} ${heading}`) && /attributable/i.test(`${p.row} ${heading}`) && !/comprehensive/i.test(`${p.row} ${heading}`)
+	if (!ROW_OK[p.metric](p.row, page.text) && !attributableRow) return fail(`row "${p.row}"${heading ? ` (under "${heading}")` : ""} is not a ${p.metric} line`)
+	const verified = [`row "${p.row}"${attributableRow && !/attributable/i.test(p.row) ? ` under "${heading}"` : ""} found on page ${page.n}`, `value ${target} printed on that row`]
 
 	// 2. column: the nearest column-header date above the value must be the stated period end
-	const headers = headerDates(page, hit.line.y)
+	const headers = [...stackedColumns(page, hit.idx), ...headerDates(page, hit.line.y)]
 	if (!headers.length) return fail(`no column-header dates found above the value on page ${page.n}`)
 	// if the value cell holds several numbers, estimate this number's x within the cell
 	const cellX = (() => {
@@ -309,7 +381,8 @@ export function verifyProposed(doc: ReportDoc, p: ProposedFact, ctx: { basis: st
 	return {
 		ok: true,
 		fact: {
-			concept: reportConcept(p.metric),
+			// net income: profit attributable to the company's shareholders is the primary line; profit for the period (incl. non-controlling interests) is separate
+			concept: p.metric === "net_income" ? (attributableRow || /attributable/i.test(p.row) ? "report:NetIncome" : "report:ProfitLoss") : reportConcept(p.metric),
 			unit: perShare ? `${currency}/shares` : currency,
 			value,
 			start,
@@ -322,7 +395,7 @@ export function verifyProposed(doc: ReportDoc, p: ProposedFact, ctx: { basis: st
 			source: "report",
 			filingUrl: src,
 			documentUrl: doc.url ? `${doc.url}#page=${page.n}` : src,
-			location: { page: page.n, heading: cons.heading.slice(0, 160), row: p.row, column: p.column || nearest.text, printed: target, unitNote, verified },
+			location: { page: page.n, heading: cons.heading.slice(0, 160), row: attributableRow && !/attributable/i.test(p.row) ? `${heading.replace(/:\s*$/, "")}: ${p.row}` : p.row, column: nearest.text || p.column, printed: target, unitNote, verified },
 		},
 	}
 }

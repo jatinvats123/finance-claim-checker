@@ -3,3 +3,6 @@ node_modules/
 out/
 dist/
 .claude/
+
+# company report PDFs used by the evaluation (their documents; download them, not committed)
+eval/reports/*.pdf

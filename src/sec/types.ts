@@ -62,7 +62,7 @@ export const METRIC_CONCEPTS = {
 		"ifrs-full:RevenueFromContractsWithCustomers",
 		"report:Revenue",
 	],
-	net_income: ["us-gaap:NetIncomeLoss", "ifrs-full:ProfitLossAttributableToOwnersOfParent", "us-gaap:ProfitLoss", "ifrs-full:ProfitLoss", "report:NetIncome"],
+	net_income: ["us-gaap:NetIncomeLoss", "ifrs-full:ProfitLossAttributableToOwnersOfParent", "us-gaap:ProfitLoss", "ifrs-full:ProfitLoss", "report:NetIncome", "report:ProfitLoss"],
 	gross_profit: ["us-gaap:GrossProfit", "ifrs-full:GrossProfit", "report:GrossProfit"],
 	operating_income: ["us-gaap:OperatingIncomeLoss", "ifrs-full:ProfitLossFromOperatingActivities", "report:OperatingIncome"],
 	eps_diluted: ["us-gaap:EarningsPerShareDiluted", "ifrs-full:DilutedEarningsLossPerShare", "report:EPSDiluted"],

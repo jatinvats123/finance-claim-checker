@@ -95,7 +95,8 @@ describe("pipeline (keyless)", () => {
 	it("isolates provider failures to the affected claim", async () => {
 		const tasks = new TaskTracker()
 		const scripted = new CheckerRunner({ mode: "author", tasks, script: script as AuthorScript })
-		const failing = new Set(["evidence:c5@r1#1", "auditor:c1@r1.e1"])
+		// c2 is a change claim, so its evidence still goes to the agent (c5 is now bound by code without a model call)
+		const failing = new Set(["evidence:c2@r1#1", "auditor:c1@r1.e1"])
 		const flaky: InferenceRunner = {
 			run: async (input: InferenceInput): Promise<InferenceOutput> => {
 				const t = tasks.forContext(input.context.id)
@@ -110,18 +111,18 @@ describe("pipeline (keyless)", () => {
 		const { state, timedOut } = await run(runner, tasks)
 
 		expect(timedOut).toBe(false)
-		const c5 = state.audits.get("c5")!.state
-		expect(c5.status).toBe("failed")
-		if (c5.status === "failed") expect(c5.reason).toMatch(/PROVIDER_ERROR.*503/)
-		expect(state.calcs.has("c5")).toBe(false) // no evidence → no number shown
+		const c2 = state.audits.get("c2")!.state
+		expect(c2.status).toBe("failed")
+		if (c2.status === "failed") expect(c2.reason).toMatch(/PROVIDER_ERROR.*503/)
+		expect(state.calcs.has("c2")).toBe(false) // no evidence → no number shown
 
 		const c1 = state.audits.get("c1")!.state
 		expect(c1.status).toBe("failed")
 		if (c1.status === "failed") expect(c1.reason).toMatch(/unaudited/)
 		expect(state.calcs.get("c1")!.verdict).toBe("MATCH") // numeric result kept, flagged unaudited
 
-		const { c1: _1, c5: _5, ...rest } = verdicts(state)
-		const { c1: _e1, c5: _e5, ...expectedRest } = EXPECTED
+		const { c1: _1, c2: _2, ...rest } = verdicts(state)
+		const { c1: _e1, c2: _e2, ...expectedRest } = EXPECTED
 		expect(rest).toEqual(expectedRest)
 		expect(runner.calls.filter((c) => c.provenance === "provider-error")).toHaveLength(2)
 	}, 30_000)

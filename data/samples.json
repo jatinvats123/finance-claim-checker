@@ -5,6 +5,7 @@
 		{ "id": "walmart", "label": "Walmart Q2 FY2027", "title": "", "articlePath": "data/articles/walmart-q2-fy2027.md", "note": "January fiscal year, year-over-year changes, first-half totals, an adjusted figure." },
 		{ "id": "wipro", "label": "Wipro FY25 (₹ crore)", "title": "", "articlePath": "data/articles/wipro-fy2025-inr.md", "note": "Form 20-F in Indian rupees (IFRS): crore figures checked against INR statements, a USD convenience translation, a crore-vs-million units error." },
 		{ "id": "infosys", "label": "Infosys FY25 (₹ vs $)", "title": "", "articlePath": "data/articles/infosys-fy2025-inr.md", "note": "Infosys files its SEC statements in US dollars: rupee figures are reported as not comparable (no exchange rate is applied); dollar figures are checked." },
+		{ "id": "tcs", "label": "TCS Q2 FY27 (report PDF)", "title": "", "articlePath": "data/articles/tcs-q2-fy2027-inr.md", "company": "Tata Consultancy Services", "note": "TCS files no statements with the SEC, so this checks against its official Ind AS consolidated statements PDF. tcs.com blocks server downloads: open https://www.tcs.com/content/dam/tcs/investor-relations/financial-statements/2026-27/q2/IND%20AS/Consolidated.pdf in your browser, save it, and upload it here." },
 		{ "id": "unknown", "label": "Unknown company", "title": "", "articlePath": "data/articles/zentrix-robotics.md", "note": "A fictional private company: the checker asks for the company or its report instead of guessing." }
 	]
 }
