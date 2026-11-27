@@ -5,7 +5,7 @@ import { correctionText } from "../web/src/correction.js"
  */
 import type { AddressInfo } from "node:net"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
-import type { InferenceInput, InferenceRunner } from "@mozaik-ai/core"
+import { ModelMessageItem, type InferenceInput, type InferenceRunner } from "@mozaik-ai/core"
 import { readArticle } from "../src/article.js"
 import { calculate } from "../src/domain/calculator.js"
 import { CheckerState } from "../src/domain/store.js"
@@ -88,6 +88,13 @@ describe("web API with the included example (keyless)", () => {
 		expect(second.body.id).not.toBe(runId)
 		expect(secondFinal.status).toBe("done")
 		expect(secondFinal.claims.map((c) => c.verdict)).toEqual(final.claims.map((c) => c.verdict))
+	})
+
+	it("finished replays do not expose live recovery", async () => {
+		expect(final.recovery).toBeUndefined()
+		const resume = await fetch(`${base}/api/runs/${runId}/resume`, { method: "POST", body: "{}" })
+		expect(resume.status).toBe(409)
+		expect(await resume.json()).toMatchObject({ code: "NO_RECOVERY_WORK" })
 	})
 
 	it("streams progress, then every bundled claim with its engine status", () => {
@@ -291,6 +298,88 @@ describe("custom articles", () => {
 		expect(r.body.error).toMatch(/ANTHROPIC_API_KEY.*\.env/)
 		app.server.close()
 	})
+
+	it("recovers interrupted extraction over SSE in the same run and reserves the live slot", async () => {
+		let releaseRecovery!: () => void
+		const hold = new Promise<void>(resolve => { releaseRecovery = resolve })
+		let requests = 0
+		const app = createApp({
+			companyIndex,
+			env: { ANTHROPIC_API_KEY: "test-placeholder" },
+			liveInner: () => ({
+				run: async () => {
+					if (++requests === 1) throw new Error("Provider test interruption")
+					await hold
+					return { items: [ModelMessageItem.rehydrate({ text: "No checkable claims." })], tokenUsage: undefined, rowResponse: null }
+				},
+				stream: () => { throw new Error("unused") },
+			}),
+		})
+		const base = await listen(app)
+		const body = { source: "custom", mode: "live", title: "NVIDIA outlook", text: "Nvidia expects revenue of $100 billion next year." }
+		try {
+			const started = await post(base, body)
+			expect(started.status).toBe(202)
+			const id = started.body.id as string
+			const initial = (await stream(base, id)).at(-1)!
+			expect(initial).toMatchObject({ id, status: "failed", recovery: { pendingClaims: 0, extractionIncomplete: true, referenceIncomplete: false } })
+			const resume = () => fetch(`${base}/api/runs/${id}/resume`, { method: "POST", body: "{}" })
+			const resumed = await resume()
+			expect(resumed.status).toBe(202)
+			expect(await resumed.json()).toEqual({ id })
+			const running = await (await fetch(`${base}/api/runs/${id}`)).json()
+			expect(running).toMatchObject({ id, status: "running", recovering: true })
+			const duplicate = await resume()
+			expect(duplicate.status).toBe(409)
+			expect(await duplicate.json()).toMatchObject({ code: "RUN_BUSY" })
+			expect((await post(base, body)).status).toBe(429)
+			releaseRecovery()
+			const finished = (await stream(base, id)).at(-1)!
+			expect(finished).toMatchObject({ id, status: "done", extraction: { status: "done" }, provenance: { counts: { "provider-error": 1, live: 1 } } })
+			expect(finished.recovering).toBeUndefined()
+			expect(finished.recovery).toBeUndefined()
+			expect(requests).toBe(2)
+		} finally {
+			releaseRecovery()
+			app.server.close()
+		}
+	}, 15_000)
+
+	it("keeps the timeout stream open until provider work has settled and recovery is safe", async () => {
+		let releaseProvider!: () => void
+		const hold = new Promise<void>(resolve => { releaseProvider = resolve })
+		const app = createApp({
+			companyIndex,
+			timeoutMs: 300,
+			env: { ANTHROPIC_API_KEY: "test-placeholder" },
+			liveInner: () => ({
+				run: async () => {
+					await hold
+					throw new Error("Provider test interruption")
+				},
+				stream: () => { throw new Error("unused") },
+			}),
+		})
+		const base = await listen(app)
+		try {
+			const started = await post(base, { source: "custom", mode: "live", title: "NVIDIA outlook", text: "Nvidia expects its revenue to rise next year." })
+			expect(started.status).toBe(202)
+			const id = started.body.id as string
+			const snapshots = stream(base, id)
+			const getRun = async () => (await fetch(`${base}/api/runs/${id}`)).json()
+			await expect.poll(getRun, { timeout: 3000 }).toMatchObject({ status: "timed_out", recoveryPending: true })
+			const retry = await fetch(`${base}/api/runs/${id}/resume`, { method: "POST", body: "{}" })
+			expect(retry.status).toBe(409)
+			expect(await retry.json()).toMatchObject({ code: "RUN_BUSY" })
+			releaseProvider()
+			const drained = (await snapshots).at(-1)!
+			expect(drained).toMatchObject({ status: "timed_out", recovery: { extractionIncomplete: true } })
+			expect(drained.recoveryPending).toBeUndefined()
+		} finally {
+			releaseProvider()
+			app.server.close()
+		}
+	}, 15_000)
 
 	it("failed audits and context reviews are never shown as fully reviewed", async () => {
 		const failing = new Set(["auditor:c1@r1.e1", "context:c2@r1"])

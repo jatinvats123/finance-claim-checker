@@ -60,6 +60,8 @@ export function useRun() {
 	const [run, setRun] = useState<RunView>()
 	const [starting, setStarting] = useState(false)
 	const [error, setError] = useState<string>()
+	const [resumePending, setResumePending] = useState(false)
+	const [resumeError, setResumeError] = useState<string>()
 	const source = useRef<EventSource>()
 	const busy = useRef(false)
 
@@ -67,10 +69,17 @@ export function useRun() {
 		source.current?.close()
 		const es = new EventSource(`/api/runs/${id}/events`)
 		source.current = es
-		es.addEventListener("state", (e) => setRun(JSON.parse((e as MessageEvent).data)))
+		es.addEventListener("state", (e) => {
+			if (source.current !== es) return
+			setRun(JSON.parse((e as MessageEvent).data))
+			setResumePending(false)
+		})
 		es.addEventListener("end", () => {
 			es.close()
+			if (source.current !== es) return
+			source.current = undefined
 			busy.current = false
+			setResumePending(false)
 		})
 		es.onerror = () => {
 			// The browser retries automatically; the server re-sends the latest state on reconnect.
@@ -83,6 +92,7 @@ export function useRun() {
 			busy.current = true
 			setStarting(true)
 			setError(undefined)
+			setResumeError(undefined)
 			try {
 				const { id } = await api<{ id: string }>("/api/runs", { method: "POST", body: JSON.stringify(body) })
 				setRun(undefined)
@@ -104,9 +114,12 @@ export function useRun() {
 
 	const reset = useCallback(() => {
 		source.current?.close()
+		source.current = undefined
 		busy.current = false
 		setRun(undefined)
 		setError(undefined)
+		setResumePending(false)
+		setResumeError(undefined)
 	}, [])
 
 	useEffect(() => () => source.current?.close(), [])
@@ -121,7 +134,31 @@ export function useRun() {
 		[run, attach],
 	)
 
-	return { run, start, starting, error, reset, challenge, running: starting || run?.status === "running" }
+	/** Recover unfinished work by subscribing again without clearing the current run. */
+	const resume = useCallback(async () => {
+		if (!run?.recovery || run.status === "running" || resumePending || (busy.current && !source.current)) return
+		source.current?.close()
+		source.current = undefined
+		busy.current = true
+		setResumePending(true)
+		setResumeError(undefined)
+		try {
+			await api(`/api/runs/${run.id}/resume`, { method: "POST", body: "{}" })
+			attach(run.id)
+		} catch (e) {
+			if (e instanceof ApiError && e.body.code === "RUN_BUSY") {
+				attach(run.id)
+				return
+			}
+			busy.current = false
+			setResumePending(false)
+			setResumeError((e as Error).message)
+		}
+	}, [attach, resumePending, run])
+
+	const resuming = resumePending || run?.recovering === true
+	const running = starting || resuming || run?.status === "running" || run?.recoveryPending === true
+	return { run, start, starting, error, reset, challenge, resume, resumeError, resuming, running }
 }
 
 export function useMedia(query: string): boolean {

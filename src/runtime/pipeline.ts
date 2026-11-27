@@ -24,6 +24,9 @@ import type { SecSnapshot } from "../sec/types.js"
 import { AnyEvent, EV, handler, makeCtx } from "./context.js"
 import { CheckerRunner } from "../llm/runner.js"
 import { TaskTracker, type Task } from "./tasks.js"
+import { noRecovery, planRecovery, summarizeRecovery, type RecoveryWork } from "./recovery.js"
+
+export type { RecoveryWork } from "./recovery.js"
 
 /** A supplied report (PDF) with printed issuer evidence for its usable statement pages. */
 export type PreparedReport = { doc: ReportDoc; company: { name: string; ticker?: string }; issuer: ReportIssuer }
@@ -63,6 +66,10 @@ export type RunResult = {
 	elapsedMs: number
 	/** Reviewer challenge of one settled claim (re-runs only that claim; never sets a verdict). */
 	challenge: (claimId: string, reason: string, timeoutMs?: number, model?: string) => Promise<{ timedOut: boolean }>
+	/** Any old agent work must drain before recovery can start. */
+	readonly recoveryPending: boolean
+	recoveryWork: () => RecoveryWork
+	recover: (options?: { timeoutMs?: number; model?: string }) => Promise<{ timedOut: boolean; work: RecoveryWork }>
 }
 
 export async function runChecker(opts: RunOptions): Promise<RunResult> {
@@ -83,15 +90,27 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 	const ctx = makeCtx(rt, state, opts.tasks, opts.model, archived, opts.serial)
 	const names = new Map<string, string>()
 
-	// Completion is re-entrant: the first wait covers the run; a later challenge waits again.
+	// The initial check and later reviewer operations reuse this completion barrier.
+	const hasWork = () => ctx.hasDeferredWork() || opts.tasks.open().length > 0
+	let editing = false
+	let attempt = 0
+	let preRecovery: { model: string; archivedPrompts: boolean } | undefined
 	let waiters: ((timedOut: boolean) => void)[] = []
 	const checkDone = () => {
-		if (waiters.length && state.allSettled() && opts.tasks.open().length === 0) {
+		if (hasWork()) return
+		if (preRecovery) {
+			ctx.model = preRecovery.model
+			ctx.archivedPrompts = preRecovery.archivedPrompts
+			ctx.recoveryAttempt = undefined
+			preRecovery = undefined
+		}
+		if (waiters.length && state.allSettled()) {
 			const ws = waiters
 			waiters = []
 			for (const w of ws) w(false)
 		}
 	}
+	ctx.onDeferredWorkDone = checkDone
 	const waitSettled = (ms: number) =>
 		new Promise<boolean>((resolve) => {
 			const timer = setTimeout(() => {
@@ -189,6 +208,7 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 			handler("model.answer", (p) => {
 				const task = opts.tasks.forLoop(p.loopId)
 				if (task && !task.done) ctx.later(() => {
+					if (task.done) return
 					finishTask(task)
 					ctx.finishLoop()
 				})
@@ -227,22 +247,84 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 		if (!state.report) ctx.emit(EV.REFERENCE_READY, desk.getId(), { facts: state.registry.all().length })
 	}
 	const timedOut = await done
+	const busy = () => editing || hasWork()
+	const recoveryWork = () => summarizeRecovery(busy() ? noRecovery() : planRecovery(state, opts.tasks))
+
+	async function recover({ timeoutMs = 5 * 60_000, model }: { timeoutMs?: number; model?: string } = {}): Promise<{ timedOut: boolean; work: RecoveryWork }> {
+		if (busy()) throw new Error("the run still has active work; retry once those tasks finish")
+		const plan = planRecovery(state, opts.tasks)
+		const work = summarizeRecovery(plan)
+		if (!work.reader && !work.extraction && !work.claimIds.length) throw new Error("the run has no recoverable checks")
+		editing = true
+		const started = Date.now()
+		preRecovery = { model: ctx.model, archivedPrompts: ctx.archivedPrompts }
+		ctx.model = model ?? ctx.model
+		ctx.archivedPrompts = false
+		ctx.recoveryAttempt = ++attempt
+		const retry = waitSettled(timeoutMs)
+		try {
+			state.log("recovery.started", `attempt ${attempt}: ${JSON.stringify(work)}`)
+			if (plan.reader) {
+				state.report!.status = "reading"
+				state.report!.error = undefined
+				state.extraction = "running"
+				state.extractionError = undefined
+				ctx.emit(EV.ARTICLE_SUBMITTED, desk.getId(), { title: opts.article.title, ticker: opts.article.ticker })
+			} else if (plan.extraction) {
+				state.extraction = "running"
+				state.extractionError = undefined
+				ctx.emit(EV.EXTRACTION_RETRY, desk.getId(), { knownClaims: state.claims.size })
+			}
+			for (const item of plan.claims) {
+				const { claimId, claimRevision } = item
+				const ref = { claimId, claimRevision }
+				if (item.context) {
+					state.reopenContextForRecovery(claimId)
+					ctx.emit(EV.CONTEXT_RETRY, desk.getId(), ref)
+				}
+				if (item.correction) {
+					const { target, reason, by } = item.correction
+					state.reopenForRecovery(claimId, { status: "investigating", target, reason, by })
+					ctx.emit(EV.CORRECTION_REQUESTED, desk.getId(), item.correction)
+				} else if (item.numeric) {
+					state.reopenForRecovery(claimId, { status: "pending" })
+					const refWithEvidence = { ...ref, evidenceRevision: state.bindings.get(claimId)?.evidenceRevision ?? 0 }
+					if (item.numeric === "evidence") ctx.emit(EV.EVIDENCE_RETRY, desk.getId(), ref)
+					if (item.numeric === "calculate") ctx.emit(EV.EVIDENCE_BOUND, desk.getId(), refWithEvidence)
+					if (item.numeric === "audit") ctx.emit(EV.CALCULATION_COMPLETED, desk.getId(), refWithEvidence)
+				}
+			}
+			result.timedOut = await retry
+			result.elapsedMs += Date.now() - started
+			state.log("recovery.finished", `attempt ${attempt}${result.timedOut ? " reached the run timeout" : " finished"}`)
+			return { timedOut: result.timedOut, work }
+		} finally {
+			editing = false
+		}
+	}
 
 	/** Reviewer challenge: reopen one settled claim, let the extractor answer, re-run only that claim's work. */
 	async function challenge(claimId: string, reason: string, timeoutMs = 5 * 60_000, model?: string): Promise<{ timedOut: boolean }> {
-		if (model) {
-			ctx.model = model
-			ctx.archivedPrompts = false
-		}
+		if (busy()) throw new Error("the run still has active work; retry once those tasks finish")
 		const claim = state.claims.get(claimId)
 		if (!claim) throw new Error(`unknown claim ${claimId}`)
 		const reopened = state.reopenForChallenge(claimId, reason, "reviewer (human)")
 		if (!reopened.ok) throw new Error(reopened.reason)
-		const a = state.audits.get(claimId)!
-		const wait = waitSettled(timeoutMs)
-		ctx.emit(EV.CORRECTION_REQUESTED, desk.getId(), { claimId, claimRevision: claim.revision, evidenceRevision: a.evidenceRevision, target: "claim", reason, by: "reviewer (human)" })
-		return { timedOut: await wait }
+		editing = true
+		try {
+			if (model) {
+				ctx.model = model
+				ctx.archivedPrompts = false
+			}
+			const a = state.audits.get(claimId)!
+			const wait = waitSettled(timeoutMs)
+			ctx.emit(EV.CORRECTION_REQUESTED, desk.getId(), { claimId, claimRevision: claim.revision, evidenceRevision: a.evidenceRevision, target: "claim", reason, by: "reviewer (human)" })
+			return { timedOut: await wait }
+		} finally {
+			editing = false
+		}
 	}
 
-	return { state, tasks: opts.tasks, timedOut, names, elapsedMs: Date.now() - t0, challenge }
+	const result: RunResult = { state, tasks: opts.tasks, timedOut, names, elapsedMs: Date.now() - t0, get recoveryPending() { return busy() }, recoveryWork, recover, challenge }
+	return result
 }

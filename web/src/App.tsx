@@ -15,25 +15,58 @@ type Tab = "article" | "results" | "evidence"
 function progressText(run: RunView): string {
 	const p = run.progress
 	const timing = run.provenance.simulatedTiming ? " (replay timing)" : ""
+	const action = run.recovering ? "Resuming" : "Checking"
 	switch (run.status) {
 		case "running":
-			return p.extractionDone ? `Checking · ${p.discovered} claims found · ${p.reviewed} of ${p.discovered} fully reviewed` : `Checking · ${p.discovered} claim${p.discovered === 1 ? "" : "s"} found so far · ${p.reviewed} fully reviewed`
+			return p.extractionDone ? `${action} · ${p.discovered} claims found · ${p.reviewed} of ${p.discovered} fully reviewed` : `${action} · ${p.discovered} claim${p.discovered === 1 ? "" : "s"} found so far · ${p.reviewed} fully reviewed`
 		case "done":
+			if (run.recovery) return `Paused · ${p.reviewed} of ${p.discovered} claims fully reviewed`
 			return `Finished · ${p.discovered} claims · ${p.reviewed} of ${p.discovered} fully reviewed · ${fmtSeconds(run.elapsedMs)}${timing}`
 		case "cache_miss":
 			return "Stopped: no replay data for this article (cache miss)"
 		case "reference_unavailable":
 			return "Stopped: the reference could not be established"
 		case "timed_out":
+			if (run.recoveryPending) return "Timed out · waiting for in-flight provider work to settle"
 			return `Timed out · ${p.discovered} claims found · ${p.reviewed} fully reviewed`
 		default:
 			return `Failed · ${p.discovered} claims found · ${p.reviewed} fully reviewed`
 	}
 }
 
+function RecoveryNotice({ recovery, resuming, error, resume }: {
+	recovery?: RunView["recovery"]
+	resuming: boolean
+	error?: string
+	resume: () => Promise<void>
+}) {
+	const unfinished = [
+		recovery?.referenceIncomplete ? "read the report" : undefined,
+		recovery?.extractionIncomplete ? "finish finding claims" : undefined,
+		recovery?.pendingClaims ? `finish ${recovery.pendingClaims} claim review${recovery.pendingClaims === 1 ? "" : "s"}` : undefined,
+	].filter((step): step is string => !!step)
+	const work = new Intl.ListFormat("en", { type: "conjunction" }).format(unfinished)
+
+	return (
+		<section className="notice notice-warn recovery-notice" aria-labelledby="recovery-heading">
+			<h3 id="recovery-heading">{resuming ? "Resuming this check" : "This check can resume"}</h3>
+			<p className="small" role="status">
+				{resuming ? "Completed reviews are still available while unfinished work runs." : `Resume to ${work}. Completed reviews stay in this run.`}
+			</p>
+			{error && <p className="form-error" role="alert">{error}</p>}
+			{(recovery || resuming) && (
+				<button type="button" className="btn btn-sm btn-secondary" disabled={resuming} onClick={() => void resume()}>
+					{resuming ? <IconSpinner size={14} /> : <IconPlay size={14} />}
+					{resuming ? "Resuming…" : "Resume unfinished work"}
+				</button>
+			)}
+		</section>
+	)
+}
+
 export default function App() {
 	const { meta, error: metaError } = useMeta()
-	const { run, start, running, error: runError, reset, challenge } = useRun()
+	const { run, start, running, error: runError, reset, challenge, resume, resumeError, resuming } = useRun()
 	const [selection, setSelection] = useState<{ runId?: string; id?: string }>()
 	const [historyOpen, setHistoryOpen] = useState(false)
 	const [tab, setTab] = useState<Tab>("article")
@@ -56,7 +89,7 @@ export default function App() {
 	}, [runId])
 
 	const recommended = useMemo(() => run ? priorityCorrection(run) : undefined, [run])
-	const autoSelect = wide && !running ? recommended?.id : undefined
+	const autoSelect = wide && (!running || resuming) ? recommended?.id : undefined
 	const selectedId = selection?.runId === runId ? selection?.id : autoSelect
 	const selected = run?.claims.find((c) => c.id === selectedId)
 
@@ -153,6 +186,9 @@ export default function App() {
 				<h2 className="panel-title">Results</h2>
 				{run && <span className="muted small">Article order</span>}
 			</div>
+			{run && (run.recovery || resuming) && (
+				<RecoveryNotice recovery={run.recovery} resuming={resuming} error={resumeError} resume={resume} />
+			)}
 			{run?.status === "cache_miss" ? (
 				<div className="panel-body">
 					<div className="notice notice-warn" role="alert">
@@ -182,7 +218,7 @@ export default function App() {
 							<strong>Nothing was substituted:</strong> no figure is checked without a verified source.
 						</p>
 						<div className="notice-actions">
-							<button className="btn btn-secondary" onClick={() => reset()}>
+							<button className="btn btn-secondary" onClick={() => reset()} disabled={running}>
 								Edit article or report
 							</button>
 						</div>
@@ -191,7 +227,7 @@ export default function App() {
 			) : run ? (
 				<>
 					<ReferenceSummary run={run} />
-					{(run.status === "failed" || run.status === "timed_out") && (
+					{!run.recovery && !resuming && (run.status === "failed" || run.status === "timed_out") && (
 						<div className="notice notice-bad" role="alert">
 							<strong>{run.status === "timed_out" ? "The run timed out." : "The run failed."}</strong> {run.error} Partial results are shown below; claims without a finished review are marked as such.
 						</div>
@@ -324,7 +360,7 @@ export default function App() {
 				</div>
 				<div className="runbar-status">
 					<span className="status-text" aria-live="polite">
-						{run ? progressText(run) : runError ? <span className="text-bad">{runError}</span> : "Ready · paste an article to check"}
+						{resuming && !run?.recovering ? "Resuming unfinished work…" : run ? progressText(run) : runError ? <span className="text-bad">{runError}</span> : "Ready · paste an article to check"}
 					</span>
 					{run && run.provenance.kind !== "none" && (
 						<span className={`pill prov prov-${run.provenance.kind}`} title={Object.entries(run.provenance.counts).map(([k, v]) => `${k}: ${v}`).join(", ")}>

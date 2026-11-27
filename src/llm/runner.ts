@@ -261,7 +261,8 @@ export class CheckerRunner implements InferenceRunner {
 			usage.limitHit ??= why
 			throw new LimitReached(why)
 		}
-		const turnCap = taskKey === "extractor:article" ? limits.maxExtractorTurns : limits.maxTurnsPerTask
+		const extraction = taskKey === "extractor:article" || taskKey.startsWith("extractor:article:recovery:")
+		const turnCap = extraction ? limits.maxExtractorTurns : limits.maxTurnsPerTask
 		if (turn >= turnCap) stop(`task ${taskKey} reached the turn cap (${turnCap} model turns)`)
 		for (let attempt = 0; ; attempt++) {
 			const out = await this.pacer.run(async () => {

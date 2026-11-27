@@ -125,6 +125,11 @@ export type RunView = {
 	progress: { discovered: number; settled: number; reviewed: number; extractionDone: boolean }
 	summary: { match: number; mismatch: number; notComputable: number; notVerifiable: number; referenceUnavailable: number; pending: number; reviewComplete: number; reviewIncomplete: number }
 	staleRejections: HistoryEntry[]
+	/** Work a live run can recover after a provider failure. */
+	recovery?: { pendingClaims: number; extractionIncomplete: boolean; referenceIncomplete: boolean }
+	recovering?: boolean
+	/** The timed-out operation still has provider calls settling. */
+	recoveryPending?: boolean
 	/** Agent loops measured from Mozaik start/end events (see src/runtime/trace.ts). */
 	trace?: Trace
 	error?: string

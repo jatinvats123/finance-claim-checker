@@ -7,6 +7,7 @@
  *   POST /api/resolve                   { title, text, company?, mode } → company resolution + reference preview
  *   GET  /api/companies?q=              search SEC filers by ticker or name
  *   POST /api/runs                      { source: "example" } | { source: "custom", mode, title, text, company?: { cik | query | name }, report?: { url } | { file, statedSourceUrl } }
+ *   POST /api/runs/:id/resume            retry provider-interrupted work in the same live run
  *   GET  /api/runs/:id                  latest RunView
  *   GET  /api/runs/:id/events           SSE: "state" (RunView) … "end"
  *   GET  /api/runs/:id/report.md|json   existing report renderers
@@ -78,6 +79,8 @@ type RunRecord = {
 	source: "example" | "custom"
 	mode: "replay" | "live"
 	startedAt: Date
+	activeSince?: number
+	elapsedMs: number
 	status: RunStatus
 	error?: string
 	articlePath: string
@@ -93,6 +96,7 @@ type RunRecord = {
 	clients: Set<ServerResponse>
 	/** claim id while a reviewer recheck (live model calls) is in progress */
 	challenging?: string
+	recovering?: boolean
 	flushTimer?: NodeJS.Timeout
 }
 
@@ -132,7 +136,10 @@ export function createApp(opts: AppOptions = {}) {
 	const runs = new Map<string, RunRecord>()
 	const maxReplay = opts.maxReplayRuns ?? 8
 	const maxLive = opts.maxLiveRuns ?? 1
-	const active = (mode: "replay" | "live") => [...runs.values()].filter((r) => r.status === "running" && (mode === "live" ? r.mode === "live" || !!r.challenging : r.mode === mode && !r.challenging)).length
+	const draining = (rec: RunRecord) => rec.mode === "live" && rec.status === "timed_out" && rec.result?.recoveryPending === true
+	const active = (mode: "replay" | "live") => [...runs.values()].filter((r) => (
+		(mode === "live" && draining(r)) || (r.status === "running" && (mode === "live" ? r.mode === "live" || !!r.challenging : r.mode === mode && !r.challenging))
+	)).length
 	let counter = 0
 	const mozaikVersion = JSON.parse(readFileSync("node_modules/@mozaik-ai/core/package.json", "utf8")).version as string
 	const staticDir = resolve(opts.staticDir ?? "dist/web")
@@ -187,10 +194,27 @@ export function createApp(opts: AppOptions = {}) {
 	}
 
 	const traceOf = (rec: RunRecord): Trace => rec.tracer.trace(provenanceOf(rec.runner.calls).counts)
+	const elapsed = (rec: RunRecord) => rec.elapsedMs + (rec.activeSince === undefined ? 0 : Date.now() - rec.activeSince)
+
+	function recoveryWork(rec: RunRecord): RunView["recovery"] {
+		if (rec.mode !== "live" || rec.status === "running" || !rec.result || !providerConfigured(env)) return
+		if (rec.runner.usage.requests >= rec.runner.limits.maxCalls) return
+		const work = rec.result.recoveryWork()
+		if (work.extraction || work.reader || work.claimIds.length) {
+			return { pendingClaims: work.claimIds.length, extractionIncomplete: work.extraction, referenceIncomplete: work.reader }
+		}
+	}
 
 	function view(rec: RunRecord): RunView | undefined {
 		if (!rec.state) return undefined
-		return runView({ id: rec.id, source: rec.source, mode: rec.mode, startedAt: rec.startedAt, status: rec.status, state: rec.state, tasks: rec.tasks, calls: rec.runner.calls, activity: rec.activity, error: rec.error, trace: traceOf(rec) })
+		const current = runView({ id: rec.id, source: rec.source, mode: rec.mode, startedAt: rec.startedAt, status: rec.status, state: rec.state, tasks: rec.tasks, calls: rec.runner.calls, activity: rec.activity, error: rec.error, trace: traceOf(rec) })
+		return { ...current, elapsedMs: elapsed(rec), recovery: recoveryWork(rec), recovering: rec.recovering, recoveryPending: draining(rec) || undefined }
+	}
+
+	function recordOutcome(rec: RunRecord, timedOut: boolean, timeoutMessage: string) {
+		const error = rec.state?.extractionError
+		rec.status = timedOut ? "timed_out" : rec.state?.extraction === "failed" ? (error?.startsWith("CACHE_MISS") ? "cache_miss" : error?.startsWith("REFERENCE_UNAVAILABLE") ? "reference_unavailable" : "failed") : "done"
+		rec.error = timedOut ? timeoutMessage : rec.status === "done" ? undefined : error
 	}
 
 	function send(res: ServerResponse, event: string, data: unknown) {
@@ -212,7 +236,13 @@ export function createApp(opts: AppOptions = {}) {
 	}
 
 	function schedule(rec: RunRecord) {
-		if (!rec.flushTimer) rec.flushTimer = setTimeout(() => broadcast(rec), 120)
+		if (!rec.flushTimer) rec.flushTimer = setTimeout(() => broadcast(rec, rec.status !== "running" && !draining(rec)), 120)
+	}
+
+	function finishOperation(rec: RunRecord) {
+		rec.elapsedMs = elapsed(rec)
+		rec.activeSince = undefined
+		broadcast(rec, !draining(rec))
 	}
 
 	/** Recordings of the included example (file names start with the example article's name). */
@@ -244,7 +274,7 @@ export function createApp(opts: AppOptions = {}) {
 			if (text.length > MAX_TEXT || title.length > 300) throw new HttpError(400, `Article is too long (limit ${MAX_TEXT} characters).`)
 			mode = body.mode === "live" ? "live" : "replay"
 			if (mode === "live" && !providerConfigured(env)) throw new HttpError(400, meta().live.hint, { code: "LIVE_NOT_CONFIGURED" })
-			if (mode === "live" && active("live") >= maxLive) throw new HttpError(429, "A live check is already running on this server; live checks run one at a time to bound provider spend. Try again shortly, or run the included example.", { code: "LIVE_BUSY" })
+			if (mode === "live" && active("live") >= maxLive) throw new HttpError(429, "Another live check, recovery, or recheck is running. Try again shortly.", { code: "LIVE_BUSY" })
 			if (mode === "replay" && active("replay") >= maxReplay) throw new HttpError(429, "The server is busy with other checks. Try again in a few seconds.", { code: "BUSY" })
 			const company = body.company && typeof body.company === "object" ? { cik: str(body.company.cik), query: str(body.company.query), name: str(body.company.name) } : undefined
 			const r = body.report && typeof body.report === "object" ? body.report : undefined
@@ -265,6 +295,8 @@ export function createApp(opts: AppOptions = {}) {
 			cassettePaths = opts.cassettePaths ?? defaultCassettePaths("all")
 		}
 
+		// Preparing a custom reference awaits I/O. Recheck the live slot before starting work.
+		if (mode === "live" && active("live") >= maxLive) throw new HttpError(429, "Another live check, recovery, or recheck is running. Try again shortly.", { code: "LIVE_BUSY" })
 		const tasks = new TaskTracker()
 		const cassettes = mode === "replay" ? loadCassettes(cassettePaths) : []
 		if (mode === "replay" && !cassettes.length) throw new HttpError(400, "No replay data is available on this server.", { code: "NO_REPLAY_DATA" })
@@ -275,11 +307,14 @@ export function createApp(opts: AppOptions = {}) {
 			pacer: livePacer,
 			replaySpeed: opts.replaySpeed ?? (featured ? 100 : DEFAULT_REPLAY_SPEED),
 		})
+		const startedAt = new Date()
 		const rec: RunRecord = {
 			id: `run-${++counter}-${Date.now().toString(36)}`,
 			source,
 			mode,
-			startedAt: new Date(),
+			startedAt,
+			activeSince: startedAt.getTime(),
+			elapsedMs: 0,
 			status: "running",
 			articlePath: source === "example" ? examplePath : "(article submitted in the web app)",
 			tasks,
@@ -292,7 +327,7 @@ export function createApp(opts: AppOptions = {}) {
 		}
 		runs.set(rec.id, rec)
 		// keep memory bounded: forget the oldest finished runs
-		const finished = [...runs.values()].filter((r) => r.status !== "running")
+		const finished = [...runs.values()].filter((r) => r.status !== "running" && !draining(r))
 		for (const r of finished.slice(0, Math.max(0, finished.length - 30))) runs.delete(r.id)
 
 		runChecker({
@@ -314,15 +349,13 @@ export function createApp(opts: AppOptions = {}) {
 			.then((result) => {
 				rec.result = result
 				rec.state = result.state
-				const err = result.state.extractionError
-				rec.status = result.timedOut ? "timed_out" : result.state.extraction === "failed" ? (err?.startsWith("CACHE_MISS") ? "cache_miss" : err?.startsWith("REFERENCE_UNAVAILABLE") ? "reference_unavailable" : "failed") : "done"
-				if (rec.status !== "done") rec.error = result.timedOut ? "The run timed out before every claim settled." : err
+				recordOutcome(rec, result.timedOut, "The run timed out before every claim settled.")
 			})
 			.catch((err) => {
 				rec.status = "failed"
 				rec.error = err instanceof Error ? err.message : String(err)
 			})
-			.finally(() => broadcast(rec, true))
+			.finally(() => finishOperation(rec))
 		return rec
 	}
 
@@ -409,6 +442,32 @@ export function createApp(opts: AppOptions = {}) {
 				}
 				return json(res, 200, { resolution, reference, companyIndex: { count: ix.companies.length, fetchedAt: ix.fetchedAt } })
 			}
+			const resume = /^\/api\/runs\/([\w-]+)\/resume$/.exec(p)
+			if (resume && req.method === "POST") {
+				const rec = runs.get(resume[1])
+				if (!rec) throw new HttpError(404, "Unknown run.")
+				await readBody(req, 4096)
+				if (rec.status === "running" || draining(rec)) throw new HttpError(409, "This run still has work in progress.", { code: "RUN_BUSY" })
+				const result = rec.result
+				if (!result || !recoveryWork(rec)) throw new HttpError(409, "This run has no recoverable provider-interrupted work.", { code: "NO_RECOVERY_WORK" })
+				if (active("live") >= maxLive) throw new HttpError(429, "Another live check, recovery, or recheck is running. Try again shortly.", { code: "LIVE_BUSY" })
+				const previousStatus = rec.status
+				rec.status = "running"
+				rec.recovering = true
+				rec.activeSince = Date.now()
+				rec.error = undefined
+				result.recover({ timeoutMs: opts.timeoutMs ?? 5 * 60_000, model: rec.model })
+					.then(({ timedOut }) => recordOutcome(rec, timedOut, "Recovery timed out before every claim settled."))
+					.catch((err) => {
+						rec.status = previousStatus
+						rec.error = err instanceof Error ? err.message : String(err)
+					})
+					.finally(() => {
+						rec.recovering = undefined
+						finishOperation(rec)
+					})
+				return json(res, 202, { id: rec.id })
+			}
 			const ch = /^\/api\/runs\/([\w-]+)\/claims\/(c\d+)\/challenge$/.exec(p)
 			if (ch && req.method === "POST") {
 				const rec = runs.get(ch[1])
@@ -417,13 +476,15 @@ export function createApp(opts: AppOptions = {}) {
 				const reason = typeof body?.reason === "string" ? body.reason.trim() : ""
 				if (reason.length < 5 || reason.length > 600) throw new HttpError(400, "Describe what looks wrong about the interpretation (5–600 characters).")
 				if (!providerConfigured(env)) throw new HttpError(400, `Rechecking a claim asks the extractor and auditor again, which needs a live model. ${meta().live.hint}`, { code: "LIVE_NOT_CONFIGURED" })
-				if (rec.status === "running" || !rec.result) throw new HttpError(409, "Wait for the run to finish before rechecking a claim.")
+				if (rec.status === "running" || !rec.result || rec.result.recoveryPending) throw new HttpError(409, "Wait for the run to finish before rechecking a claim.")
 				if (!rec.result.state.claims.has(ch[2])) throw new HttpError(404, "Unknown claim.")
 				if (!rec.result.state.isSettled(ch[2])) throw new HttpError(409, "This claim's review has not settled, so it cannot be rechecked.")
 				if (active("live") >= maxLive) throw new HttpError(429, "Another live check or recheck is running; try again shortly.", { code: "LIVE_BUSY" })
 				const result = rec.result
 				rec.runner.enableLiveFallback(defaultModel(env))
 				rec.status = "running"
+				rec.activeSince = Date.now()
+				rec.error = undefined
 				rec.challenging = ch[2]
 				result
 					.challenge(ch[2], reason, opts.timeoutMs ?? 5 * 60_000, defaultModel(env))
@@ -437,7 +498,7 @@ export function createApp(opts: AppOptions = {}) {
 					})
 					.finally(() => {
 						rec.challenging = undefined
-						broadcast(rec, true)
+						finishOperation(rec)
 					})
 				return json(res, 202, { id: rec.id, claimId: ch[2] })
 			}
@@ -450,7 +511,7 @@ export function createApp(opts: AppOptions = {}) {
 					res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-store", Connection: "keep-alive" })
 					const v = view(rec)
 					if (v) send(res, "state", v)
-					if (rec.status !== "running") {
+					if (rec.status !== "running" && !draining(rec)) {
 						send(res, "end", { status: rec.status })
 						return res.end()
 					}

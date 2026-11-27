@@ -20,12 +20,15 @@ export const EV = {
 	REPORT_PROGRESS: "report.progress",
 	CLAIM_REVISED: "claim.revised",
 	EXTRACTION_DONE: "extraction.done",
+	EXTRACTION_RETRY: "extraction.retry",
 	EVIDENCE_BOUND: "evidence.bound",
 	CALCULATION_COMPLETED: "calculation.completed",
 	CORRECTION_REQUESTED: "audit.correction_requested",
 	AUDIT_FINAL: "audit.final",
 	CONTEXT_WARNING: "context.warning",
 	CONTEXT_DONE: "context.done",
+	CONTEXT_RETRY: "context.retry",
+	EVIDENCE_RETRY: "evidence.retry",
 	STALE_REJECTED: "result.stale_rejected",
 	TASK_FAILED: "task.failed",
 } as const
@@ -42,7 +45,10 @@ export type Ctx = {
 	tasks: TaskTracker
 	model: string
 	archivedPrompts: boolean
+	recoveryAttempt?: number
 	finishLoop: () => void
+	hasDeferredWork: () => boolean
+	onDeferredWorkDone?: () => void
 	/** id of the participant that publishes system events (the desk); set once the desk joins */
 	deskId: string
 	emit: (type: string, producerId: string, payload: object) => void
@@ -55,12 +61,14 @@ export type Ctx = {
 export function makeCtx(rt: Runtime, state: CheckerState, tasks: TaskTracker, model: string, archivedPrompts = false, serial = false): Ctx {
 	const queued: (() => void)[] = []
 	let active = false
+	let deferred = 0
 	const ctx: Ctx = {
 		rt,
 		state,
 		tasks,
 		model,
 		archivedPrompts,
+		hasDeferredWork: () => deferred > 0,
 		finishLoop: () => {
 			if (!serial) return
 			const next = queued.shift()
@@ -71,9 +79,27 @@ export function makeCtx(rt: Runtime, state: CheckerState, tasks: TaskTracker, mo
 		emit: (type, producerId, payload) => rt.sendEvent(SemanticEvent.create(type, producerId, payload), producerId),
 		startTask: (agent, t) => {
 			const context = ModelContext.create().addContextItem(DeveloperMessageItem.create(agent.getDeveloperMessage()))
-			tasks.register({ key: t.key, role: t.role, claimId: t.claimId, claimRevision: t.claimRevision, evidenceRevision: t.evidenceRevision, contextId: context.id })
+			const recovery = ctx.recoveryAttempt
+			const key = recovery ? `${t.key}:recovery:${recovery}` : t.key
+			const toolset = agent.getTools()
+			// A recovery loop may only affect its own claim or submit previously missed claims.
+			const tools = recovery
+				? toolset.filter((tool) => t.role === "extractor" ? tool.name === "submit_claim" : tool.name !== "submit_claim").map((tool) => {
+					if (!t.claimId || !tool.parameters.properties?.claimId) return tool
+					return {
+						...tool,
+						invoke: async (args: any) => {
+							if (args?.claimId !== t.claimId || Number(args?.claimRevision ?? args?.fromRevision) !== t.claimRevision) {
+								return `REJECTED: this recovery task can only change ${t.claimId} revision ${t.claimRevision}`
+							}
+							return tool.invoke(args)
+						},
+					}
+				})
+				: toolset
+			tasks.register({ key, role: t.role, claimId: t.claimId, claimRevision: t.claimRevision, evidenceRevision: t.evidenceRevision, contextId: context.id })
 			// maxOutputTokens is required: Mozaik 6.0.0's Anthropic mapper sends max_tokens with no default.
-			const launch = () => rt.runLoop(agent.getId(), t.message, { model: ctx.model, context, tools: agent.getTools(), maxOutputTokens: 4096 })
+			const launch = () => rt.runLoop(agent.getId(), t.message, { model: ctx.model, context, tools, maxOutputTokens: 4096 })
 			if (!serial) launch()
 			else if (active) queued.push(launch)
 			else {
@@ -81,14 +107,19 @@ export function makeCtx(rt: Runtime, state: CheckerState, tasks: TaskTracker, mo
 				launch()
 			}
 		},
-		later: (fn) =>
+		later: (fn) => {
+			deferred++
 			setImmediate(() => {
 				try {
 					fn()
 				} catch (err) {
 					state.log("internal.error", err instanceof Error ? (err.stack ?? err.message) : String(err))
+				} finally {
+					deferred--
+					ctx.onDeferredWorkDone?.()
 				}
-			}),
+			})
+		},
 	}
 	return ctx
 }

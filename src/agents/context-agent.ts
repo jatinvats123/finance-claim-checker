@@ -26,6 +26,7 @@ export function createContextAgent(ctx: Ctx): Agent {
 		invoke: async (args) => {
 			try {
 				const w = { claimId: need(args, "claimId"), claimRevision: Number(need(args, "claimRevision")), source: "context-agent" as const, code: need(args, "code", CODES), message: need(args, "message") }
+				if (ctx.recoveryAttempt && state.warnings.get(w.claimId)?.some((warning) => warning.source === w.source && warning.claimRevision === w.claimRevision && warning.code === w.code && warning.message === w.message)) return reply("recorded")
 				const res = state.addWarning(w, ctx.archivedPrompts)
 				if (!res.ok) {
 					// Preserve the original recorded receipt for a proposal retained in the audit log.
@@ -48,7 +49,7 @@ export function createContextAgent(ctx: Ctx): Agent {
 		instruction: INSTRUCTION,
 		tools: [addWarning],
 		handlers: [
-			handler(EV.CLAIM_REVISED, (p: ClaimRef) => {
+			handler([EV.CLAIM_REVISED, EV.CONTEXT_RETRY], (p: ClaimRef) => {
 				const claim = state.claims.get(p.claimId)
 				if (!claim || claim.revision !== p.claimRevision) return
 				const filed = state.registry.filedPeriod(claim.interpretation.fiscalYear, claim.interpretation.fiscalPeriod)

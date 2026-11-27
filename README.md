@@ -500,6 +500,8 @@ On 27 Nov a real-model recheck completed (`gemini-3.1-flash-lite`, 9 live calls,
 
 ## Public deployment and load
 
+When a live provider interrupts a check, **Resume unfinished work** continues the same run. A completed review stays available while the app finishes interrupted extraction or retries affected reviews. Recovery uses the server's existing provider limits and adds its calls to the original run's trace and usage report. Forecasts, unsupported claims, and keyless cache misses keep their original status.
+
 The server has no global lock:
 - Each visitor's example run is independent. Up to 8 replay runs run at once, each with a 2-minute timeout; above that a visitor gets "busy, retry".
 - Live runs and rechecks run one at a time, with a 5-minute timeout plus the per-run call and turn caps.

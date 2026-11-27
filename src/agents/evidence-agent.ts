@@ -224,7 +224,7 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 		instruction: ctx.archivedPrompts ? RECORDED_INSTRUCTION : INSTRUCTION,
 		tools: [searchFacts, bindEvidence, reportNoReference],
 		handlers: [
-			handler(EV.CLAIM_REVISED, (p: ClaimRef) =>
+			handler([EV.CLAIM_REVISED, EV.EVIDENCE_RETRY], (p: ClaimRef) =>
 				ctx.later(() => {
 					const claim = state.claims.get(p.claimId)
 					if (!claim || claim.revision !== p.claimRevision) return

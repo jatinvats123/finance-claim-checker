@@ -208,6 +208,37 @@ export function describeClaim(c: ClaimInterpretation): string {
 	return `${c.metric} ${c.kind}${basis} ${periodLabel(c.fiscalYear, c.fiscalPeriod)} (${c.accounting})`
 }
 
+function amountPositions(text: string, quote: string, c: ClaimInterpretation): Set<number> {
+	const number = c.statedNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+	const words: Record<string, string> = { "2": "|\\bdoubl\\w*", "3": "|\\btripl\\w*", "4": "|\\bquadrupl\\w*" }
+	const amount = c.statedUnit === "multiple"
+		? new RegExp(`(?<![\\d.])${number}\\s*(?:times\\b|-?fold\\b|x\\b)${words[c.statedNumber] ?? ""}`, "gi")
+		: new RegExp(`(?<![\\d.])${number}(?!\\d|\\.\\d)`, "g")
+	const offsets = [...quote.matchAll(amount)].map((m) => m.index!)
+	const positions = new Set<number>()
+	for (let at = text.indexOf(quote); at >= 0; at = text.indexOf(quote, at + 1)) {
+		for (const offset of offsets) positions.add(at + offset)
+	}
+	return positions
+}
+
+const sourceWords = (text: string) => plainNumbers(norm(text)).replace(/−/g, "-")
+
+function sameSourceClaim(text: string, previous: ClaimInterpretation, candidate: ClaimInterpretation): boolean {
+	if (previous.metric !== candidate.metric || previous.kind !== candidate.kind || previous.statedUnit !== candidate.statedUnit || previous.statedNumber !== candidate.statedNumber || previous.scale !== candidate.scale) return false
+	const hasComparison = (c: ClaimInterpretation) => c.comparison && c.comparison !== "unspecified"
+	if (hasComparison(previous) && hasComparison(candidate) && previous.comparison !== candidate.comparison) return false
+	const previousQuote = sourceWords(previous.quote)
+	const candidateQuote = sourceWords(candidate.quote)
+	const samePeriod = previous.fiscalYear === candidate.fiscalYear && previous.fiscalPeriod === candidate.fiscalPeriod
+	if (previousQuote === candidateQuote && samePeriod) return true
+	const priorPositions = amountPositions(text, previousQuote, previous)
+	const candidatePositions = amountPositions(text, candidateQuote, candidate)
+	// Identical snippets can appear in different periods. An ambiguous anchor cannot disprove a new period.
+	if (!samePeriod && (priorPositions.size !== 1 || candidatePositions.size !== 1)) return false
+	return [...candidatePositions].some((position) => priorPositions.has(position))
+}
+
 export function createExtractor(ctx: Ctx): Agent {
 	const { state } = ctx
 	let selfId = ""
@@ -222,6 +253,15 @@ export function createExtractor(ctx: Ctx): Agent {
 		invoke: async (args) => {
 			try {
 				const interp = validateInterpretation(args, article())
+				if (ctx.recoveryAttempt) {
+					const text = sourceWords(article())
+					for (const known of state.claims.values()) {
+						const original = state.extractedInterpretation(known.id) ?? known.interpretation
+						if (sameSourceClaim(text, original, interp) || (original !== known.interpretation && sameSourceClaim(text, known.interpretation, interp))) {
+							return reply({ claimId: known.id, revision: known.revision, alreadyRecorded: true })
+						}
+					}
+				}
 				const claim = state.addClaim(interp)
 				ctx.emit(EV.CLAIM_REVISED, selfId, { claimId: claim.id, claimRevision: 1 })
 				return reply({ claimId: claim.id, revision: 1 })
@@ -265,7 +305,7 @@ export function createExtractor(ctx: Ctx): Agent {
 		tools: [submitClaim, reviseClaim],
 		handlers: [
 			// starts once the reference is ready (SEC data immediately; an official report after the Reader has verified it)
-			handler(EV.REFERENCE_READY, () => {
+			handler([EV.REFERENCE_READY, EV.EXTRACTION_RETRY], () => {
 				const reg = state.registry
 				const info = reg.info
 				const filed =
@@ -282,6 +322,14 @@ export function createExtractor(ctx: Ctx): Agent {
 								.filter((p) => p.end > latest.periodEnd)
 								.map((p) => `- ${periodLabel(current.label, p.q)}: period ending around ${p.end} (no statements on record yet)`)
 						: []
+				let retry = ""
+				if (ctx.recoveryAttempt && state.claims.size) {
+					const extracted = [...state.claims.values()].map((claim) => {
+						const c = state.extractedInterpretation(claim.id) ?? claim.interpretation
+						return { claimId: claim.id, quote: c.quote, metric: c.metric, period: periodLabel(c.fiscalYear, c.fiscalPeriod), comparison: c.comparison, number: c.statedNumber, unit: c.statedUnit }
+					})
+					retry = `\n\nA prior extraction was interrupted. Review the entire article, including its final paragraphs, and submit only additional claims. The claims below are already recorded. Do not submit them again or revise them.\n${JSON.stringify(extracted)}`
+				}
 				ctx.startTask(agent, {
 					role: "extractor",
 					key: "extractor:article",
@@ -292,7 +340,7 @@ ${[...filed, ...upcoming].join("\n")}
 Article title: ${state.article!.title}
 <<<ARTICLE
 ${state.article!.text}
-ARTICLE>>>`,
+ARTICLE>>>${retry}`,
 				})
 			}),
 			handler(EV.CORRECTION_REQUESTED, (p: CorrectionPayload) => {

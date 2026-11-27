@@ -1,0 +1,806 @@
+{
+  "description": "Fresh newsletter and editor-desk drafts for a two-minute deadline stress comparison. Quotes, expected verdicts and cutoffs were fixed against pinned public SEC filings before the live comparison started.",
+  "frozenAt": "2026-11-27T11:49:26.015Z",
+  "deadlineMs": 120000,
+  "secondaryDeadlineMs": 60000,
+  "snapshotHashes": {
+    "AAPL": "bfa3e1d298398b30859158621820b203ea8697c44055a3969d92a10bb7591656",
+    "WMT": "8e5cd730bbfe4493dd332269f7f66bc1dab490b6bd5a2e2b9bf9a48ff19e609d",
+    "WIT": "351612a481c775be7637f3f68bf9203a73558d238312f8c685f947cf6b318417",
+    "INFY": "8d3ec8f90bf1442dbad2dff0df9c19f98fc8af9b279dc3a803de03441efd4e41",
+    "NVDA": "f3e04384f54526a23a0c9f220060d0c8e11accb8f980efe7fcbd75c58de32442",
+    "JPM": "2f4a4cff94521dd316102f5706d669bf0d910cd1f52b5c86cda3f51207c50f8c"
+  },
+  "cases": [
+    {
+      "id": "aapl-annual-archive",
+      "article": {
+        "ticker": "AAPL",
+        "title": "Apple annual numbers for the hardware archive",
+        "text": "In the fiscal year ended September 28, 2024, Apple booked net sales of $391.035 billion and operating income of $127.216 billion. The annual earnings table reports $6.08 in diluted earnings per share. In the bottom row of the FY2024 recap, Apple net income is given as $93.376 billion."
+      },
+      "expected": [
+        {
+          "anchor": "391.035 billion",
+          "statedNumber": "391.035",
+          "metric": "revenue",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 391035000000,
+          "currency": "USD",
+          "accessions": [
+            "0000320193-24-000123"
+          ],
+          "truth": "The FY2024 consolidated 10-K reports net sales of $391.035 billion."
+        },
+        {
+          "anchor": "127.216 billion",
+          "statedNumber": "127.216",
+          "metric": "operating_income",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 123216000000,
+          "currency": "USD",
+          "accessions": [
+            "0000320193-24-000123"
+          ],
+          "truth": "FY2024 operating income was $123.216 billion."
+        },
+        {
+          "anchor": "6.08",
+          "statedNumber": "6.08",
+          "metric": "eps_diluted",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 6.08,
+          "currency": "USD",
+          "accessions": [
+            "0000320193-24-000123"
+          ],
+          "truth": "FY2024 diluted EPS was $6.08."
+        },
+        {
+          "anchor": "93.376 billion",
+          "statedNumber": "93.376",
+          "metric": "net_income",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 93736000000,
+          "currency": "USD",
+          "accessions": [
+            "0000320193-24-000123"
+          ],
+          "truth": "FY2024 net income was $93.736 billion."
+        }
+      ]
+    },
+    {
+      "id": "wmt-spring-desk",
+      "article": {
+        "ticker": "WMT",
+        "title": "Walmart spring sales and the desk outlook",
+        "text": "For the three months ended April 30, 2026, Walmart registered total revenue of $177.751 billion. In that first quarter of FY2027, operating income was $7.135 billion and net income attributable to Walmart was $5.330 billion. An analyst estimates full-year FY2028 diluted earnings per share of $3.25."
+      },
+      "expected": [
+        {
+          "anchor": "177.751 billion",
+          "statedNumber": "177.751",
+          "metric": "revenue",
+          "year": 2027,
+          "period": "Q1",
+          "outcome": "MATCH",
+          "value": 177751000000,
+          "currency": "USD",
+          "accessions": [
+            "0000104169-26-000102"
+          ],
+          "truth": "Q1 FY2027 consolidated total revenues were $177.751 billion."
+        },
+        {
+          "anchor": "7.135 billion",
+          "statedNumber": "7.135",
+          "metric": "operating_income",
+          "year": 2027,
+          "period": "Q1",
+          "outcome": "MISMATCH",
+          "value": 7493000000,
+          "currency": "USD",
+          "accessions": [
+            "0000104169-26-000102"
+          ],
+          "truth": "The draft uses the prior-year quarter. Q1 FY2027 operating income was $7.493 billion."
+        },
+        {
+          "anchor": "5.330 billion",
+          "statedNumber": "5.330",
+          "metric": "net_income",
+          "year": 2027,
+          "period": "Q1",
+          "outcome": "MATCH",
+          "value": 5330000000,
+          "currency": "USD",
+          "accessions": [
+            "0000104169-26-000102"
+          ],
+          "truth": "Q1 FY2027 net income attributable to Walmart was $5.330 billion."
+        },
+        {
+          "anchor": "3.25",
+          "statedNumber": "3.25",
+          "outcome": "SKIP",
+          "truth": "The analyst is estimating the future FY2028 period."
+        }
+      ]
+    },
+    {
+      "id": "wit-crore-tables",
+      "article": {
+        "ticker": "WIT",
+        "title": "Wipro historical figures for an Indian market brief",
+        "text": "Wipro's FY2024 consolidated sales were ₹89,760.3 crore. In the same annual results, the draft lists gross profit as ₹266,106 crore and operating profit as ₹13,609.9 crore. Net profit attributable to the owners of Wipro for FY2024 was ₹10,445.2 crore."
+      },
+      "expected": [
+        {
+          "anchor": "89,760.3 crore",
+          "statedNumber": "89,760.3",
+          "metric": "revenue",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 897603000000,
+          "currency": "INR",
+          "accessions": [
+            "0000950170-24-063468"
+          ],
+          "truth": "The original FY2024 20-F reports ₹897,603 million, equivalent to ₹89,760.3 crore."
+        },
+        {
+          "anchor": "266,106 crore",
+          "statedNumber": "266,106",
+          "metric": "gross_profit",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 266106000000,
+          "currency": "INR",
+          "accessions": [
+            "0000950170-24-063468"
+          ],
+          "truth": "The source prints ₹266,106 million, equivalent to ₹26,610.6 crore."
+        },
+        {
+          "anchor": "13,609.9 crore",
+          "statedNumber": "13,609.9",
+          "metric": "operating_income",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 136099000000,
+          "currency": "INR",
+          "accessions": [
+            "0000950170-24-063468"
+          ],
+          "truth": "The original FY2024 20-F reports ₹136,099 million operating profit."
+        },
+        {
+          "anchor": "10,445.2 crore",
+          "statedNumber": "10,445.2",
+          "metric": "net_income",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 110452000000,
+          "currency": "INR",
+          "accessions": [
+            "0000950170-24-063468"
+          ],
+          "truth": "Net profit attributable to owners was ₹110,452 million, or ₹11,045.2 crore."
+        }
+      ]
+    },
+    {
+      "id": "infy-usd-with-local-sidebar",
+      "article": {
+        "ticker": "INFY",
+        "title": "Infosys reporting currency in a local-market sidebar",
+        "text": "Infosys Limited disclosed US$5.587 billion in gross profit for FY2024. The same paragraph gives FY2024 operating profit as US$3.843 billion. A local-market sidebar describes reported consolidated revenue for FY2024 as ₹1,53,000 crore in Indian rupees. Elsewhere, analysts forecast net profit of US$5.25 billion for FY2027."
+      },
+      "expected": [
+        {
+          "anchor": "5.587 billion",
+          "statedNumber": "5.587",
+          "metric": "gross_profit",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 5587000000,
+          "currency": "USD",
+          "accessions": [
+            "0000950170-24-076649"
+          ],
+          "truth": "The FY2024 20-F lists USD gross profit of $5.587 billion."
+        },
+        {
+          "anchor": "3.843 billion",
+          "statedNumber": "3.843",
+          "metric": "operating_income",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 3834000000,
+          "currency": "USD",
+          "accessions": [
+            "0000950170-24-076649"
+          ],
+          "truth": "FY2024 operating profit in the 20-F was US$3.834 billion."
+        },
+        {
+          "anchor": "1,53,000 crore",
+          "statedNumber": "1,53,000",
+          "outcome": "ABSTAIN",
+          "reason": "unsupported-currency",
+          "statedCurrency": "INR",
+          "metric": "revenue",
+          "year": 2024,
+          "period": "FY",
+          "truth": "The pinned FY2024 SEC revenue is denominated in USD. A currency conversion cannot establish this independently stated INR number."
+        },
+        {
+          "anchor": "5.25 billion",
+          "statedNumber": "5.25",
+          "outcome": "SKIP",
+          "truth": "This is an analysts’ forecast for the future FY2027 period."
+        }
+      ]
+    },
+    {
+      "id": "nvda-annual-bottom-line",
+      "article": {
+        "ticker": "NVDA",
+        "title": "NVIDIA FY2025 figures in the sector review",
+        "text": "NVIDIA's annual results for FY2025 showed revenue of $130.497 billion and gross profit of $97.858 billion. The story puts consolidated operating income for the year at $84.153 billion. NVIDIA reported annual net income of $72.880 billion, alongside diluted earnings per share of $2.49."
+      },
+      "expected": [
+        {
+          "anchor": "130.497 billion",
+          "statedNumber": "130.497",
+          "metric": "revenue",
+          "year": 2025,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 130497000000,
+          "currency": "USD",
+          "accessions": [
+            "0001045810-25-000023"
+          ],
+          "truth": "FY2025 consolidated revenue was $130.497 billion."
+        },
+        {
+          "anchor": "97.858 billion",
+          "statedNumber": "97.858",
+          "metric": "gross_profit",
+          "year": 2025,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 97858000000,
+          "currency": "USD",
+          "accessions": [
+            "0001045810-25-000023"
+          ],
+          "truth": "FY2025 gross profit was $97.858 billion."
+        },
+        {
+          "anchor": "84.153 billion",
+          "statedNumber": "84.153",
+          "metric": "operating_income",
+          "year": 2025,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 81453000000,
+          "currency": "USD",
+          "accessions": [
+            "0001045810-25-000023"
+          ],
+          "truth": "FY2025 operating income was $81.453 billion."
+        },
+        {
+          "anchor": "72.880 billion",
+          "statedNumber": "72.880",
+          "metric": "net_income",
+          "year": 2025,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 72880000000,
+          "currency": "USD",
+          "accessions": [
+            "0001045810-25-000023"
+          ],
+          "truth": "FY2025 net income was $72.880 billion."
+        },
+        {
+          "anchor": "2.49",
+          "statedNumber": "2.49",
+          "metric": "eps_diluted",
+          "year": 2025,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 2.94,
+          "currency": "USD",
+          "accessions": [
+            "0001045810-25-000023"
+          ],
+          "truth": "FY2025 diluted earnings per share were $2.94."
+        }
+      ]
+    },
+    {
+      "id": "jpm-two-eps-bases",
+      "article": {
+        "ticker": "JPM",
+        "title": "JPMorgan Chase annual earnings with an adjusted line",
+        "text": "JPMorgan Chase & Co. closed FY2024 with consolidated net income of $58.471 billion. Basic earnings per share for the year were $19.79. The draft gives FY2024 diluted earnings per share as $17.95. A separate non-GAAP line uses adjusted diluted earnings per share of $20.32 for that fiscal year."
+      },
+      "expected": [
+        {
+          "anchor": "58.471 billion",
+          "statedNumber": "58.471",
+          "metric": "net_income",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 58471000000,
+          "currency": "USD",
+          "accessions": [
+            "0000019617-25-000270"
+          ],
+          "truth": "FY2024 consolidated net income was $58.471 billion."
+        },
+        {
+          "anchor": "19.79",
+          "statedNumber": "19.79",
+          "metric": "eps_basic",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 19.79,
+          "currency": "USD",
+          "accessions": [
+            "0000019617-25-000270"
+          ],
+          "truth": "The FY2024 10-K distinguishes basic EPS of $19.79."
+        },
+        {
+          "anchor": "17.95",
+          "statedNumber": "17.95",
+          "metric": "eps_diluted",
+          "year": 2024,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 19.75,
+          "currency": "USD",
+          "accessions": [
+            "0000019617-25-000270"
+          ],
+          "truth": "The FY2024 10-K reports diluted EPS of $19.75."
+        },
+        {
+          "anchor": "20.32",
+          "statedNumber": "20.32",
+          "outcome": "ABSTAIN",
+          "reason": "non-gaap",
+          "truth": "The draft explicitly describes adjusted non-GAAP EPS. Reported GAAP EPS does not substantiate it."
+        }
+      ]
+    },
+    {
+      "id": "wmt-fy-annual-check",
+      "article": {
+        "ticker": "WMT",
+        "title": "Walmart fiscal-year totals for a retailer comparison",
+        "text": "Walmart generated consolidated total revenues of $713.163 billion in FY2026. For the same year ended January 31, 2026, the draft puts consolidated operating income at $29.852 billion and diluted earnings per share at $2.73. The analyst memo also cites adjusted non-GAAP diluted earnings per share of $2.96 for FY2026."
+      },
+      "expected": [
+        {
+          "anchor": "713.163 billion",
+          "statedNumber": "713.163",
+          "metric": "revenue",
+          "year": 2026,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 713163000000,
+          "currency": "USD",
+          "accessions": [
+            "0000104169-26-000055"
+          ],
+          "truth": "FY2026 consolidated total revenues were $713.163 billion."
+        },
+        {
+          "anchor": "29.852 billion",
+          "statedNumber": "29.852",
+          "metric": "operating_income",
+          "year": 2026,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 29825000000,
+          "currency": "USD",
+          "accessions": [
+            "0000104169-26-000055"
+          ],
+          "truth": "FY2026 operating income was $29.825 billion."
+        },
+        {
+          "anchor": "2.73",
+          "statedNumber": "2.73",
+          "metric": "eps_diluted",
+          "year": 2026,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 2.73,
+          "currency": "USD",
+          "accessions": [
+            "0000104169-26-000055"
+          ],
+          "truth": "FY2026 reported diluted EPS was $2.73."
+        },
+        {
+          "anchor": "2.96",
+          "statedNumber": "2.96",
+          "outcome": "ABSTAIN",
+          "reason": "non-gaap",
+          "truth": "The draft’s adjusted EPS uses a different basis from the 10-K."
+        }
+      ]
+    },
+    {
+      "id": "aapl-march-quarter-units",
+      "article": {
+        "ticker": "AAPL",
+        "title": "Apple March quarter earnings box",
+        "text": "Apple's net sales in Q2 FY2026 were $111.184 billion. The draft gives gross profit as $54.781 million and operating income as $35.885 billion for the same three months ended March 28, 2026. Apple reported diluted earnings per share of $2.10 for that quarter. Analysts project first-quarter FY2027 sales of $155 billion."
+      },
+      "expected": [
+        {
+          "anchor": "111.184 billion",
+          "statedNumber": "111.184",
+          "metric": "revenue",
+          "year": 2026,
+          "period": "Q2",
+          "outcome": "MATCH",
+          "value": 111184000000,
+          "currency": "USD",
+          "accessions": [
+            "0000320193-26-000013"
+          ],
+          "truth": "Q2 FY2026 net sales were $111.184 billion."
+        },
+        {
+          "anchor": "54.781 million",
+          "statedNumber": "54.781",
+          "metric": "gross_profit",
+          "year": 2026,
+          "period": "Q2",
+          "outcome": "MISMATCH",
+          "value": 54781000000,
+          "currency": "USD",
+          "accessions": [
+            "0000320193-26-000013"
+          ],
+          "truth": "The statement shows gross profit of $54.781 billion."
+        },
+        {
+          "anchor": "35.885 billion",
+          "statedNumber": "35.885",
+          "metric": "operating_income",
+          "year": 2026,
+          "period": "Q2",
+          "outcome": "MATCH",
+          "value": 35885000000,
+          "currency": "USD",
+          "accessions": [
+            "0000320193-26-000013"
+          ],
+          "truth": "Q2 FY2026 operating income was $35.885 billion."
+        },
+        {
+          "anchor": "2.10",
+          "statedNumber": "2.10",
+          "metric": "eps_diluted",
+          "year": 2026,
+          "period": "Q2",
+          "outcome": "MISMATCH",
+          "value": 2.01,
+          "currency": "USD",
+          "accessions": [
+            "0000320193-26-000013"
+          ],
+          "truth": "Q2 FY2026 diluted EPS was $2.01."
+        },
+        {
+          "anchor": "155 billion",
+          "statedNumber": "155",
+          "outcome": "SKIP",
+          "truth": "The estimate describes future first-quarter FY2027 net sales."
+        }
+      ]
+    },
+    {
+      "id": "infy-annual-snapshot",
+      "article": {
+        "ticker": "INFY",
+        "title": "Infosys past earnings and projected sales",
+        "text": "In FY2023 Infosys posted consolidated revenue of US$18.212 billion. The annual comparison gives gross profit of US$5.053 billion and net income attributable to owners of US$2.981 billion. An adjusted non-GAAP table shows FY2023 diluted earnings per share of US$0.77. The analyst forecasts revenue of US$20 billion for FY2027."
+      },
+      "expected": [
+        {
+          "anchor": "18.212 billion",
+          "statedNumber": "18.212",
+          "metric": "revenue",
+          "year": 2023,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 18212000000,
+          "currency": "USD",
+          "accessions": [
+            "0000950170-23-028187"
+          ],
+          "truth": "FY2023 reported consolidated revenue was US$18.212 billion."
+        },
+        {
+          "anchor": "5.053 billion",
+          "statedNumber": "5.053",
+          "metric": "gross_profit",
+          "year": 2023,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 5503000000,
+          "currency": "USD",
+          "accessions": [
+            "0000950170-23-028187"
+          ],
+          "truth": "FY2023 reported gross profit was US$5.503 billion."
+        },
+        {
+          "anchor": "2.981 billion",
+          "statedNumber": "2.981",
+          "metric": "net_income",
+          "year": 2023,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 2981000000,
+          "currency": "USD",
+          "accessions": [
+            "0000950170-23-028187"
+          ],
+          "truth": "FY2023 net income attributable to owners was US$2.981 billion."
+        },
+        {
+          "anchor": "0.77",
+          "statedNumber": "0.77",
+          "outcome": "ABSTAIN",
+          "reason": "non-gaap",
+          "truth": "The adjusted non-GAAP EPS figure cannot be checked against reported EPS."
+        },
+        {
+          "anchor": "20 billion",
+          "statedNumber": "20",
+          "outcome": "SKIP",
+          "truth": "The claim is an analyst forecast for future FY2027 revenue."
+        }
+      ]
+    },
+    {
+      "id": "wit-annual-profit-rows",
+      "article": {
+        "ticker": "WIT",
+        "title": "Wipro year-end lines for the accounting archive",
+        "text": "The FY2023 filing roundup puts Wipro's annual consolidated revenue at ₹90,487.6 crore. It also lists FY2023 gross profit at ₹29,543 crore and operating profit at ₹13,960.6 crore. Wipro's net profit attributable to its owners was ₹11,350 crore for FY2023."
+      },
+      "expected": [
+        {
+          "anchor": "90,487.6 crore",
+          "statedNumber": "90,487.6",
+          "metric": "revenue",
+          "year": 2023,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 904876000000,
+          "currency": "INR",
+          "accessions": [
+            "0000950170-23-023911"
+          ],
+          "truth": "Reported consolidated annual revenue of ₹904,876 million is ₹90,487.6 crore."
+        },
+        {
+          "anchor": "29,543 crore",
+          "statedNumber": "29,543",
+          "metric": "gross_profit",
+          "year": 2023,
+          "period": "FY",
+          "outcome": "MISMATCH",
+          "value": 259430000000,
+          "currency": "INR",
+          "accessions": [
+            "0000950170-23-023911"
+          ],
+          "truth": "FY2023 consolidated gross profit was ₹259,430 million, or ₹25,943 crore."
+        },
+        {
+          "anchor": "13,960.6 crore",
+          "statedNumber": "13,960.6",
+          "metric": "operating_income",
+          "year": 2023,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 139606000000,
+          "currency": "INR",
+          "accessions": [
+            "0000950170-23-023911"
+          ],
+          "truth": "FY2023 consolidated operating profit of ₹139,606 million is ₹13,960.6 crore."
+        },
+        {
+          "anchor": "11,350 crore",
+          "statedNumber": "11,350",
+          "metric": "net_income",
+          "year": 2023,
+          "period": "FY",
+          "outcome": "MATCH",
+          "value": 113500000000,
+          "currency": "INR",
+          "accessions": [
+            "0000950170-23-023911"
+          ],
+          "truth": "FY2023 profit attributable to owners was ₹113,500 million."
+        }
+      ]
+    },
+    {
+      "id": "jpm-quarter-results-box",
+      "article": {
+        "ticker": "JPM",
+        "title": "JPMorgan Chase September-quarter results box",
+        "text": "For the third quarter of FY2026, JPMorgan Chase recorded total net revenue of $50.172 billion and net income of $15.035 billion. The company reported quarterly diluted earnings per share of $5.57 and basic earnings per share of $5.85. A brokerage projects net interest income of $115 billion for full-year FY2027."
+      },
+      "expected": [
+        {
+          "anchor": "50.172 billion",
+          "statedNumber": "50.172",
+          "metric": "revenue",
+          "year": 2026,
+          "period": "Q3",
+          "outcome": "MATCH",
+          "value": 50172000000,
+          "currency": "USD",
+          "accessions": [
+            "0001628280-26-069523"
+          ],
+          "truth": "The Q3 FY2026 filing’s total net revenue was $50.172 billion."
+        },
+        {
+          "anchor": "15.035 billion",
+          "statedNumber": "15.035",
+          "metric": "net_income",
+          "year": 2026,
+          "period": "Q3",
+          "outcome": "MISMATCH",
+          "value": 15305000000,
+          "currency": "USD",
+          "accessions": [
+            "0001628280-26-069523"
+          ],
+          "truth": "Q3 FY2026 consolidated net income was $15.305 billion."
+        },
+        {
+          "anchor": "5.57",
+          "statedNumber": "5.57",
+          "metric": "eps_diluted",
+          "year": 2026,
+          "period": "Q3",
+          "outcome": "MATCH",
+          "value": 5.57,
+          "currency": "USD",
+          "accessions": [
+            "0001628280-26-069523"
+          ],
+          "truth": "Q3 FY2026 diluted EPS was $5.57."
+        },
+        {
+          "anchor": "5.85",
+          "statedNumber": "5.85",
+          "metric": "eps_basic",
+          "year": 2026,
+          "period": "Q3",
+          "outcome": "MISMATCH",
+          "value": 5.58,
+          "currency": "USD",
+          "accessions": [
+            "0001628280-26-069523"
+          ],
+          "truth": "Q3 FY2026 basic EPS was $5.58."
+        },
+        {
+          "anchor": "115 billion",
+          "statedNumber": "115",
+          "outcome": "SKIP",
+          "truth": "The brokerage figure is an FY2027 projection."
+        }
+      ]
+    },
+    {
+      "id": "nvda-october-quarter-brief",
+      "article": {
+        "ticker": "NVDA",
+        "title": "NVIDIA October quarter review and outlook",
+        "text": "For its third quarter of FY2026 NVIDIA reported consolidated revenue of $57.006 billion. The same quarter's gross profit is stated as $41.489 billion and operating income as $36.010 billion. The quarter’s diluted earnings per share are shown as $1.03. Analysts project $120 billion of revenue in the fourth quarter of FY2027."
+      },
+      "expected": [
+        {
+          "anchor": "57.006 billion",
+          "statedNumber": "57.006",
+          "metric": "revenue",
+          "year": 2026,
+          "period": "Q3",
+          "outcome": "MATCH",
+          "value": 57006000000,
+          "currency": "USD",
+          "accessions": [
+            "0001045810-25-000230"
+          ],
+          "truth": "Q3 FY2026 revenue was $57.006 billion."
+        },
+        {
+          "anchor": "41.489 billion",
+          "statedNumber": "41.489",
+          "metric": "gross_profit",
+          "year": 2026,
+          "period": "Q3",
+          "outcome": "MISMATCH",
+          "value": 41849000000,
+          "currency": "USD",
+          "accessions": [
+            "0001045810-25-000230"
+          ],
+          "truth": "Q3 FY2026 gross profit was $41.849 billion."
+        },
+        {
+          "anchor": "36.010 billion",
+          "statedNumber": "36.010",
+          "metric": "operating_income",
+          "year": 2026,
+          "period": "Q3",
+          "outcome": "MATCH",
+          "value": 36010000000,
+          "currency": "USD",
+          "accessions": [
+            "0001045810-25-000230"
+          ],
+          "truth": "Q3 FY2026 operating income was $36.010 billion."
+        },
+        {
+          "anchor": "1.03",
+          "statedNumber": "1.03",
+          "metric": "eps_diluted",
+          "year": 2026,
+          "period": "Q3",
+          "outcome": "MISMATCH",
+          "value": 1.3,
+          "currency": "USD",
+          "accessions": [
+            "0001045810-25-000230"
+          ],
+          "truth": "Q3 FY2026 diluted EPS was $1.30."
+        },
+        {
+          "anchor": "120 billion",
+          "statedNumber": "120",
+          "outcome": "SKIP",
+          "truth": "The FY2027 Q4 revenue figure is an analyst projection."
+        }
+      ]
+    }
+  ]
+}

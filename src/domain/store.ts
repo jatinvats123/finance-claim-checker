@@ -57,8 +57,8 @@ export class CheckerState extends RuntimeState {
 	readonly warnings = new Map<string, ContextWarning[]>()
 	/** claimId -> claim revision the context review finished for */
 	readonly contextDone = new Map<string, number>()
-	/** claimId -> why the context review for that revision did not complete (provider error, cache miss) */
-	readonly contextFailures = new Map<string, { claimRevision: number; reason: string }>()
+	/** claimId -> why the context review needs attention (failed inference or a disputed warning) */
+	readonly contextFailures = new Map<string, { claimRevision: number; reason: string; unavailable?: true }>()
 	/** claimId -> evidence-correction attempts for the current claim revision */
 	readonly evidenceAttempts = new Map<string, number>()
 	readonly history: HistoryEntry[] = []
@@ -68,6 +68,7 @@ export class CheckerState extends RuntimeState {
 	extraction: "running" | "done" | "failed" = "running"
 	extractionError?: string
 	private nextClaim = 1
+	private readonly extracted = new Map<string, ClaimInterpretation>()
 	private evidenceCounter = new Map<string, number>()
 	private readonly t0 = Date.now()
 
@@ -92,8 +93,14 @@ export class CheckerState extends RuntimeState {
 	addClaim(interpretation: ClaimInterpretation): Claim {
 		const claim: Claim = { id: `c${this.nextClaim++}`, revision: 1, interpretation, reason: "extracted", correctionsUsed: 0 }
 		this.claims.set(claim.id, claim)
+		this.extracted.set(claim.id, interpretation)
 		this.log("claim.extracted", `r1 ${interpretation.quote}`, claim.id)
 		return claim
+	}
+
+	/** Preserve the source wording the Extractor originally checked even if the interpretation was revised. */
+	extractedInterpretation(claimId: string): ClaimInterpretation | undefined {
+		return this.extracted.get(claimId)
 	}
 
 	/** New claim revision: invalidates only this claim's evidence, calculation, audit and context. */
@@ -170,6 +177,12 @@ export class CheckerState extends RuntimeState {
 		const d =state.status === "approved" ? state.note : state.status === "investigating" ? `${state.target}: ${state.reason}` : "reason" in state ? state.reason : ""
 		this.log(`audit.${state.status}`, `r${claimRevision}.e${evidenceRevision} ${d}`, claimId)
 		return { ok: true, value: state }
+	}
+
+	/** Retry an unfinished audit stage while retaining its verified evidence and calculation. */
+	reopenForRecovery(claimId: string, reopened: Extract<AuditState, { status: "pending" | "investigating" }>): void {
+		const audit = this.audits.get(claimId)
+		if (audit && audit.state.status !== "approved") this.audits.set(claimId, { ...audit, state: reopened })
 	}
 
 	/** Audits reopened by a reviewer's challenge, kept so a declined challenge restores the prior outcome. */
@@ -258,10 +271,16 @@ export class CheckerState extends RuntimeState {
 		if (bad) return bad
 		this.contextDone.set(claimId, claimRevision)
 		if (note) {
-			this.contextFailures.set(claimId, { claimRevision, reason: note })
+			const previous = this.contextFailures.get(claimId)
+			if (!previous || previous.unavailable) this.contextFailures.set(claimId, { claimRevision, reason: note, unavailable: true })
 			this.log("context.unavailable", `r${claimRevision} ${note}`, claimId)
 		}
 		return { ok: true, value: claimRevision }
+	}
+
+	reopenContextForRecovery(claimId: string): void {
+		this.contextDone.delete(claimId)
+		if (this.contextFailures.get(claimId)?.unavailable) this.contextFailures.delete(claimId)
 	}
 
 	auditFinal(claimId: string): boolean {

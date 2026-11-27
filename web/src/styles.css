@@ -1002,6 +1002,12 @@ button {
 	background: var(--bad-bg);
 	border: 1px solid #f1c3bf;
 }
+.recovery-notice {
+	margin: 8px 12px;
+}
+.recovery-notice p {
+	margin: 4px 0 8px;
+}
 .notice-actions {
 	display: flex;
 	gap: 8px;

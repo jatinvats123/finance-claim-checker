@@ -388,7 +388,7 @@ function Recheck({ run, claim: c, liveConfigured, liveHint, onChallenge }: { run
 	const [reason, setReason] = useState("")
 	const [error, setError] = useState<string>()
 	const [busy, setBusy] = useState(false)
-	const settled = run.status !== "running" && (c.review.status === "complete" || c.review.status === "unresolved" || c.review.status === "incomplete")
+	const settled = run.status !== "running" && !run.recoveryPending && (c.review.status === "complete" || c.review.status === "unresolved" || c.review.status === "incomplete")
 	const incomplete = c.review.status === "incomplete"
 	const rechecking = run.status === "running" && c.corrections.some((k) => k.by === "reviewer (human)") && c.review.status !== "complete"
 	if (rechecking) return <p className="note">Recheck in progress: the extractor is reconsidering this claim; other claims are unchanged.</p>
