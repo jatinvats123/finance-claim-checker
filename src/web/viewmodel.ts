@@ -11,6 +11,18 @@ import type { CallRecord } from "../llm/runner.js"
 import type { AgentRole, TaskTracker } from "../runtime/tasks.js"
 import type { AgentName, AgentView, ClaimView, ProvenanceView, ReferenceView, RunStatus, RunView, TimelineEntry, TimelineTone } from "./types.js"
 
+/**
+ * Display only: show the stated number with the article's own digit grouping ("₹15,172.1 crore",
+ * "₹1,51,271 crore") when the quote contains exactly that number. Engine strings (and so model prompts
+ * and replay keys) keep the normalized number.
+ */
+export function asWritten(display: string, c: Pick<ClaimInterpretation, "quote" | "statedNumber">): string {
+	const n = c.statedNumber.replace(/^[+-]/, "")
+	if (!n || n.includes(",") || !display.includes(n)) return display
+	for (const m of c.quote.matchAll(/\d{1,3}(?:,\d{2,3})+(?:\.\d+)?/g)) if (m[0].replace(/,/g, "") === n) return display.replace(n, m[0])
+	return display
+}
+
 export const VERDICT_LABEL: Record<NumericVerdict | "PENDING", string> = {
 	MATCH: "Figures match",
 	MISMATCH: "Figures differ",
@@ -144,13 +156,13 @@ export function claimView(state: CheckerState, claim: Claim, runFinished: boolea
 		periodLabel: periodText(c.fiscalYear, c.fiscalPeriod),
 		kindLabel: kindText(c),
 		accountingLabel: ACCOUNTING_LABEL[c.accounting],
-		statedDisplay: calc?.statedDisplay ?? c.statedNumber,
+		statedDisplay: asWritten(calc?.statedDisplay ?? c.statedNumber, c),
 		verdict,
 		verdictLabel: VERDICT_LABEL[verdict],
 		calc: calc && {
 			evidenceRevision: calc.evidenceRevision,
 			actualDisplay: calc.actualDisplay,
-			statedDisplay: calc.statedDisplay,
+			statedDisplay: asWritten(calc.statedDisplay, c),
 			difference: calc.difference,
 			toleranceRule: calc.toleranceRule,
 			formula: calc.formula,
