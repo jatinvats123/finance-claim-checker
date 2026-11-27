@@ -2,7 +2,7 @@
 
 Finance Claim Checker helps a financial editor decide which figures in an earnings draft need a correction before publication. It compares quoted figures with the company's SEC filing or supplied results PDF, shows the calculation and lets the editor copy a sourced correction.
 
-[Open the keyless Wipro demo on Render](https://finance-claim-checker.onrender.com/) · [Compare concurrent and serial runs](#what-concurrency-changed) · [Watch the Auditor revise a claim](#inspect-an-auditor-revision)
+[Open the keyless Wipro demo on Render](https://finance-claim-checker.onrender.com/) · [Read the live benchmark](eval/editor-deadline.md) · [See an Auditor intervention](#inspect-an-auditor-revision)
 
 ```sh
 npm ci
@@ -23,6 +23,8 @@ npm run web
 Select **See scripted auditor correction** in **Results**. The NVIDIA fixture opens **Timeline** and shows work on other claims continuing while the Auditor's objection sends a claim back for review. For claim `c3`, the Evidence agent replaces a prior-quarter comparison with the prior-year quarter, and the Auditor approves the resulting year-over-year correction. For claim `c4`, the Extractor revises the interpretation and the app discards stale results from the previous revision. The fixture uses scripted responses and runs without a key. [Fixture trace](eval/editor-auditor-fixture.json)
 
 ### What concurrency changed
+
+On six fresh drafts across four issuers, the concurrent scheduler produced **5 of 5** correct, fully reviewed edits within the 60-second benchmark cutoff. The serial scheduler produced **4 of 5**. Both had zero false corrections and two unfinished reviews. On the two-edit Apple draft, the second correct edit was ready at **41.11 s concurrent** and **92.08 s serial**. The report includes every arm, provider failures, filing snapshots, and the follow-up on the historical EPS review. [Live results and reproduction commands](eval/editor-deadline.md)
 
 Three paired runs used the same Wipro draft, filing, captured model responses and checks. One scheduler allowed overlap. The other completed one agent loop at a time. The order alternated between pairs. The replay divided the originally recorded response latencies by 100 in both arms. Timing starts when the checker receives the article. The first discrepancy requires the correct INR operating income from the specified accession.
 

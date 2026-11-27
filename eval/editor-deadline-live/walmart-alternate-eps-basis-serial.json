@@ -1,0 +1,221 @@
+{
+  "row": {
+    "case": "walmart-alternate-eps-basis",
+    "scheduler": "serial",
+    "correctByCutoff": 0,
+    "expectedCorrections": 0,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 2,
+    "expectedOutcomes": 2,
+    "elapsedMs": 85008,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 8
+    }
+  },
+  "expected": [
+    {
+      "anchor": "$0.68",
+      "outcome": "ABSTAIN",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "$0.80",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "$0.68",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Walmart's adjusted, non-GAAP diluted earnings per share in the second quarter of FY2027 were $0.68.",
+      "interpretation": {
+        "quote": "Walmart's adjusted, non-GAAP diluted earnings per share in the second quarter of FY2027 were $0.68.",
+        "metric": "eps_diluted",
+        "accounting": "non_gaap",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q2",
+        "statedNumber": "0.68",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "NOT_VERIFIABLE",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (rule); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [],
+      "history": [
+        {
+          "at": 12407,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Walmart's adjusted, non-GAAP diluted earnings per share in the second quarter of FY2027 were $0.68."
+        },
+        {
+          "at": 12410,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NOT_IN_STATEMENTS"
+        },
+        {
+          "at": 12410,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 NOT_VERIFIABLE"
+        },
+        {
+          "at": 12410,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 rule gate passed; nothing in the financial statements to compute against"
+        },
+        {
+          "at": 56082,
+          "claimId": "c1",
+          "kind": "context.warning",
+          "detail": "r1 [PERIOD_AMBIGUOUS] The fiscal year referenced in the claim and paragraph is in the future relative to the SEC filing data provided, making the period ambiguous."
+        }
+      ]
+    },
+    {
+      "anchor": "$0.80",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Walmart's reported GAAP diluted earnings per share for Q2 FY2027 were $0.80.",
+      "interpretation": {
+        "quote": "Walmart's reported GAAP diluted earnings per share for Q2 FY2027 were $0.80.",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q2",
+        "statedNumber": "0.80",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/Q2-FY2027/26-000154",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 0.8,
+          "unit": "USD/shares",
+          "period": "Q2-FY2027",
+          "start": "2026-05-01",
+          "end": "2026-07-31",
+          "form": "10-Q",
+          "accn": "0000104169-26-000154",
+          "filed": "2026-08-28",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000154/wmt-20260731.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 46056,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 Walmart's reported GAAP diluted earnings per share for Q2 FY2027 were $0.80."
+        },
+        {
+          "at": 46057,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareDiluted/Q2-FY2027/26-000154: the only consolidated USD EarningsPerShareDiluted figure for Q2-FY2027"
+        },
+        {
+          "at": 46057,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareDiluted/Q2-FY2027/26-000154"
+        },
+        {
+          "at": 46058,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $0.8 per share vs stated $0.80 per share)"
+        },
+        {
+          "at": 77530,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the information provided in the paragraph and is supported by the verified evidence."
+        }
+      ]
+    }
+  ],
+  "offers": [],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 88,
+        "endMs": 53787,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 53788,
+        "endMs": 61082,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 61083,
+        "endMs": 76649,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 76650,
+        "endMs": 85008,
+        "failed": false
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 88,
+    "totalMs": 85008
+  }
+}

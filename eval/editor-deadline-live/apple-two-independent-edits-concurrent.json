@@ -1,0 +1,355 @@
+{
+  "row": {
+    "case": "apple-two-independent-edits",
+    "scheduler": "concurrent",
+    "correctByCutoff": 2,
+    "expectedCorrections": 2,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 2,
+    "expectedOutcomes": 2,
+    "elapsedMs": 85022,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 4,
+    "calls": {
+      "live": 10
+    }
+  },
+  "expected": [
+    {
+      "anchor": "$228.2 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "$8.68",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "$228.2 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Apple Inc. reported gross profit of $228.2 billion in FY2026",
+      "interpretation": {
+        "quote": "Apple Inc. reported gross profit of $228.2 billion in FY2026",
+        "metric": "gross_profit",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "228.2",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Apple Inc. reported gross profit of $228.2 billion in FY2026”\nSuggested edit: Apple Inc. reported gross profit of $233.602B for the year ended September 26, 2026.\nSource: 10-K · 0000320193-26-000026 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/FY-FY2026/26-000026",
+          "role": "current",
+          "concept": "us-gaap:GrossProfit",
+          "value": 233602000000,
+          "unit": "USD",
+          "period": "FY-FY2026",
+          "start": "2025-09-28",
+          "end": "2026-09-26",
+          "form": "10-K",
+          "accn": "0000320193-26-000026",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1950,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Apple Inc. reported gross profit of $228.2 billion in FY2026"
+        },
+        {
+          "at": 1953,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "GrossProfit/FY-FY2026/26-000026: the only consolidated USD GrossProfit figure for FY-FY2026"
+        },
+        {
+          "at": 1953,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 GrossProfit/FY-FY2026/26-000026"
+        },
+        {
+          "at": 1954,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $233.602B vs stated $228.2 billion)"
+        },
+        {
+          "at": 16113,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation correctly reflects the claim's statement, and the mismatch is correctly identified by the formula."
+        }
+      ]
+    },
+    {
+      "anchor": "$8.68",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "For FY2026, Apple Inc. reported diluted earnings per share of $8.68.",
+      "interpretation": {
+        "quote": "For FY2026, Apple Inc. reported diluted earnings per share of $8.68.",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "8.68",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “For FY2026, Apple Inc. reported diluted earnings per share of $8.68.”\nSuggested edit: Apple Inc. reported diluted EPS of $8.98 per share for the year ended September 26, 2026.\nSource: 10-K · 0000320193-26-000026 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/FY-FY2026/26-000026",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 8.98,
+          "unit": "USD/shares",
+          "period": "FY-FY2026",
+          "start": "2025-09-28",
+          "end": "2026-09-26",
+          "form": "10-K",
+          "accn": "0000320193-26-000026",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11796,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 For FY2026, Apple Inc. reported diluted earnings per share of $8.68."
+        },
+        {
+          "at": 11797,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareDiluted/FY-FY2026/26-000026: the only consolidated USD EarningsPerShareDiluted figure for FY-FY2026"
+        },
+        {
+          "at": 11797,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareDiluted/FY-FY2026/26-000026"
+        },
+        {
+          "at": 11797,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $8.98 per share vs stated $8.68 per share)"
+        },
+        {
+          "at": 21098,
+          "claimId": "c2",
+          "kind": "context.dismissed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2026-09-26 and was reported in 10-K on 2026-11-03. Check the article wording. The quoted wording explicitly reports historical results. Proposed warning: The fiscal year 2026 has not concluded as of the provided reference date, making this reported result a forward-looking statement or error."
+        },
+        {
+          "at": 31642,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim interpretation is faithful to the quoted text, though the reported value is incorrect compared to the financial statement."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "$228.2 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Apple Inc. reported gross profit of $228.2 billion in FY2026",
+      "interpretation": {
+        "quote": "Apple Inc. reported gross profit of $228.2 billion in FY2026",
+        "metric": "gross_profit",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "228.2",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Apple Inc. reported gross profit of $228.2 billion in FY2026”\nSuggested edit: Apple Inc. reported gross profit of $233.602B for the year ended September 26, 2026.\nSource: 10-K · 0000320193-26-000026 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/FY-FY2026/26-000026",
+          "role": "current",
+          "concept": "us-gaap:GrossProfit",
+          "value": 233602000000,
+          "unit": "USD",
+          "period": "FY-FY2026",
+          "start": "2025-09-28",
+          "end": "2026-09-26",
+          "form": "10-K",
+          "accn": "0000320193-26-000026",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 16113
+    },
+    {
+      "anchor": "$8.68",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "For FY2026, Apple Inc. reported diluted earnings per share of $8.68.",
+      "interpretation": {
+        "quote": "For FY2026, Apple Inc. reported diluted earnings per share of $8.68.",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "8.68",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “For FY2026, Apple Inc. reported diluted earnings per share of $8.68.”\nSuggested edit: Apple Inc. reported diluted EPS of $8.98 per share for the year ended September 26, 2026.\nSource: 10-K · 0000320193-26-000026 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/FY-FY2026/26-000026",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 8.98,
+          "unit": "USD/shares",
+          "period": "FY-FY2026",
+          "start": "2025-09-28",
+          "end": "2026-09-26",
+          "form": "10-K",
+          "accn": "0000320193-26-000026",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 41106
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 37,
+        "endMs": 26111,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 1952,
+        "endMs": 6396,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1957,
+        "endMs": 36130,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 11796,
+        "endMs": 41105,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 11799,
+        "endMs": 85022,
+        "failed": false
+      }
+    ],
+    "peakActive": 4,
+    "peakAtMs": 11799,
+    "totalMs": 85022
+  }
+}

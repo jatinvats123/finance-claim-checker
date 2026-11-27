@@ -1,0 +1,195 @@
+{
+  "row": {
+    "case": "walmart-quarter-in-half",
+    "scheduler": "concurrent",
+    "correctByCutoff": 1,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 1,
+    "expectedOutcomes": 1,
+    "elapsedMs": 38050,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 3,
+    "calls": {
+      "live": 5
+    }
+  },
+  "expected": [
+    {
+      "anchor": "$187.937 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "$187.937 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Walmart Inc. booked total revenues of $187.937 billion in the first half of FY2027",
+      "interpretation": {
+        "quote": "Walmart Inc. booked total revenues of $187.937 billion in the first half of FY2027",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "H1",
+        "statedNumber": "187.937",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Walmart Inc. booked total revenues of $187.937 billion in the first half of FY2027”\nSuggested edit: Walmart Inc. reported revenue of $365.688B for the six months ended July 31, 2026.\nSource: 10-Q · 0000104169-26-000154 · https://www.sec.gov/Archives/edgar/data/104169/000010416926000154/wmt-20260731.htm",
+      "inputs": [
+        {
+          "evidenceId": "Revenues/H1-FY2027/26-000154",
+          "role": "current",
+          "concept": "us-gaap:Revenues",
+          "value": 365688000000,
+          "unit": "USD",
+          "period": "H1-FY2027",
+          "start": "2026-02-01",
+          "end": "2026-07-31",
+          "form": "10-Q",
+          "accn": "0000104169-26-000154",
+          "filed": "2026-08-28",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000154/wmt-20260731.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1552,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Walmart Inc. booked total revenues of $187.937 billion in the first half of FY2027"
+        },
+        {
+          "at": 1554,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "Revenues/H1-FY2027/26-000154: the only consolidated USD Revenues figure for H1-FY2027"
+        },
+        {
+          "at": 1554,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 Revenues/H1-FY2027/26-000154"
+        },
+        {
+          "at": 1555,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $365.688B vs stated $187.937 billion)"
+        },
+        {
+          "at": 15951,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim incorrectly identifies Q2-FY2027 revenue as H1-FY2027 revenue, which is a factual mismatch as confirmed by the rule warnings."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "$187.937 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Walmart Inc. booked total revenues of $187.937 billion in the first half of FY2027",
+      "interpretation": {
+        "quote": "Walmart Inc. booked total revenues of $187.937 billion in the first half of FY2027",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "H1",
+        "statedNumber": "187.937",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Walmart Inc. booked total revenues of $187.937 billion in the first half of FY2027”\nSuggested edit: Walmart Inc. reported revenue of $365.688B for the six months ended July 31, 2026.\nSource: 10-Q · 0000104169-26-000154 · https://www.sec.gov/Archives/edgar/data/104169/000010416926000154/wmt-20260731.htm",
+      "inputs": [
+        {
+          "evidenceId": "Revenues/H1-FY2027/26-000154",
+          "role": "current",
+          "concept": "us-gaap:Revenues",
+          "value": 365688000000,
+          "unit": "USD",
+          "period": "H1-FY2027",
+          "start": "2026-02-01",
+          "end": "2026-07-31",
+          "form": "10-Q",
+          "accn": "0000104169-26-000154",
+          "filed": "2026-08-28",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000154/wmt-20260731.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 38050
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 48,
+        "endMs": 11263,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 1553,
+        "endMs": 38049,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1556,
+        "endMs": 21076,
+        "failed": false
+      }
+    ],
+    "peakActive": 3,
+    "peakAtMs": 1556,
+    "totalMs": 38051
+  }
+}

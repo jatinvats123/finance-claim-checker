@@ -1,0 +1,232 @@
+{
+  "mode": "live",
+  "startedAt": "2026-11-27T10:55:04.860Z",
+  "model": "gemini-3.1-flash-lite",
+  "limits": {
+    "maxCalls": 35,
+    "maxConcurrent": 4,
+    "rpm": 12,
+    "requestTimeoutMs": 30000,
+    "retries": 1
+  },
+  "timeoutMs": 180000,
+  "pauseBetweenArmsMs": 5000,
+  "deadlineMs": 60000,
+  "specHash": "818d7392c383a00c19b2763db4dd61239d1d9c7cca4ef98677c5eecb62c70847",
+  "snapshotHashes": {
+    "AAPL": "bfa3e1d298398b30859158621820b203ea8697c44055a3969d92a10bb7591656",
+    "WIT": "351612a481c775be7637f3f68bf9203a73558d238312f8c685f947cf6b318417",
+    "WMT": "8e5cd730bbfe4493dd332269f7f66bc1dab490b6bd5a2e2b9bf9a48ff19e609d",
+    "INFY": "8d3ec8f90bf1442dbad2dff0df9c19f98fc8af9b279dc3a803de03441efd4e41"
+  },
+  "complete": true,
+  "rows": [
+    {
+      "case": "apple-prior-year-quarter",
+      "scheduler": "serial",
+      "correctByCutoff": 1,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 1,
+      "elapsedMs": 91830,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 6,
+        "provider-error": 1
+      }
+    },
+    {
+      "case": "apple-prior-year-quarter",
+      "scheduler": "concurrent",
+      "correctByCutoff": 1,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 1,
+      "elapsedMs": 33149,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 3,
+      "calls": {
+        "live": 7
+      }
+    },
+    {
+      "case": "wipro-profit-unit",
+      "scheduler": "concurrent",
+      "correctByCutoff": 1,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 2,
+      "expectedOutcomes": 2,
+      "elapsedMs": 56008,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 5,
+      "calls": {
+        "live": 11
+      }
+    },
+    {
+      "case": "wipro-profit-unit",
+      "scheduler": "serial",
+      "correctByCutoff": 1,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 1,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 2,
+      "elapsedMs": 125938,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 8,
+        "provider-error": 1
+      }
+    },
+    {
+      "case": "walmart-quarter-in-half",
+      "scheduler": "serial",
+      "correctByCutoff": 1,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 1,
+      "elapsedMs": 54049,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 5
+      }
+    },
+    {
+      "case": "walmart-quarter-in-half",
+      "scheduler": "concurrent",
+      "correctByCutoff": 1,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 1,
+      "elapsedMs": 38050,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 3,
+      "calls": {
+        "live": 5
+      }
+    },
+    {
+      "case": "infosys-reported-and-forecast",
+      "scheduler": "concurrent",
+      "correctByCutoff": 0,
+      "expectedCorrections": 0,
+      "falseCorrections": 0,
+      "unfinishedReviews": 1,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 2,
+      "elapsedMs": 64798,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 3,
+      "calls": {
+        "live": 6
+      }
+    },
+    {
+      "case": "infosys-reported-and-forecast",
+      "scheduler": "serial",
+      "correctByCutoff": 0,
+      "expectedCorrections": 0,
+      "falseCorrections": 0,
+      "unfinishedReviews": 1,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 2,
+      "elapsedMs": 26081,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 6
+      }
+    },
+    {
+      "case": "walmart-alternate-eps-basis",
+      "scheduler": "serial",
+      "correctByCutoff": 0,
+      "expectedCorrections": 0,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 2,
+      "expectedOutcomes": 2,
+      "elapsedMs": 85008,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 8
+      }
+    },
+    {
+      "case": "walmart-alternate-eps-basis",
+      "scheduler": "concurrent",
+      "correctByCutoff": 0,
+      "expectedCorrections": 0,
+      "falseCorrections": 0,
+      "unfinishedReviews": 1,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 2,
+      "elapsedMs": 104773,
+      "timedOut": false,
+      "extraction": "failed",
+      "peakLoops": 2,
+      "calls": {
+        "live": 3,
+        "provider-error": 1
+      }
+    },
+    {
+      "case": "apple-two-independent-edits",
+      "scheduler": "concurrent",
+      "correctByCutoff": 2,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 2,
+      "expectedOutcomes": 2,
+      "elapsedMs": 85022,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 4,
+      "calls": {
+        "live": 10
+      }
+    },
+    {
+      "case": "apple-two-independent-edits",
+      "scheduler": "serial",
+      "correctByCutoff": 1,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 2,
+      "expectedOutcomes": 2,
+      "elapsedMs": 96613,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 10
+      }
+    }
+  ]
+}

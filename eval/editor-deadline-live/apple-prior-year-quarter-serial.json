@@ -1,0 +1,270 @@
+{
+  "row": {
+    "case": "apple-prior-year-quarter",
+    "scheduler": "serial",
+    "correctByCutoff": 1,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 1,
+    "expectedOutcomes": 1,
+    "elapsedMs": 91830,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 6,
+      "provider-error": 1
+    }
+  },
+  "expected": [
+    {
+      "anchor": "$102.466 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "$102.466 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Apple recorded $102.466 billion in net sales in the fourth quarter of FY2026, the three months ended September 26, 2026.",
+      "interpretation": {
+        "quote": "Apple recorded $102.466 billion in net sales in the fourth quarter of FY2026, the three months ended September 26, 2026.",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q4",
+        "statedNumber": "102.466",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Apple recorded $102.466 billion in net sales in the fourth quarter of FY2026, the three months ended September 26, 2026.”\nSuggested edit: Apple Inc. had revenue of $114.477B for the quarter ended September 26, 2026, calculated from its financial statements.\nCalculation (Q4-FY2026): USD 478,834,000,000 full year − USD 364,357,000,000 first nine months = USD 114,477,000,000.\nSource: 10-K · 0000320193-26-000026 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm\nSource: 10-Q · 0000320193-26-000020 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000020/aapl-20260627.htm",
+      "inputs": [
+        {
+          "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/Q4-FY2026/derived",
+          "role": "current",
+          "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+          "value": 114477000000,
+          "unit": "USD",
+          "period": "Q4-FY2026",
+          "start": "2026-06-28",
+          "end": "2026-09-26",
+          "form": "10-K",
+          "accn": "0000320193-26-000026",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+          "derivation": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026 − RevenueFromContractWithCustomerExcludingAssessedTax/9M-FY2026/26-000020",
+          "currency": "USD",
+          "consolidation": "consolidated",
+          "derivationInputs": [
+            {
+              "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+              "role": "current",
+              "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+              "value": 478834000000,
+              "unit": "USD",
+              "period": "FY-FY2026",
+              "start": "2025-09-28",
+              "end": "2026-09-26",
+              "form": "10-K",
+              "accn": "0000320193-26-000026",
+              "filed": "2026-11-03",
+              "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+              "currency": "USD",
+              "consolidation": "consolidated"
+            },
+            {
+              "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/9M-FY2026/26-000020",
+              "role": "current",
+              "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+              "value": 364357000000,
+              "unit": "USD",
+              "period": "9M-FY2026",
+              "start": "2025-09-28",
+              "end": "2026-06-27",
+              "form": "10-Q",
+              "accn": "0000320193-26-000020",
+              "filed": "2026-07-31",
+              "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000020/aapl-20260627.htm",
+              "currency": "USD",
+              "consolidation": "consolidated"
+            }
+          ]
+        }
+      ],
+      "history": [
+        {
+          "at": 8547,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Apple recorded $102.466 billion in net sales in the fourth quarter of FY2026, the three months ended September 26, 2026."
+        },
+        {
+          "at": 19786,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 RevenueFromContractWithCustomerExcludingAssessedTax/Q4-FY2026/derived"
+        },
+        {
+          "at": 19887,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $114.477B vs stated $102.466 billion)"
+        },
+        {
+          "at": 35447,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately reflects the text provided, which contains a factual mismatch with the derived filing data for Q4 FY2026."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "$102.466 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Apple recorded $102.466 billion in net sales in the fourth quarter of FY2026, the three months ended September 26, 2026.",
+      "interpretation": {
+        "quote": "Apple recorded $102.466 billion in net sales in the fourth quarter of FY2026, the three months ended September 26, 2026.",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q4",
+        "statedNumber": "102.466",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Apple recorded $102.466 billion in net sales in the fourth quarter of FY2026, the three months ended September 26, 2026.”\nSuggested edit: Apple Inc. had revenue of $114.477B for the quarter ended September 26, 2026, calculated from its financial statements.\nCalculation (Q4-FY2026): USD 478,834,000,000 full year − USD 364,357,000,000 first nine months = USD 114,477,000,000.\nSource: 10-K · 0000320193-26-000026 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm\nSource: 10-Q · 0000320193-26-000020 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000020/aapl-20260627.htm",
+      "inputs": [
+        {
+          "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/Q4-FY2026/derived",
+          "role": "current",
+          "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+          "value": 114477000000,
+          "unit": "USD",
+          "period": "Q4-FY2026",
+          "start": "2026-06-28",
+          "end": "2026-09-26",
+          "form": "10-K",
+          "accn": "0000320193-26-000026",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+          "derivation": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026 − RevenueFromContractWithCustomerExcludingAssessedTax/9M-FY2026/26-000020",
+          "currency": "USD",
+          "consolidation": "consolidated",
+          "derivationInputs": [
+            {
+              "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+              "role": "current",
+              "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+              "value": 478834000000,
+              "unit": "USD",
+              "period": "FY-FY2026",
+              "start": "2025-09-28",
+              "end": "2026-09-26",
+              "form": "10-K",
+              "accn": "0000320193-26-000026",
+              "filed": "2026-11-03",
+              "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+              "currency": "USD",
+              "consolidation": "consolidated"
+            },
+            {
+              "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/9M-FY2026/26-000020",
+              "role": "current",
+              "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+              "value": 364357000000,
+              "unit": "USD",
+              "period": "9M-FY2026",
+              "start": "2025-09-28",
+              "end": "2026-06-27",
+              "form": "10-Q",
+              "accn": "0000320193-26-000020",
+              "filed": "2026-07-31",
+              "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000020/aapl-20260627.htm",
+              "currency": "USD",
+              "consolidation": "consolidated"
+            }
+          ]
+        }
+      ],
+      "timeMs": 35459
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 34,
+        "endMs": 9516,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 9520,
+        "endMs": 15049,
+        "failed": false
+      },
+      {
+        "task": "evidence:c1@r1#1",
+        "role": "evidence",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 0,
+        "startMs": 15051,
+        "endMs": 24614,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 24616,
+        "endMs": 91834,
+        "failed": true
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 34,
+    "totalMs": 91835
+  }
+}

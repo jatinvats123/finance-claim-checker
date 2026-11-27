@@ -1,0 +1,156 @@
+{
+  "row": {
+    "case": "infosys-reported-and-forecast",
+    "scheduler": "serial",
+    "correctByCutoff": 0,
+    "expectedCorrections": 0,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 2,
+    "expectedOutcomes": 2,
+    "elapsedMs": 77056,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 6
+    }
+  },
+  "expected": [
+    {
+      "anchor": "US$0.76",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "US$25 billion",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "US$0.76",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Infosys Limited's diluted earnings per share for FY2025 were US$0.76.",
+      "interpretation": {
+        "quote": "Infosys Limited's diluted earnings per share for FY2025 were US$0.76.",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "0.76",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "DilutedEarningsLossPerShare/FY-FY2025/25-091925",
+          "role": "current",
+          "concept": "ifrs-full:DilutedEarningsLossPerShare",
+          "value": 0.76,
+          "unit": "USD/shares",
+          "period": "FY-FY2025",
+          "start": "2024-04-01",
+          "end": "2025-03-31",
+          "form": "20-F",
+          "accn": "0000950170-25-091925",
+          "filed": "2025-07-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017025091925/infy-20250331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1270,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Infosys Limited's diluted earnings per share for FY2025 were US$0.76."
+        },
+        {
+          "at": 1271,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "DilutedEarningsLossPerShare/FY-FY2025/25-091925: the only consolidated USD DilutedEarningsLossPerShare figure for FY-FY2025"
+        },
+        {
+          "at": 1271,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 DilutedEarningsLossPerShare/FY-FY2025/25-091925"
+        },
+        {
+          "at": 1271,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $0.76 per share vs stated $0.76 per share)"
+        },
+        {
+          "at": 62036,
+          "claimId": "c1",
+          "kind": "context.dismissed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2025-03-31 and was reported in 20-F on 2025-07-01. Check the article wording. The quoted wording explicitly reports historical results. Proposed warning: The paragraph includes a revenue forecast for FY2027 alongside the historical result for FY2025."
+        },
+        {
+          "at": 73234,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the diluted earnings per share reported in the financial statement."
+        }
+      ]
+    }
+  ],
+  "offers": [],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 6,
+        "endMs": 61066,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 61068,
+        "endMs": 67037,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 67038,
+        "endMs": 77056,
+        "failed": false
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 6,
+    "totalMs": 77056
+  }
+}

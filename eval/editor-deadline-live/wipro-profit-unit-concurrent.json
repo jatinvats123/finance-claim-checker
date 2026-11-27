@@ -1,0 +1,311 @@
+{
+  "row": {
+    "case": "wipro-profit-unit",
+    "scheduler": "concurrent",
+    "correctByCutoff": 1,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 2,
+    "expectedOutcomes": 2,
+    "elapsedMs": 56008,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 5,
+    "calls": {
+      "live": 11
+    }
+  },
+  "expected": [
+    {
+      "anchor": "₹131,354 crore",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "₹12.52",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "₹131,354 crore",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Wipro Limited's profit attributable to its shareholders for FY2025, the year ended March 31, 2025, was ₹131,354 crore.",
+      "interpretation": {
+        "quote": "Wipro Limited's profit attributable to its shareholders for FY2025, the year ended March 31, 2025, was ₹131,354 crore.",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "131354",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Wipro Limited's profit attributable to its shareholders for FY2025, the year ended March 31, 2025, was ₹131,354 crore.”\nSuggested edit: WIPRO LIMITED reported net income of ₹13,135.4 crore for the year ended March 31, 2025.\nSource: 20-F · 0000950170-25-076303 · https://www.sec.gov/Archives/edgar/data/1123799/000095017025076303/wit-20250331.htm",
+      "inputs": [
+        {
+          "evidenceId": "ProfitLossAttributableToOwnersOfParent/FY-FY2025/25-076303",
+          "role": "current",
+          "concept": "ifrs-full:ProfitLossAttributableToOwnersOfParent",
+          "value": 131354000000,
+          "unit": "INR",
+          "period": "FY-FY2025",
+          "start": "2024-04-01",
+          "end": "2025-03-31",
+          "form": "20-F",
+          "accn": "0000950170-25-076303",
+          "filed": "2025-05-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1123799/000095017025076303/wit-20250331.htm",
+          "currency": "INR",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 3574,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Wipro Limited's profit attributable to its shareholders for FY2025, the year ended March 31, 2025, was ₹131,354 crore."
+        },
+        {
+          "at": 3577,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "ProfitLossAttributableToOwnersOfParent/FY-FY2025/25-076303: the only consolidated INR ProfitLossAttributableToOwnersOfParent figure for FY-FY2025"
+        },
+        {
+          "at": 3577,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 ProfitLossAttributableToOwnersOfParent/FY-FY2025/25-076303"
+        },
+        {
+          "at": 3581,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual ₹13,135.4 crore vs stated ₹131354 crore)"
+        },
+        {
+          "at": 5990,
+          "claimId": "c1",
+          "kind": "context.warning",
+          "detail": "r1 [OTHER] The reported profit figure is significantly inaccurate and inconsistent with the historical financial results of the company for the specified period."
+        },
+        {
+          "at": 41063,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim correctly reflects the number and scale stated in the source text, even though the source text itself reports an incorrect value (a decimal shift error) when compared to the official financial data."
+        }
+      ]
+    },
+    {
+      "anchor": "₹12.52",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Diluted earnings per share for the same fiscal year were ₹12.52.",
+      "interpretation": {
+        "quote": "Diluted earnings per share for the same fiscal year were ₹12.52.",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "12.52",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "DilutedEarningsLossPerShare/FY-FY2025/25-076303",
+          "role": "current",
+          "concept": "ifrs-full:DilutedEarningsLossPerShare",
+          "value": 12.52,
+          "unit": "INR/shares",
+          "period": "FY-FY2025",
+          "start": "2024-04-01",
+          "end": "2025-03-31",
+          "form": "20-F",
+          "accn": "0000950170-25-076303",
+          "filed": "2025-05-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1123799/000095017025076303/wit-20250331.htm",
+          "currency": "INR",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11270,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 Diluted earnings per share for the same fiscal year were ₹12.52."
+        },
+        {
+          "at": 11272,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "DilutedEarningsLossPerShare/FY-FY2025/25-076303: the only consolidated INR DilutedEarningsLossPerShare figure for FY-FY2025"
+        },
+        {
+          "at": 11272,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 DilutedEarningsLossPerShare/FY-FY2025/25-076303"
+        },
+        {
+          "at": 11273,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual ₹12.52 per share vs stated ₹12.52 per share)"
+        },
+        {
+          "at": 25679,
+          "claimId": "c2",
+          "kind": "context.warning",
+          "detail": "r1 [PERIOD_AMBIGUOUS] The reference to the fiscal year is ambiguous without explicitly stating that it refers to the period ended March 31, 2025."
+        },
+        {
+          "at": 43504,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation matches the quoted text and the extracted financial data."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "₹131,354 crore",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Wipro Limited's profit attributable to its shareholders for FY2025, the year ended March 31, 2025, was ₹131,354 crore.",
+      "interpretation": {
+        "quote": "Wipro Limited's profit attributable to its shareholders for FY2025, the year ended March 31, 2025, was ₹131,354 crore.",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "131354",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Wipro Limited's profit attributable to its shareholders for FY2025, the year ended March 31, 2025, was ₹131,354 crore.”\nSuggested edit: WIPRO LIMITED reported net income of ₹13,135.4 crore for the year ended March 31, 2025.\nSource: 20-F · 0000950170-25-076303 · https://www.sec.gov/Archives/edgar/data/1123799/000095017025076303/wit-20250331.htm",
+      "inputs": [
+        {
+          "evidenceId": "ProfitLossAttributableToOwnersOfParent/FY-FY2025/25-076303",
+          "role": "current",
+          "concept": "ifrs-full:ProfitLossAttributableToOwnersOfParent",
+          "value": 131354000000,
+          "unit": "INR",
+          "period": "FY-FY2025",
+          "start": "2024-04-01",
+          "end": "2025-03-31",
+          "form": "20-F",
+          "accn": "0000950170-25-076303",
+          "filed": "2025-05-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1123799/000095017025076303/wit-20250331.htm",
+          "currency": "INR",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 41064
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 8,
+        "endMs": 38063,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 3576,
+        "endMs": 20947,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 3584,
+        "endMs": 51211,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 11272,
+        "endMs": 45892,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 11275,
+        "endMs": 56009,
+        "failed": false
+      }
+    ],
+    "peakActive": 5,
+    "peakAtMs": 11275,
+    "totalMs": 56009
+  }
+}

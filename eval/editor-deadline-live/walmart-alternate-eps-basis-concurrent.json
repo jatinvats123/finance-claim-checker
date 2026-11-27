@@ -1,0 +1,124 @@
+{
+  "row": {
+    "case": "walmart-alternate-eps-basis",
+    "scheduler": "concurrent",
+    "correctByCutoff": 0,
+    "expectedCorrections": 0,
+    "falseCorrections": 0,
+    "unfinishedReviews": 1,
+    "correctOutcomes": 1,
+    "expectedOutcomes": 2,
+    "elapsedMs": 104773,
+    "timedOut": false,
+    "extraction": "failed",
+    "peakLoops": 2,
+    "calls": {
+      "live": 3,
+      "provider-error": 1
+    }
+  },
+  "expected": [
+    {
+      "anchor": "$0.68",
+      "outcome": "ABSTAIN",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "$0.80",
+      "outcome": "MATCH",
+      "correct": false,
+      "unfinished": true
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "$0.68",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Walmart's adjusted, non-GAAP diluted earnings per share in the second quarter of FY2027 were $0.68.",
+      "interpretation": {
+        "quote": "Walmart's adjusted, non-GAAP diluted earnings per share in the second quarter of FY2027 were $0.68.",
+        "metric": "eps_diluted",
+        "accounting": "non_gaap",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q2",
+        "statedNumber": "0.68",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "NOT_VERIFIABLE",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (rule); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [],
+      "history": [
+        {
+          "at": 33893,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Walmart's adjusted, non-GAAP diluted earnings per share in the second quarter of FY2027 were $0.68."
+        },
+        {
+          "at": 33896,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NOT_IN_STATEMENTS"
+        },
+        {
+          "at": 33896,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 NOT_VERIFIABLE"
+        },
+        {
+          "at": 33896,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 rule gate passed; nothing in the financial statements to compute against"
+        },
+        {
+          "at": 38416,
+          "claimId": "c1",
+          "kind": "context.warning",
+          "detail": "r1 [PERIOD_AMBIGUOUS] The fiscal year 2027 is a forward-looking period relative to the reference date of the SEC data provided."
+        }
+      ]
+    }
+  ],
+  "offers": [],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 46,
+        "endMs": 104774,
+        "failed": true
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 33896,
+        "endMs": 48764,
+        "failed": false
+      }
+    ],
+    "peakActive": 2,
+    "peakAtMs": 33896,
+    "totalMs": 104774
+  }
+}

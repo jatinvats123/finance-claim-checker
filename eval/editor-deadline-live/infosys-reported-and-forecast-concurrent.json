@@ -1,0 +1,156 @@
+{
+  "row": {
+    "case": "infosys-reported-and-forecast",
+    "scheduler": "concurrent",
+    "correctByCutoff": 0,
+    "expectedCorrections": 0,
+    "falseCorrections": 0,
+    "unfinishedReviews": 1,
+    "correctOutcomes": 1,
+    "expectedOutcomes": 2,
+    "elapsedMs": 64798,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 3,
+    "calls": {
+      "live": 6
+    }
+  },
+  "expected": [
+    {
+      "anchor": "US$0.76",
+      "outcome": "MATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "US$25 billion",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "US$0.76",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Infosys Limited's diluted earnings per share for FY2025 were US$0.76.",
+      "interpretation": {
+        "quote": "Infosys Limited's diluted earnings per share for FY2025 were US$0.76.",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "0.76",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "incomplete",
+        "label": "Review incomplete",
+        "detail": "Forecast warning conflicts with the reference. The period ended 2025-03-31 and was reported in 20-F on 2025-07-01. Check the article wording."
+      },
+      "correct": false,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "DilutedEarningsLossPerShare/FY-FY2025/25-091925",
+          "role": "current",
+          "concept": "ifrs-full:DilutedEarningsLossPerShare",
+          "value": 0.76,
+          "unit": "USD/shares",
+          "period": "FY-FY2025",
+          "start": "2024-04-01",
+          "end": "2025-03-31",
+          "form": "20-F",
+          "accn": "0000950170-25-091925",
+          "filed": "2025-07-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017025091925/infy-20250331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 16294,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Infosys Limited's diluted earnings per share for FY2025 were US$0.76."
+        },
+        {
+          "at": 16298,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "DilutedEarningsLossPerShare/FY-FY2025/25-091925: the only consolidated USD DilutedEarningsLossPerShare figure for FY-FY2025"
+        },
+        {
+          "at": 16298,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 DilutedEarningsLossPerShare/FY-FY2025/25-091925"
+        },
+        {
+          "at": 16299,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $0.76 per share vs stated $0.76 per share)"
+        },
+        {
+          "at": 17158,
+          "claimId": "c1",
+          "kind": "context.disputed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2025-03-31 and was reported in 20-F on 2025-07-01. Check the article wording. Proposed warning: The paragraph presents an analyst forecast for a future fiscal year alongside a historical result without clearly distinguishing between reported data and speculative projections."
+        },
+        {
+          "at": 31350,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation correctly identifies the metric, fiscal year, and value from the quoted text, and the claim matches the verified financial data."
+        }
+      ]
+    }
+  ],
+  "offers": [],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 7,
+        "endMs": 54084,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 16296,
+        "endMs": 64798,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 16300,
+        "endMs": 37226,
+        "failed": false
+      }
+    ],
+    "peakActive": 3,
+    "peakAtMs": 16300,
+    "totalMs": 64798
+  }
+}
