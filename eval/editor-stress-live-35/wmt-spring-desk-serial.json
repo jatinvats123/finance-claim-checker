@@ -1,0 +1,411 @@
+{
+  "startedAt": "2026-11-27T12:40:04.812Z",
+  "row": {
+    "case": "wmt-spring-desk",
+    "scheduler": "serial",
+    "correctByCutoff": 1,
+    "correctBySecondaryCutoff": 1,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 4,
+    "expectedOutcomes": 4,
+    "elapsedMs": 61263,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 13
+    }
+  },
+  "expected": [
+    {
+      "anchor": "177.751 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "7.135 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "5.330 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "3.25",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "177.751 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "For the three months ended April 30, 2026, Walmart registered total revenue of $177.751 billion",
+      "interpretation": {
+        "quote": "For the three months ended April 30, 2026, Walmart registered total revenue of $177.751 billion",
+        "metric": "revenue",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q1",
+        "statedNumber": "177.751",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "Revenues/Q1-FY2027/26-000102",
+          "role": "current",
+          "concept": "us-gaap:Revenues",
+          "value": 177751000000,
+          "unit": "USD",
+          "period": "Q1-FY2027",
+          "start": "2026-02-01",
+          "end": "2026-04-30",
+          "form": "10-Q",
+          "accn": "0000104169-26-000102",
+          "filed": "2026-05-29",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1763,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 For the three months ended April 30, 2026, Walmart registered total revenue of $177.751 billion"
+        },
+        {
+          "at": 1764,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "Revenues/Q1-FY2027/26-000102: the only consolidated USD Revenues figure for Q1-FY2027"
+        },
+        {
+          "at": 1764,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 Revenues/Q1-FY2027/26-000102"
+        },
+        {
+          "at": 1765,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $177.751B vs stated $177.751 billion)"
+        },
+        {
+          "at": 25923,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully represents the quoted sentence and correctly matches the official financial statement metrics, periods, and scale."
+        }
+      ]
+    },
+    {
+      "anchor": "7.135 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "operating income was $7.135 billion",
+      "interpretation": {
+        "quote": "operating income was $7.135 billion",
+        "metric": "operating_income",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q1",
+        "statedNumber": "7.135",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “operating income was $7.135 billion”\nSuggested edit: Walmart Inc. reported operating income of $7.493B for the quarter ended April 30, 2026.\nSource: 10-Q · 0000104169-26-000102 · https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/Q1-FY2027/26-000102",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 7493000000,
+          "unit": "USD",
+          "period": "Q1-FY2027",
+          "start": "2026-02-01",
+          "end": "2026-04-30",
+          "form": "10-Q",
+          "accn": "0000104169-26-000102",
+          "filed": "2026-05-29",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 6575,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 operating income was $7.135 billion"
+        },
+        {
+          "at": 6577,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "OperatingIncomeLoss/Q1-FY2027/26-000102: the only consolidated USD OperatingIncomeLoss figure for Q1-FY2027"
+        },
+        {
+          "at": 6577,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 OperatingIncomeLoss/Q1-FY2027/26-000102"
+        },
+        {
+          "at": 6577,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $7.493B vs stated $7.135 billion)"
+        },
+        {
+          "at": 40796,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The article states operating income of $7.135 billion for Q1 FY2027, which matches the Q1 FY2026 figure in the filings (a period mismatch), resulting in a correct MISMATCH verdict."
+        }
+      ]
+    },
+    {
+      "anchor": "5.330 billion",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "net income attributable to Walmart was $5.330 billion",
+      "interpretation": {
+        "quote": "net income attributable to Walmart was $5.330 billion",
+        "metric": "net_income",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q1",
+        "statedNumber": "5.330",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "NetIncomeLoss/Q1-FY2027/26-000102",
+          "role": "current",
+          "concept": "us-gaap:NetIncomeLoss",
+          "value": 5330000000,
+          "unit": "USD",
+          "period": "Q1-FY2027",
+          "start": "2026-02-01",
+          "end": "2026-04-30",
+          "form": "10-Q",
+          "accn": "0000104169-26-000102",
+          "filed": "2026-05-29",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11700,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 net income attributable to Walmart was $5.330 billion"
+        },
+        {
+          "at": 11701,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "NetIncomeLoss/Q1-FY2027/26-000102: the only consolidated USD NetIncomeLoss figure for Q1-FY2027"
+        },
+        {
+          "at": 11701,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NetIncomeLoss/Q1-FY2027/26-000102"
+        },
+        {
+          "at": 11701,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $5.330B vs stated $5.330 billion)"
+        },
+        {
+          "at": 56241,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully represents the quoted sentence and correctly maps to the reported net income attributable to Walmart for Q1 FY2027."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "7.135 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "operating income was $7.135 billion",
+      "interpretation": {
+        "quote": "operating income was $7.135 billion",
+        "metric": "operating_income",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q1",
+        "statedNumber": "7.135",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “operating income was $7.135 billion”\nSuggested edit: Walmart Inc. reported operating income of $7.493B for the quarter ended April 30, 2026.\nSource: 10-Q · 0000104169-26-000102 · https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/Q1-FY2027/26-000102",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 7493000000,
+          "unit": "USD",
+          "period": "Q1-FY2027",
+          "start": "2026-02-01",
+          "end": "2026-04-30",
+          "form": "10-Q",
+          "accn": "0000104169-26-000102",
+          "filed": "2026-05-29",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 40797
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 31,
+        "endMs": 16723,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 16724,
+        "endMs": 20810,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 20810,
+        "endMs": 30957,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 30958,
+        "endMs": 36383,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 36385,
+        "endMs": 45748,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 45749,
+        "endMs": 51021,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 51022,
+        "endMs": 61263,
+        "failed": false
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 31,
+    "totalMs": 61264
+  }
+}

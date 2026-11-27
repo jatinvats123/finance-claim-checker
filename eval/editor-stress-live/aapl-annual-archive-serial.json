@@ -1,0 +1,562 @@
+{
+  "row": {
+    "case": "aapl-annual-archive",
+    "scheduler": "serial",
+    "correctByCutoff": 2,
+    "correctBySecondaryCutoff": 0,
+    "expectedCorrections": 2,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 4,
+    "expectedOutcomes": 4,
+    "elapsedMs": 132295,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 19
+    }
+  },
+  "expected": [
+    {
+      "anchor": "391.035 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "127.216 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "6.08",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "93.376 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "391.035 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "In the fiscal year ended September 28, 2024, Apple booked net sales of $391.035 billion",
+      "interpretation": {
+        "quote": "In the fiscal year ended September 28, 2024, Apple booked net sales of $391.035 billion",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "391.035",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2024/24-000123",
+          "role": "current",
+          "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+          "value": 391035000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-10-01",
+          "end": "2024-09-28",
+          "form": "10-K",
+          "accn": "0000320193-24-000123",
+          "filed": "2024-11-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1981,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 In the fiscal year ended September 28, 2024, Apple booked net sales of $391.035 billion"
+        },
+        {
+          "at": 59609,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2024/24-000123"
+        },
+        {
+          "at": 59610,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $391.035B vs stated $391.035 billion)"
+        },
+        {
+          "at": 127713,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully reflects the quoted text and the provided financial evidence."
+        }
+      ]
+    },
+    {
+      "anchor": "127.216 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "operating income of $127.216 billion",
+      "interpretation": {
+        "quote": "operating income of $127.216 billion",
+        "metric": "operating_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "127.216",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “operating income of $127.216 billion”\nSuggested edit: Apple Inc. reported operating income of $123.216B for the year ended September 28, 2024.\nSource: 10-K · 0000320193-24-000123 · https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/FY-FY2024/24-000123",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 123216000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-10-01",
+          "end": "2024-09-28",
+          "form": "10-K",
+          "accn": "0000320193-24-000123",
+          "filed": "2024-11-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 29368,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 operating income of $127.216 billion"
+        },
+        {
+          "at": 29374,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "OperatingIncomeLoss/FY-FY2024/24-000123: the only consolidated USD OperatingIncomeLoss figure for FY-FY2024 (same value in 3 filings)"
+        },
+        {
+          "at": 29375,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 OperatingIncomeLoss/FY-FY2024/24-000123"
+        },
+        {
+          "at": 29386,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $123.216B vs stated $127.216 billion)"
+        },
+        {
+          "at": 78604,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully represents the quote, and the mismatch is correctly identified by the formula calculation against the official SEC filing."
+        }
+      ]
+    },
+    {
+      "anchor": "6.08",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "reports $6.08 in diluted earnings per share",
+      "interpretation": {
+        "quote": "reports $6.08 in diluted earnings per share",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "6.08",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/FY-FY2024/24-000123",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 6.08,
+          "unit": "USD/shares",
+          "period": "FY-FY2024",
+          "start": "2023-10-01",
+          "end": "2024-09-28",
+          "form": "10-K",
+          "accn": "0000320193-24-000123",
+          "filed": "2024-11-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 30937,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 reports $6.08 in diluted earnings per share"
+        },
+        {
+          "at": 30939,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareDiluted/FY-FY2024/24-000123: the only consolidated USD EarningsPerShareDiluted figure for FY-FY2024 (same value in 3 filings)"
+        },
+        {
+          "at": 30939,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareDiluted/FY-FY2024/24-000123"
+        },
+        {
+          "at": 30940,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $6.08 per share vs stated $6.08 per share)"
+        },
+        {
+          "at": 102256,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the information provided in the quote."
+        }
+      ]
+    },
+    {
+      "anchor": "93.376 billion",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Apple net income is given as $93.376 billion",
+      "interpretation": {
+        "quote": "Apple net income is given as $93.376 billion",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "93.376",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Apple net income is given as $93.376 billion”\nSuggested edit: Apple Inc. reported net income of $93.736B for the year ended September 28, 2024.\nSource: 10-K · 0000320193-24-000123 · https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+      "inputs": [
+        {
+          "evidenceId": "NetIncomeLoss/FY-FY2024/24-000123",
+          "role": "current",
+          "concept": "us-gaap:NetIncomeLoss",
+          "value": 93736000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-10-01",
+          "end": "2024-09-28",
+          "form": "10-K",
+          "accn": "0000320193-24-000123",
+          "filed": "2024-11-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 35650,
+          "claimId": "c4",
+          "kind": "claim.extracted",
+          "detail": "r1 Apple net income is given as $93.376 billion"
+        },
+        {
+          "at": 35651,
+          "claimId": "c4",
+          "kind": "evidence.direct",
+          "detail": "NetIncomeLoss/FY-FY2024/24-000123: the only consolidated USD NetIncomeLoss figure for FY-FY2024 (same value in 3 filings)"
+        },
+        {
+          "at": 35651,
+          "claimId": "c4",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NetIncomeLoss/FY-FY2024/24-000123"
+        },
+        {
+          "at": 35651,
+          "claimId": "c4",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $93.736B vs stated $93.376 billion)"
+        },
+        {
+          "at": 119521,
+          "claimId": "c4",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the statement in the text, despite the numerical discrepancy with the filing."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "127.216 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "operating income of $127.216 billion",
+      "interpretation": {
+        "quote": "operating income of $127.216 billion",
+        "metric": "operating_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "127.216",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “operating income of $127.216 billion”\nSuggested edit: Apple Inc. reported operating income of $123.216B for the year ended September 28, 2024.\nSource: 10-K · 0000320193-24-000123 · https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/FY-FY2024/24-000123",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 123216000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-10-01",
+          "end": "2024-09-28",
+          "form": "10-K",
+          "accn": "0000320193-24-000123",
+          "filed": "2024-11-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 78622
+    },
+    {
+      "anchor": "93.376 billion",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Apple net income is given as $93.376 billion",
+      "interpretation": {
+        "quote": "Apple net income is given as $93.376 billion",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "93.376",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Apple net income is given as $93.376 billion”\nSuggested edit: Apple Inc. reported net income of $93.736B for the year ended September 28, 2024.\nSource: 10-K · 0000320193-24-000123 · https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+      "inputs": [
+        {
+          "evidenceId": "NetIncomeLoss/FY-FY2024/24-000123",
+          "role": "current",
+          "concept": "us-gaap:NetIncomeLoss",
+          "value": 93736000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-10-01",
+          "end": "2024-09-28",
+          "form": "10-K",
+          "accn": "0000320193-24-000123",
+          "filed": "2024-11-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 119522
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 38,
+        "endMs": 53925,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 53926,
+        "endMs": 57034,
+        "failed": false
+      },
+      {
+        "task": "evidence:c1@r1#1",
+        "role": "evidence",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 0,
+        "startMs": 57034,
+        "endMs": 72353,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 72353,
+        "endMs": 73212,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 73213,
+        "endMs": 96394,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 96395,
+        "endMs": 97398,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 97399,
+        "endMs": 107054,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 107055,
+        "endMs": 113285,
+        "failed": false
+      },
+      {
+        "task": "auditor:c4@r1.e1",
+        "role": "auditor",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 113285,
+        "endMs": 122485,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 122485,
+        "endMs": 132296,
+        "failed": false
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 38,
+    "totalMs": 132298
+  }
+}

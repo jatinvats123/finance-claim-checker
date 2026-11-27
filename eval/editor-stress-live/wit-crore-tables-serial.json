@@ -1,0 +1,587 @@
+{
+  "startedAt": "2026-11-27T11:58:56.829Z",
+  "row": {
+    "case": "wit-crore-tables",
+    "scheduler": "serial",
+    "correctByCutoff": 1,
+    "correctBySecondaryCutoff": 0,
+    "expectedCorrections": 2,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 4,
+    "expectedOutcomes": 4,
+    "elapsedMs": 142422,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 23
+    }
+  },
+  "expected": [
+    {
+      "anchor": "89,760.3 crore",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "266,106 crore",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "13,609.9 crore",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "10,445.2 crore",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "89,760.3 crore",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Wipro's FY2024 consolidated sales were ₹89,760.3 crore.",
+      "interpretation": {
+        "quote": "Wipro's FY2024 consolidated sales were ₹89,760.3 crore.",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "89760.3",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "Revenue/FY-FY2024/24-063468",
+          "role": "current",
+          "concept": "ifrs-full:Revenue",
+          "value": 897603000000,
+          "unit": "INR",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-063468",
+          "filed": "2024-05-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+          "currency": "INR",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 29875,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Wipro's FY2024 consolidated sales were ₹89,760.3 crore."
+        },
+        {
+          "at": 58432,
+          "claimId": "c1",
+          "kind": "context.warning",
+          "detail": "r1 [OTHER] The paragraph lists the gross profit figure as ₹266,106 crore, which appears to be a clerical error compared to standard financial reporting for Wipro's FY2024."
+        },
+        {
+          "at": 64294,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 Revenue/FY-FY2024/24-063468"
+        },
+        {
+          "at": 64295,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual ₹89,760.3 crore vs stated ₹89760.3 crore)"
+        },
+        {
+          "at": 134986,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately reflects the metric and figures stated in the quote, and matches the verified financial data from the 20-F filing."
+        }
+      ]
+    },
+    {
+      "anchor": "266,106 crore",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "In the same annual results, the draft lists gross profit as ₹266,106 crore",
+      "interpretation": {
+        "quote": "In the same annual results, the draft lists gross profit as ₹266,106 crore",
+        "metric": "gross_profit",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "266106",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “In the same annual results, the draft lists gross profit as ₹266,106 crore”\nSuggested edit: WIPRO LIMITED reported gross profit of ₹26,610.6 crore for the year ended March 31, 2024.\nSource: 20-F · 0000950170-24-063468 · https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/FY-FY2024/24-063468",
+          "role": "current",
+          "concept": "ifrs-full:GrossProfit",
+          "value": 266106000000,
+          "unit": "INR",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-063468",
+          "filed": "2024-05-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+          "currency": "INR",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 31429,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 In the same annual results, the draft lists gross profit as ₹266,106 crore"
+        },
+        {
+          "at": 31429,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "GrossProfit/FY-FY2024/24-063468: the only consolidated INR GrossProfit figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 31429,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 GrossProfit/FY-FY2024/24-063468"
+        },
+        {
+          "at": 31430,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual ₹26,610.6 crore vs stated ₹266106 crore)"
+        },
+        {
+          "at": 74675,
+          "claimId": "c2",
+          "kind": "context.warning",
+          "detail": "r1 [OTHER] The gross profit figure provided in the paragraph significantly exceeds the company's total reported consolidated sales for the same period."
+        },
+        {
+          "at": 84515,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately reflects the text in the article, although the text contains a reporting error regarding the scale of the gross profit figure compared to the official filing."
+        }
+      ]
+    },
+    {
+      "anchor": "13,609.9 crore",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "and operating profit as ₹13,609.9 crore.",
+      "interpretation": {
+        "quote": "and operating profit as ₹13,609.9 crore.",
+        "metric": "operating_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "13609.9",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "ProfitLossFromOperatingActivities/FY-FY2024/24-063468",
+          "role": "current",
+          "concept": "ifrs-full:ProfitLossFromOperatingActivities",
+          "value": 136099000000,
+          "unit": "INR",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-063468",
+          "filed": "2024-05-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+          "currency": "INR",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 35838,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 and operating profit as ₹13,609.9 crore."
+        },
+        {
+          "at": 35839,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "ProfitLossFromOperatingActivities/FY-FY2024/24-063468: the only consolidated INR ProfitLossFromOperatingActivities figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 35839,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 ProfitLossFromOperatingActivities/FY-FY2024/24-063468"
+        },
+        {
+          "at": 35839,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual ₹13,609.9 crore vs stated ₹13609.9 crore)"
+        },
+        {
+          "at": 94703,
+          "claimId": "c3",
+          "kind": "context.warning",
+          "detail": "r1 [OTHER] The gross profit figure listed in the paragraph is inconsistent with typical financial reporting for this company and period."
+        },
+        {
+          "at": 104384,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation correctly identifies the metric, fiscal period, and value from the quoted text."
+        }
+      ]
+    },
+    {
+      "anchor": "10,445.2 crore",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Net profit attributable to the owners of Wipro for FY2024 was ₹10,445.2 crore.",
+      "interpretation": {
+        "quote": "Net profit attributable to the owners of Wipro for FY2024 was ₹10,445.2 crore.",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "10445.2",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Net profit attributable to the owners of Wipro for FY2024 was ₹10,445.2 crore.”\nSuggested edit: WIPRO LIMITED reported net income of ₹11,045.2 crore for the year ended March 31, 2024.\nSource: 20-F · 0000950170-24-063468 · https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+      "inputs": [
+        {
+          "evidenceId": "ProfitLossAttributableToOwnersOfParent/FY-FY2024/24-063468",
+          "role": "current",
+          "concept": "ifrs-full:ProfitLossAttributableToOwnersOfParent",
+          "value": 110452000000,
+          "unit": "INR",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-063468",
+          "filed": "2024-05-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+          "currency": "INR",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 41087,
+          "claimId": "c4",
+          "kind": "claim.extracted",
+          "detail": "r1 Net profit attributable to the owners of Wipro for FY2024 was ₹10,445.2 crore."
+        },
+        {
+          "at": 41088,
+          "claimId": "c4",
+          "kind": "evidence.direct",
+          "detail": "ProfitLossAttributableToOwnersOfParent/FY-FY2024/24-063468: the only consolidated INR ProfitLossAttributableToOwnersOfParent figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 41088,
+          "claimId": "c4",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 ProfitLossAttributableToOwnersOfParent/FY-FY2024/24-063468"
+        },
+        {
+          "at": 41088,
+          "claimId": "c4",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual ₹11,045.2 crore vs stated ₹10445.2 crore)"
+        },
+        {
+          "at": 114526,
+          "claimId": "c4",
+          "kind": "context.warning",
+          "detail": "r1 [MISLEADING_FRAMING] The paragraph presents a gross profit figure that appears inconsistent with the context of the other reported financial metrics."
+        },
+        {
+          "at": 124596,
+          "claimId": "c4",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately represents the quoted text, and the MISMATCH verdict is correct based on the comparison with the official financial statement."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "266,106 crore",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "In the same annual results, the draft lists gross profit as ₹266,106 crore",
+      "interpretation": {
+        "quote": "In the same annual results, the draft lists gross profit as ₹266,106 crore",
+        "metric": "gross_profit",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "266106",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “In the same annual results, the draft lists gross profit as ₹266,106 crore”\nSuggested edit: WIPRO LIMITED reported gross profit of ₹26,610.6 crore for the year ended March 31, 2024.\nSource: 20-F · 0000950170-24-063468 · https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/FY-FY2024/24-063468",
+          "role": "current",
+          "concept": "ifrs-full:GrossProfit",
+          "value": 266106000000,
+          "unit": "INR",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-063468",
+          "filed": "2024-05-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+          "currency": "INR",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 84529
+    },
+    {
+      "anchor": "10,445.2 crore",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Net profit attributable to the owners of Wipro for FY2024 was ₹10,445.2 crore.",
+      "interpretation": {
+        "quote": "Net profit attributable to the owners of Wipro for FY2024 was ₹10,445.2 crore.",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "10445.2",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Net profit attributable to the owners of Wipro for FY2024 was ₹10,445.2 crore.”\nSuggested edit: WIPRO LIMITED reported net income of ₹11,045.2 crore for the year ended March 31, 2024.\nSource: 20-F · 0000950170-24-063468 · https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+      "inputs": [
+        {
+          "evidenceId": "ProfitLossAttributableToOwnersOfParent/FY-FY2024/24-063468",
+          "role": "current",
+          "concept": "ifrs-full:ProfitLossAttributableToOwnersOfParent",
+          "value": 110452000000,
+          "unit": "INR",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-063468",
+          "filed": "2024-05-22",
+          "url": "https://www.sec.gov/Archives/edgar/data/1123799/000095017024063468/wit-20240331.htm",
+          "currency": "INR",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 124597
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 8,
+        "endMs": 46050,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 46051,
+        "endMs": 59593,
+        "failed": false
+      },
+      {
+        "task": "evidence:c1@r1#1",
+        "role": "evidence",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 0,
+        "startMs": 59594,
+        "endMs": 69382,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 69383,
+        "endMs": 79492,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 79494,
+        "endMs": 89824,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 89826,
+        "endMs": 99516,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 99517,
+        "endMs": 109590,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 109592,
+        "endMs": 119493,
+        "failed": false
+      },
+      {
+        "task": "auditor:c4@r1.e1",
+        "role": "auditor",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 119494,
+        "endMs": 129407,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 129408,
+        "endMs": 142422,
+        "failed": false
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 8,
+    "totalMs": 142425
+  }
+}

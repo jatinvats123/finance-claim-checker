@@ -1,0 +1,71 @@
+{
+  "startedAt": "2026-11-27T12:31:33.155Z",
+  "row": {
+    "case": "aapl-march-quarter-units",
+    "scheduler": "serial",
+    "correctByCutoff": 0,
+    "correctBySecondaryCutoff": 0,
+    "expectedCorrections": 2,
+    "falseCorrections": 0,
+    "unfinishedReviews": 4,
+    "correctOutcomes": 0,
+    "expectedOutcomes": 5,
+    "elapsedMs": 66029,
+    "timedOut": false,
+    "extraction": "failed",
+    "peakLoops": 1,
+    "calls": {
+      "provider-error": 1
+    }
+  },
+  "expected": [
+    {
+      "anchor": "111.184 billion",
+      "outcome": "MATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "54.781 million",
+      "outcome": "MISMATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "35.885 billion",
+      "outcome": "MATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "2.10",
+      "outcome": "MISMATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "155 billion",
+      "outcome": "SKIP",
+      "correct": false,
+      "unfinished": false
+    }
+  ],
+  "claims": [],
+  "offers": [],
+  "trace": {
+    "timing": "mixed",
+    "timingNote": "Mixed response sources; durations are not comparable to live latency.",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 26,
+        "endMs": 66030,
+        "failed": true
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 26,
+    "totalMs": 66030
+  }
+}

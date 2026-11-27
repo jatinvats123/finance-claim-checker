@@ -2,7 +2,7 @@
 
 Finance Claim Checker helps a financial editor decide which figures in an earnings draft need a correction before publication. It compares quoted figures with the company's SEC filing or supplied results PDF, shows the calculation and lets the editor copy a sourced correction.
 
-[Open the keyless Wipro demo on Render](https://finance-claim-checker.onrender.com/) · [Read the live benchmark](eval/editor-deadline.md) · [See an Auditor intervention](#inspect-an-auditor-revision)
+[Open the keyless Wipro demo on Render](https://finance-claim-checker.onrender.com/) · [Read the 12-draft live benchmark](eval/editor-stress.md) · [See an Auditor intervention](#inspect-an-auditor-revision)
 
 ```sh
 npm ci
@@ -24,7 +24,9 @@ Select **See scripted auditor correction** in **Results**. The NVIDIA fixture op
 
 ### What concurrency changed
 
-On six fresh drafts across four issuers, the concurrent scheduler produced **5 of 5** correct, fully reviewed edits within the 60-second benchmark cutoff. The serial scheduler produced **4 of 5**. Both had zero false corrections and two unfinished reviews. On the two-edit Apple draft, the second correct edit was ready at **41.11 s concurrent** and **92.08 s serial**. The report includes every arm, provider failures, filing snapshots, and the follow-up on the historical EPS review. [Live results and reproduction commands](eval/editor-deadline.md)
+The latest benchmark ran both schedulers on **12 fresh synthetic drafts from six issuers**, with 53 expected outcomes. Both returned **16 of 18** correct, copy-ready edits by the primary 120-second cutoff. By the predeclared 60-second cutoff, concurrent produced **10 of 18** and serial **8 of 18**. Both had zero false corrections and three unfinished reviews. The report links to the frozen inputs, answer key, all 24 traces, and the separate Gemini 3.1 attempt that ended at the provider's daily quota. [Latest live results and reproduction commands](eval/editor-stress.md)
+
+An earlier comparison used six fresh drafts across four issuers. The concurrent scheduler produced **5 of 5** correct edits within 60 seconds and the serial scheduler produced **4 of 5**. Both had zero false corrections and two unfinished reviews. On the two-edit Apple draft, the second correct edit was ready at **41.11 s concurrent** and **92.08 s serial**. [Earlier live results](eval/editor-deadline.md)
 
 Three paired runs used the same Wipro draft, filing, captured model responses and checks. One scheduler allowed overlap. The other completed one agent loop at a time. The order alternated between pairs. The replay divided the originally recorded response latencies by 100 in both arms. Timing starts when the checker receives the article. The first discrepancy requires the correct INR operating income from the specified accession.
 
@@ -501,6 +503,8 @@ On 27 Nov a real-model recheck completed (`gemini-3.1-flash-lite`, 9 live calls,
 ## Public deployment and load
 
 When a live provider interrupts a check, **Resume unfinished work** continues the same run. A completed review stays available while the app finishes interrupted extraction or retries affected reviews. Recovery uses the server's existing provider limits and adds its calls to the original run's trace and usage report. Forecasts, unsupported claims, and keyless cache misses keep their original status.
+
+Run `npm test -- test/recovery.test.ts` for a keyless reproduction of interrupted extraction, claim reviews, corrections, and PDF reading. The tests check that completed claims keep their IDs and receipts, and that recovery waits for timed-out provider work to settle.
 
 The server has no global lock:
 - Each visitor's example run is independent. Up to 8 replay runs run at once, each with a 2-minute timeout; above that a visitor gets "busy, retry".

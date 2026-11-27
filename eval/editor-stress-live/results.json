@@ -1,0 +1,338 @@
+{
+  "mode": "live",
+  "scope": "full",
+  "manifest": "editor-stress-cases.json",
+  "draftIds": [
+    "aapl-annual-archive",
+    "wmt-spring-desk",
+    "wit-crore-tables",
+    "infy-usd-with-local-sidebar",
+    "nvda-annual-bottom-line",
+    "jpm-two-eps-bases",
+    "wmt-fy-annual-check",
+    "aapl-march-quarter-units",
+    "infy-annual-snapshot",
+    "wit-annual-profit-rows",
+    "jpm-quarter-results-box",
+    "nvda-october-quarter-brief"
+  ],
+  "startedAt": "2026-11-27T11:50:26.372Z",
+  "model": "gemini-3.1-flash-lite",
+  "limits": {
+    "maxCalls": 35,
+    "maxConcurrent": 4,
+    "rpm": 12,
+    "requestTimeoutMs": 30000,
+    "retries": 1
+  },
+  "timeoutMs": 180000,
+  "pauseBetweenArmsMs": 5000,
+  "deadlineMs": 120000,
+  "secondaryDeadlineMs": 60000,
+  "specHash": "e6862c91d6e136733c102e47f107b9d211ee19950c4358ef11da46ada3823950",
+  "snapshotHashes": {
+    "AAPL": "bfa3e1d298398b30859158621820b203ea8697c44055a3969d92a10bb7591656",
+    "WMT": "8e5cd730bbfe4493dd332269f7f66bc1dab490b6bd5a2e2b9bf9a48ff19e609d",
+    "WIT": "351612a481c775be7637f3f68bf9203a73558d238312f8c685f947cf6b318417",
+    "INFY": "8d3ec8f90bf1442dbad2dff0df9c19f98fc8af9b279dc3a803de03441efd4e41",
+    "NVDA": "f3e04384f54526a23a0c9f220060d0c8e11accb8f980efe7fcbd75c58de32442",
+    "JPM": "2f4a4cff94521dd316102f5706d669bf0d910cd1f52b5c86cda3f51207c50f8c"
+  },
+  "resumedAt": [
+    "2026-11-27T11:54:28.707Z",
+    "2026-11-27T12:26:55.485Z"
+  ],
+  "complete": false,
+  "rows": [
+    {
+      "case": "aapl-annual-archive",
+      "scheduler": "serial",
+      "correctByCutoff": 2,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 4,
+      "expectedOutcomes": 4,
+      "elapsedMs": 132295,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 19
+      }
+    },
+    {
+      "case": "aapl-annual-archive",
+      "scheduler": "concurrent",
+      "correctByCutoff": 2,
+      "correctBySecondaryCutoff": 1,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 4,
+      "expectedOutcomes": 4,
+      "elapsedMs": 91012,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 6,
+      "calls": {
+        "live": 19
+      }
+    },
+    {
+      "case": "wmt-spring-desk",
+      "scheduler": "concurrent",
+      "correctByCutoff": 0,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 3,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 4,
+      "elapsedMs": 93173,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 7,
+      "calls": {
+        "live": 16
+      }
+    },
+    {
+      "case": "wmt-spring-desk",
+      "scheduler": "serial",
+      "correctByCutoff": 0,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 3,
+      "correctOutcomes": 1,
+      "expectedOutcomes": 4,
+      "elapsedMs": 99906,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 16
+      }
+    },
+    {
+      "case": "wit-crore-tables",
+      "scheduler": "serial",
+      "correctByCutoff": 1,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 4,
+      "expectedOutcomes": 4,
+      "elapsedMs": 142422,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 23
+      }
+    },
+    {
+      "case": "wit-crore-tables",
+      "scheduler": "concurrent",
+      "correctByCutoff": 2,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 4,
+      "expectedOutcomes": 4,
+      "elapsedMs": 117137,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 9,
+      "calls": {
+        "live": 23
+      }
+    },
+    {
+      "case": "infy-usd-with-local-sidebar",
+      "scheduler": "concurrent",
+      "correctByCutoff": 1,
+      "correctBySecondaryCutoff": 1,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 1,
+      "correctOutcomes": 3,
+      "expectedOutcomes": 4,
+      "elapsedMs": 88073,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 5,
+      "calls": {
+        "live": 15
+      }
+    },
+    {
+      "case": "infy-usd-with-local-sidebar",
+      "scheduler": "serial",
+      "correctByCutoff": 1,
+      "correctBySecondaryCutoff": 1,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 1,
+      "correctOutcomes": 3,
+      "expectedOutcomes": 4,
+      "elapsedMs": 70888,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 15
+      }
+    },
+    {
+      "case": "nvda-annual-bottom-line",
+      "scheduler": "serial",
+      "correctByCutoff": 0,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 3,
+      "correctOutcomes": 2,
+      "expectedOutcomes": 5,
+      "elapsedMs": 180051,
+      "timedOut": true,
+      "extraction": "done",
+      "peakLoops": 1,
+      "calls": {
+        "live": 14
+      }
+    },
+    {
+      "case": "nvda-annual-bottom-line",
+      "scheduler": "concurrent",
+      "correctByCutoff": 2,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 0,
+      "correctOutcomes": 5,
+      "expectedOutcomes": 5,
+      "elapsedMs": 139668,
+      "timedOut": false,
+      "extraction": "done",
+      "peakLoops": 6,
+      "calls": {
+        "live": 22
+      }
+    },
+    {
+      "case": "jpm-two-eps-bases",
+      "scheduler": "concurrent",
+      "correctByCutoff": 1,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 2,
+      "correctOutcomes": 2,
+      "expectedOutcomes": 4,
+      "elapsedMs": 180022,
+      "timedOut": true,
+      "extraction": "failed",
+      "peakLoops": 5,
+      "calls": {
+        "live": 12,
+        "provider-error": 2
+      }
+    },
+    {
+      "case": "jpm-two-eps-bases",
+      "scheduler": "serial",
+      "correctByCutoff": 0,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 4,
+      "correctOutcomes": 0,
+      "expectedOutcomes": 4,
+      "elapsedMs": 180034,
+      "timedOut": true,
+      "extraction": "failed",
+      "peakLoops": 1,
+      "calls": {
+        "live": 3,
+        "provider-error": 1
+      }
+    },
+    {
+      "case": "wmt-fy-annual-check",
+      "scheduler": "serial",
+      "correctByCutoff": 0,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 4,
+      "correctOutcomes": 0,
+      "expectedOutcomes": 4,
+      "elapsedMs": 66058,
+      "timedOut": false,
+      "extraction": "failed",
+      "peakLoops": 1,
+      "calls": {
+        "provider-error": 1
+      }
+    },
+    {
+      "case": "wmt-fy-annual-check",
+      "scheduler": "concurrent",
+      "correctByCutoff": 0,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 1,
+      "falseCorrections": 0,
+      "unfinishedReviews": 4,
+      "correctOutcomes": 0,
+      "expectedOutcomes": 4,
+      "elapsedMs": 65773,
+      "timedOut": false,
+      "extraction": "failed",
+      "peakLoops": 1,
+      "calls": {
+        "provider-error": 1
+      }
+    },
+    {
+      "case": "aapl-march-quarter-units",
+      "scheduler": "concurrent",
+      "correctByCutoff": 0,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 4,
+      "correctOutcomes": 0,
+      "expectedOutcomes": 5,
+      "elapsedMs": 65782,
+      "timedOut": false,
+      "extraction": "failed",
+      "peakLoops": 1,
+      "calls": {
+        "provider-error": 1
+      }
+    },
+    {
+      "case": "aapl-march-quarter-units",
+      "scheduler": "serial",
+      "correctByCutoff": 0,
+      "correctBySecondaryCutoff": 0,
+      "expectedCorrections": 2,
+      "falseCorrections": 0,
+      "unfinishedReviews": 4,
+      "correctOutcomes": 0,
+      "expectedOutcomes": 5,
+      "elapsedMs": 66029,
+      "timedOut": false,
+      "extraction": "failed",
+      "peakLoops": 1,
+      "calls": {
+        "provider-error": 1
+      }
+    }
+  ]
+}

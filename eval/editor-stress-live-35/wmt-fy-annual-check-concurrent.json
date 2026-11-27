@@ -1,0 +1,437 @@
+{
+  "startedAt": "2026-11-27T12:53:48.755Z",
+  "row": {
+    "case": "wmt-fy-annual-check",
+    "scheduler": "concurrent",
+    "correctByCutoff": 0,
+    "correctBySecondaryCutoff": 0,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 2,
+    "correctOutcomes": 2,
+    "expectedOutcomes": 4,
+    "elapsedMs": 85709,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 6,
+    "calls": {
+      "live": 18
+    }
+  },
+  "expected": [
+    {
+      "anchor": "713.163 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "29.852 billion",
+      "outcome": "MISMATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "2.73",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "2.96",
+      "outcome": "ABSTAIN",
+      "correct": false,
+      "unfinished": true
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "713.163 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Walmart generated consolidated total revenues of $713.163 billion in FY2026.",
+      "interpretation": {
+        "quote": "Walmart generated consolidated total revenues of $713.163 billion in FY2026.",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "713.163",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "Revenues/FY-FY2026/26-000055",
+          "role": "current",
+          "concept": "us-gaap:Revenues",
+          "value": 713163000000,
+          "unit": "USD",
+          "period": "FY-FY2026",
+          "start": "2025-02-01",
+          "end": "2026-01-31",
+          "form": "10-K",
+          "accn": "0000104169-26-000055",
+          "filed": "2026-03-13",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000055/wmt-20260131.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1806,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Walmart generated consolidated total revenues of $713.163 billion in FY2026."
+        },
+        {
+          "at": 1808,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "Revenues/FY-FY2026/26-000055: the only consolidated USD Revenues figure for FY-FY2026"
+        },
+        {
+          "at": 1808,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 Revenues/FY-FY2026/26-000055"
+        },
+        {
+          "at": 1808,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $713.163B vs stated $713.163 billion)"
+        },
+        {
+          "at": 16036,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully interprets the quoted text regarding consolidated total revenues for FY2026, matching the official financial statement data."
+        }
+      ]
+    },
+    {
+      "anchor": "29.852 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "For the same year ended January 31, 2026, the draft puts consolidated operating income at $29.852 billion and diluted earnings per share at $2.73.",
+      "interpretation": {
+        "quote": "For the same year ended January 31, 2026, the draft puts consolidated operating income at $29.852 billion and diluted earnings per share at $2.73.",
+        "metric": "operating_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "29.852",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "incomplete",
+        "label": "Review incomplete",
+        "detail": "Forecast warning conflicts with the reference. The period ended 2026-01-31 and was reported in 10-K on 2026-03-13. Check the article wording."
+      },
+      "correct": false,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/FY-FY2026/26-000055",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 29825000000,
+          "unit": "USD",
+          "period": "FY-FY2026",
+          "start": "2025-02-01",
+          "end": "2026-01-31",
+          "form": "10-K",
+          "accn": "0000104169-26-000055",
+          "filed": "2026-03-13",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000055/wmt-20260131.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11169,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 For the same year ended January 31, 2026, the draft puts consolidated operating income at $29.852 billion and diluted earnings per share at $2.73."
+        },
+        {
+          "at": 11170,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "OperatingIncomeLoss/FY-FY2026/26-000055: the only consolidated USD OperatingIncomeLoss figure for FY-FY2026"
+        },
+        {
+          "at": 11170,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 OperatingIncomeLoss/FY-FY2026/26-000055"
+        },
+        {
+          "at": 11171,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $29.825B vs stated $29.852 billion)"
+        },
+        {
+          "at": 20734,
+          "claimId": "c2",
+          "kind": "context.disputed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2026-01-31 and was reported in 10-K on 2026-03-13. Check the article wording. Proposed warning: The statement refers to a draft rather than finalized or reported financial results for the year ended January 31, 2026."
+        },
+        {
+          "at": 31213,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully reflects the quoted sentence, and the mismatch in operating income ($29.852 billion vs actual $29.825 billion) is correctly identified as a finding."
+        }
+      ]
+    },
+    {
+      "anchor": "2.73",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "For the same year ended January 31, 2026, the draft puts consolidated operating income at $29.852 billion and diluted earnings per share at $2.73.",
+      "interpretation": {
+        "quote": "For the same year ended January 31, 2026, the draft puts consolidated operating income at $29.852 billion and diluted earnings per share at $2.73.",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "2.73",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/FY-FY2026/26-000055",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 2.73,
+          "unit": "USD/shares",
+          "period": "FY-FY2026",
+          "start": "2025-02-01",
+          "end": "2026-01-31",
+          "form": "10-K",
+          "accn": "0000104169-26-000055",
+          "filed": "2026-03-13",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000055/wmt-20260131.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 26561,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 For the same year ended January 31, 2026, the draft puts consolidated operating income at $29.852 billion and diluted earnings per share at $2.73."
+        },
+        {
+          "at": 26567,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareDiluted/FY-FY2026/26-000055: the only consolidated USD EarningsPerShareDiluted figure for FY-FY2026"
+        },
+        {
+          "at": 26567,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareDiluted/FY-FY2026/26-000055"
+        },
+        {
+          "at": 26569,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $2.73 per share vs stated $2.73 per share)"
+        },
+        {
+          "at": 55858,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully represents the quoted sentence regarding diluted earnings per share for the year ended January 31, 2026."
+        }
+      ]
+    },
+    {
+      "anchor": "2.96",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The analyst memo also cites adjusted non-GAAP diluted earnings per share of $2.96 for FY2026.",
+      "interpretation": {
+        "quote": "The analyst memo also cites adjusted non-GAAP diluted earnings per share of $2.96 for FY2026.",
+        "metric": "eps_diluted",
+        "accounting": "non_gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "2.96",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "NOT_VERIFIABLE",
+      "review": {
+        "status": "incomplete",
+        "label": "Review incomplete",
+        "detail": "Forecast warning conflicts with the reference. The period ended 2026-01-31 and was reported in 10-K on 2026-03-13. Check the article wording."
+      },
+      "correct": false,
+      "correctCorrection": false,
+      "inputs": [],
+      "history": [
+        {
+          "at": 51454,
+          "claimId": "c4",
+          "kind": "claim.extracted",
+          "detail": "r1 The analyst memo also cites adjusted non-GAAP diluted earnings per share of $2.96 for FY2026."
+        },
+        {
+          "at": 51456,
+          "claimId": "c4",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NOT_IN_STATEMENTS"
+        },
+        {
+          "at": 51457,
+          "claimId": "c4",
+          "kind": "calculation",
+          "detail": "r1.e1 NOT_VERIFIABLE"
+        },
+        {
+          "at": 51457,
+          "claimId": "c4",
+          "kind": "audit.approved",
+          "detail": "r1.e1 rule gate passed; nothing in the financial statements to compute against"
+        },
+        {
+          "at": 81188,
+          "claimId": "c4",
+          "kind": "context.disputed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2026-01-31 and was reported in 10-K on 2026-03-13. Check the article wording. Proposed warning: The cited figure of $2.96 per share is a projection for FY2026 rather than a reported historical result."
+        }
+      ]
+    }
+  ],
+  "offers": [],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 28,
+        "endMs": 71471,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 1807,
+        "endMs": 5836,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1809,
+        "endMs": 35672,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 11169,
+        "endMs": 41489,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 11172,
+        "endMs": 61269,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 26563,
+        "endMs": 46187,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 26572,
+        "endMs": 75912,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 51455,
+        "endMs": 85709,
+        "failed": false
+      }
+    ],
+    "peakActive": 6,
+    "peakAtMs": 26572,
+    "totalMs": 85709
+  }
+}

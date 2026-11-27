@@ -1,0 +1,262 @@
+{
+  "startedAt": "2026-11-27T12:44:22.392Z",
+  "row": {
+    "case": "infy-usd-with-local-sidebar",
+    "scheduler": "concurrent",
+    "correctByCutoff": 0,
+    "correctBySecondaryCutoff": 0,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 1,
+    "correctOutcomes": 3,
+    "expectedOutcomes": 4,
+    "elapsedMs": 50783,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 3,
+    "calls": {
+      "live": 11
+    }
+  },
+  "expected": [
+    {
+      "anchor": "5.587 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "3.843 billion",
+      "outcome": "MISMATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "1,53,000 crore",
+      "outcome": "ABSTAIN",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "5.25 billion",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "5.587 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Infosys Limited disclosed US$5.587 billion in gross profit for FY2024.",
+      "interpretation": {
+        "quote": "Infosys Limited disclosed US$5.587 billion in gross profit for FY2024.",
+        "metric": "gross_profit",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "5.587",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/FY-FY2024/24-076649",
+          "role": "current",
+          "concept": "ifrs-full:GrossProfit",
+          "value": 5587000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-076649",
+          "filed": "2024-06-24",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017024076649/infy-20240331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1219,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Infosys Limited disclosed US$5.587 billion in gross profit for FY2024."
+        },
+        {
+          "at": 1220,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "GrossProfit/FY-FY2024/24-076649: the only consolidated USD GrossProfit figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 1220,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 GrossProfit/FY-FY2024/24-076649"
+        },
+        {
+          "at": 1220,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $5.587B vs stated $5.587 billion)"
+        },
+        {
+          "at": 15822,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully represents the quoted text, and the deterministic checks confirm the number and period match the official filing."
+        }
+      ]
+    },
+    {
+      "anchor": "1,53,000 crore",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "A local-market sidebar describes reported consolidated revenue for FY2024 as ₹1,53,000 crore in Indian rupees.",
+      "interpretation": {
+        "quote": "A local-market sidebar describes reported consolidated revenue for FY2024 as ₹1,53,000 crore in Indian rupees.",
+        "metric": "revenue",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "153000",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "consolidated"
+      },
+      "verdict": "NOT_COMPUTABLE",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "RevenueFromContractsWithCustomers/FY-FY2024/24-076649",
+          "role": "current",
+          "concept": "ifrs-full:RevenueFromContractsWithCustomers",
+          "value": 18562000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-076649",
+          "filed": "2024-06-24",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017024076649/infy-20240331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 31422,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 A local-market sidebar describes reported consolidated revenue for FY2024 as ₹1,53,000 crore in Indian rupees."
+        },
+        {
+          "at": 31425,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "RevenueFromContractsWithCustomers/FY-FY2024/24-076649: the only consolidated USD RevenueFromContractsWithCustomers figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 31425,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 RevenueFromContractsWithCustomers/FY-FY2024/24-076649"
+        },
+        {
+          "at": 31425,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 NOT_COMPUTABLE"
+        },
+        {
+          "at": 46207,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately interprets the text's stated revenue figure in INR crore for FY2024, and the verdict of NOT_COMPUTABLE correctly reflects that the filing reports in USD while the article specifies INR."
+        }
+      ]
+    }
+  ],
+  "offers": [],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 6,
+        "endMs": 41144,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 1219,
+        "endMs": 5687,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1221,
+        "endMs": 25742,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 31424,
+        "endMs": 35927,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 31426,
+        "endMs": 50783,
+        "failed": false
+      }
+    ],
+    "peakActive": 3,
+    "peakAtMs": 1221,
+    "totalMs": 50784
+  }
+}

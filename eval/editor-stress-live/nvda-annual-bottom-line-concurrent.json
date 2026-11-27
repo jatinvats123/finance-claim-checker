@@ -1,0 +1,669 @@
+{
+  "startedAt": "2026-11-27T12:11:24.942Z",
+  "row": {
+    "case": "nvda-annual-bottom-line",
+    "scheduler": "concurrent",
+    "correctByCutoff": 2,
+    "correctBySecondaryCutoff": 0,
+    "expectedCorrections": 2,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 5,
+    "expectedOutcomes": 5,
+    "elapsedMs": 139668,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 6,
+    "calls": {
+      "live": 22
+    }
+  },
+  "expected": [
+    {
+      "anchor": "130.497 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "97.858 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "84.153 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "72.880 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "2.49",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "130.497 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "revenue of $130.497 billion",
+      "interpretation": {
+        "quote": "revenue of $130.497 billion",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "130.497",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "Revenues/FY-FY2025/25-000023",
+          "role": "current",
+          "concept": "us-gaap:Revenues",
+          "value": 130497000000,
+          "unit": "USD",
+          "period": "FY-FY2025",
+          "start": "2024-01-29",
+          "end": "2025-01-26",
+          "form": "10-K",
+          "accn": "0001045810-25-000023",
+          "filed": "2025-02-26",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1188,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 revenue of $130.497 billion"
+        },
+        {
+          "at": 1190,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "Revenues/FY-FY2025/25-000023: the only consolidated USD Revenues figure for FY-FY2025 (same value in 2 filings)"
+        },
+        {
+          "at": 1190,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 Revenues/FY-FY2025/25-000023"
+        },
+        {
+          "at": 1191,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $130.497B vs stated $130.497 billion)"
+        },
+        {
+          "at": 51197,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately reflects the revenue metric, fiscal year, and stated amount provided in the quote."
+        }
+      ]
+    },
+    {
+      "anchor": "97.858 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "gross profit of $97.858 billion",
+      "interpretation": {
+        "quote": "gross profit of $97.858 billion",
+        "metric": "gross_profit",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "97.858",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/FY-FY2025/25-000023",
+          "role": "current",
+          "concept": "us-gaap:GrossProfit",
+          "value": 97858000000,
+          "unit": "USD",
+          "period": "FY-FY2025",
+          "start": "2024-01-29",
+          "end": "2025-01-26",
+          "form": "10-K",
+          "accn": "0001045810-25-000023",
+          "filed": "2025-02-26",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11419,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 gross profit of $97.858 billion"
+        },
+        {
+          "at": 11421,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "GrossProfit/FY-FY2025/25-000023: the only consolidated USD GrossProfit figure for FY-FY2025 (same value in 2 filings)"
+        },
+        {
+          "at": 11421,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 GrossProfit/FY-FY2025/25-000023"
+        },
+        {
+          "at": 11421,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $97.858B vs stated $97.858 billion)"
+        },
+        {
+          "at": 31477,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately reflects the quoted metric, value, and fiscal period from the financial report."
+        }
+      ]
+    },
+    {
+      "anchor": "84.153 billion",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "consolidated operating income for the year at $84.153 billion",
+      "interpretation": {
+        "quote": "consolidated operating income for the year at $84.153 billion",
+        "metric": "operating_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "84.153",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “consolidated operating income for the year at $84.153 billion”\nSuggested edit: NVIDIA CORP reported operating income of $81.453B for the year ended January 26, 2025.\nSource: 10-K · 0001045810-25-000023 · https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/FY-FY2025/25-000023",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 81453000000,
+          "unit": "USD",
+          "period": "FY-FY2025",
+          "start": "2024-01-29",
+          "end": "2025-01-26",
+          "form": "10-K",
+          "accn": "0001045810-25-000023",
+          "filed": "2025-02-26",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 48221,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 consolidated operating income for the year at $84.153 billion"
+        },
+        {
+          "at": 48225,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "OperatingIncomeLoss/FY-FY2025/25-000023: the only consolidated USD OperatingIncomeLoss figure for FY-FY2025 (same value in 2 filings)"
+        },
+        {
+          "at": 48225,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 OperatingIncomeLoss/FY-FY2025/25-000023"
+        },
+        {
+          "at": 48226,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $81.453B vs stated $84.153 billion)"
+        },
+        {
+          "at": 63851,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reports the value stated in the text, although this value is a mismatch with the official filing."
+        },
+        {
+          "at": 66432,
+          "claimId": "c3",
+          "kind": "context.warning",
+          "detail": "r1 [ATTRIBUTION] The claim attributes the figure to a secondary \"story\" rather than the official company report."
+        }
+      ]
+    },
+    {
+      "anchor": "72.880 billion",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "annual net income of $72.880 billion",
+      "interpretation": {
+        "quote": "annual net income of $72.880 billion",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "72.880",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "NetIncomeLoss/FY-FY2025/25-000023",
+          "role": "current",
+          "concept": "us-gaap:NetIncomeLoss",
+          "value": 72880000000,
+          "unit": "USD",
+          "period": "FY-FY2025",
+          "start": "2024-01-29",
+          "end": "2025-01-26",
+          "form": "10-K",
+          "accn": "0001045810-25-000023",
+          "filed": "2025-02-26",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 68993,
+          "claimId": "c4",
+          "kind": "claim.extracted",
+          "detail": "r1 annual net income of $72.880 billion"
+        },
+        {
+          "at": 68994,
+          "claimId": "c4",
+          "kind": "evidence.direct",
+          "detail": "NetIncomeLoss/FY-FY2025/25-000023: the only consolidated USD NetIncomeLoss figure for FY-FY2025 (same value in 2 filings)"
+        },
+        {
+          "at": 68994,
+          "claimId": "c4",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NetIncomeLoss/FY-FY2025/25-000023"
+        },
+        {
+          "at": 68995,
+          "claimId": "c4",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $72.880B vs stated $72.880 billion)"
+        },
+        {
+          "at": 95179,
+          "claimId": "c4",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully interprets the provided quote regarding net income for FY2025."
+        }
+      ]
+    },
+    {
+      "anchor": "2.49",
+      "claimId": "c5",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "diluted earnings per share of $2.49",
+      "interpretation": {
+        "quote": "diluted earnings per share of $2.49",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "2.49",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “diluted earnings per share of $2.49”\nSuggested edit: NVIDIA CORP reported diluted EPS of $2.94 per share for the year ended January 26, 2025.\nSource: 10-K · 0001045810-25-000023 · https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/FY-FY2025/25-000023",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 2.94,
+          "unit": "USD/shares",
+          "period": "FY-FY2025",
+          "start": "2024-01-29",
+          "end": "2025-01-26",
+          "form": "10-K",
+          "accn": "0001045810-25-000023",
+          "filed": "2025-02-26",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 103742,
+          "claimId": "c5",
+          "kind": "claim.extracted",
+          "detail": "r1 diluted earnings per share of $2.49"
+        },
+        {
+          "at": 103746,
+          "claimId": "c5",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareDiluted/FY-FY2025/25-000023: the only consolidated USD EarningsPerShareDiluted figure for FY-FY2025 (same value in 2 filings)"
+        },
+        {
+          "at": 103746,
+          "claimId": "c5",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareDiluted/FY-FY2025/25-000023"
+        },
+        {
+          "at": 103746,
+          "claimId": "c5",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $2.94 per share vs stated $2.49 per share)"
+        },
+        {
+          "at": 118935,
+          "claimId": "c5",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully represents the text, even though the text's figure ($2.49) is a mismatch with the actual reported figure ($2.94) in the filing."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "84.153 billion",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "consolidated operating income for the year at $84.153 billion",
+      "interpretation": {
+        "quote": "consolidated operating income for the year at $84.153 billion",
+        "metric": "operating_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "84.153",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “consolidated operating income for the year at $84.153 billion”\nSuggested edit: NVIDIA CORP reported operating income of $81.453B for the year ended January 26, 2025.\nSource: 10-K · 0001045810-25-000023 · https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/FY-FY2025/25-000023",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 81453000000,
+          "unit": "USD",
+          "period": "FY-FY2025",
+          "start": "2024-01-29",
+          "end": "2025-01-26",
+          "form": "10-K",
+          "accn": "0001045810-25-000023",
+          "filed": "2025-02-26",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 80060
+    },
+    {
+      "anchor": "2.49",
+      "claimId": "c5",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "diluted earnings per share of $2.49",
+      "interpretation": {
+        "quote": "diluted earnings per share of $2.49",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "2.49",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “diluted earnings per share of $2.49”\nSuggested edit: NVIDIA CORP reported diluted EPS of $2.94 per share for the year ended January 26, 2025.\nSource: 10-K · 0001045810-25-000023 · https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/FY-FY2025/25-000023",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 2.94,
+          "unit": "USD/shares",
+          "period": "FY-FY2025",
+          "start": "2024-01-29",
+          "end": "2025-01-26",
+          "form": "10-K",
+          "accn": "0001045810-25-000023",
+          "filed": "2025-02-26",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000023/nvda-20250126.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 118935
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 28,
+        "endMs": 113975,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 1189,
+        "endMs": 5997,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1191,
+        "endMs": 73066,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 11420,
+        "endMs": 21049,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 11424,
+        "endMs": 60362,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 48223,
+        "endMs": 80060,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 48227,
+        "endMs": 75247,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 68993,
+        "endMs": 84586,
+        "failed": false
+      },
+      {
+        "task": "auditor:c4@r1.e1",
+        "role": "auditor",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 68996,
+        "endMs": 118362,
+        "failed": false
+      },
+      {
+        "task": "context:c5@r1",
+        "role": "context",
+        "claimId": "c5",
+        "claimRevision": 1,
+        "startMs": 103744,
+        "endMs": 108131,
+        "failed": false
+      },
+      {
+        "task": "auditor:c5@r1.e1",
+        "role": "auditor",
+        "claimId": "c5",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 103747,
+        "endMs": 139667,
+        "failed": false
+      }
+    ],
+    "peakActive": 6,
+    "peakAtMs": 68996,
+    "totalMs": 139669
+  }
+}

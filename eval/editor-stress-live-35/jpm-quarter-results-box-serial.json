@@ -1,0 +1,565 @@
+{
+  "startedAt": "2026-11-27T13:04:00.109Z",
+  "row": {
+    "case": "jpm-quarter-results-box",
+    "scheduler": "serial",
+    "correctByCutoff": 2,
+    "correctBySecondaryCutoff": 1,
+    "expectedCorrections": 2,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 5,
+    "expectedOutcomes": 5,
+    "elapsedMs": 80667,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 17
+    }
+  },
+  "expected": [
+    {
+      "anchor": "50.172 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "15.035 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "5.57",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "5.85",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "115 billion",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "50.172 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "For the third quarter of FY2026, JPMorgan Chase recorded total net revenue of $50.172 billion",
+      "interpretation": {
+        "quote": "For the third quarter of FY2026, JPMorgan Chase recorded total net revenue of $50.172 billion",
+        "metric": "revenue",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "50.172",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "RevenuesNetOfInterestExpense/Q3-FY2026/26-069523",
+          "role": "current",
+          "concept": "us-gaap:RevenuesNetOfInterestExpense",
+          "value": 50172000000,
+          "unit": "USD",
+          "period": "Q3-FY2026",
+          "start": "2026-07-01",
+          "end": "2026-09-30",
+          "form": "10-Q",
+          "accn": "0001628280-26-069523",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1159,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 For the third quarter of FY2026, JPMorgan Chase recorded total net revenue of $50.172 billion"
+        },
+        {
+          "at": 1160,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "RevenuesNetOfInterestExpense/Q3-FY2026/26-069523: the only consolidated USD RevenuesNetOfInterestExpense figure for Q3-FY2026"
+        },
+        {
+          "at": 1160,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 RevenuesNetOfInterestExpense/Q3-FY2026/26-069523"
+        },
+        {
+          "at": 1161,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $50.172B vs stated $50.172 billion)"
+        },
+        {
+          "at": 30752,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the revenue metric, period, and stated number from the quoted text and official filings."
+        }
+      ]
+    },
+    {
+      "anchor": "15.035 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "and net income of $15.035 billion.",
+      "interpretation": {
+        "quote": "and net income of $15.035 billion.",
+        "metric": "net_income",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "15.035",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “and net income of $15.035 billion.”\nSuggested edit: JPMORGAN CHASE & CO reported net income of $15.305B for the quarter ended September 30, 2026.\nSource: 10-Q · 0001628280-26-069523 · https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+      "inputs": [
+        {
+          "evidenceId": "NetIncomeLoss/Q3-FY2026/26-069523",
+          "role": "current",
+          "concept": "us-gaap:NetIncomeLoss",
+          "value": 15305000000,
+          "unit": "USD",
+          "period": "Q3-FY2026",
+          "start": "2026-07-01",
+          "end": "2026-09-30",
+          "form": "10-Q",
+          "accn": "0001628280-26-069523",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 6314,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 and net income of $15.035 billion."
+        },
+        {
+          "at": 6314,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "NetIncomeLoss/Q3-FY2026/26-069523: the only consolidated USD NetIncomeLoss figure for Q3-FY2026"
+        },
+        {
+          "at": 6314,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NetIncomeLoss/Q3-FY2026/26-069523"
+        },
+        {
+          "at": 6315,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $15.305B vs stated $15.035 billion)"
+        },
+        {
+          "at": 46103,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully interprets the quoted text as net income of $15.035 billion for Q3 FY2026, which is correctly matched against the company's reported filing."
+        }
+      ]
+    },
+    {
+      "anchor": "5.57",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The company reported quarterly diluted earnings per share of $5.57",
+      "interpretation": {
+        "quote": "The company reported quarterly diluted earnings per share of $5.57",
+        "metric": "eps_diluted",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "5.57",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/Q3-FY2026/26-069523",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 5.57,
+          "unit": "USD/shares",
+          "period": "Q3-FY2026",
+          "start": "2026-07-01",
+          "end": "2026-09-30",
+          "form": "10-Q",
+          "accn": "0001628280-26-069523",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11604,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 The company reported quarterly diluted earnings per share of $5.57"
+        },
+        {
+          "at": 11607,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareDiluted/Q3-FY2026/26-069523: the only consolidated USD EarningsPerShareDiluted figure for Q3-FY2026"
+        },
+        {
+          "at": 11607,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareDiluted/Q3-FY2026/26-069523"
+        },
+        {
+          "at": 11607,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $5.57 per share vs stated $5.57 per share)"
+        },
+        {
+          "at": 60940,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately reflects the quoted sentence, and the deterministic check confirms the diluted EPS matches the reported quarterly financial statement for Q3 FY2026."
+        }
+      ]
+    },
+    {
+      "anchor": "5.85",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "and basic earnings per share of $5.85.",
+      "interpretation": {
+        "quote": "and basic earnings per share of $5.85.",
+        "metric": "eps_basic",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "5.85",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “and basic earnings per share of $5.85.”\nSuggested edit: JPMORGAN CHASE & CO reported basic EPS of $5.58 per share for the quarter ended September 30, 2026.\nSource: 10-Q · 0001628280-26-069523 · https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareBasic/Q3-FY2026/26-069523",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareBasic",
+          "value": 5.58,
+          "unit": "USD/shares",
+          "period": "Q3-FY2026",
+          "start": "2026-07-01",
+          "end": "2026-09-30",
+          "form": "10-Q",
+          "accn": "0001628280-26-069523",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 16153,
+          "claimId": "c4",
+          "kind": "claim.extracted",
+          "detail": "r1 and basic earnings per share of $5.85."
+        },
+        {
+          "at": 16154,
+          "claimId": "c4",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareBasic/Q3-FY2026/26-069523: the only consolidated USD EarningsPerShareBasic figure for Q3-FY2026"
+        },
+        {
+          "at": 16154,
+          "claimId": "c4",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareBasic/Q3-FY2026/26-069523"
+        },
+        {
+          "at": 16154,
+          "claimId": "c4",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $5.58 per share vs stated $5.85 per share)"
+        },
+        {
+          "at": 76086,
+          "claimId": "c4",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully interprets the quoted text, and the MISMATCH verdict correctly reflects the discrepancy between the article's stated basic EPS of $5.85 and the official filing value of $5.58."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "15.035 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "and net income of $15.035 billion.",
+      "interpretation": {
+        "quote": "and net income of $15.035 billion.",
+        "metric": "net_income",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "15.035",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “and net income of $15.035 billion.”\nSuggested edit: JPMORGAN CHASE & CO reported net income of $15.305B for the quarter ended September 30, 2026.\nSource: 10-Q · 0001628280-26-069523 · https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+      "inputs": [
+        {
+          "evidenceId": "NetIncomeLoss/Q3-FY2026/26-069523",
+          "role": "current",
+          "concept": "us-gaap:NetIncomeLoss",
+          "value": 15305000000,
+          "unit": "USD",
+          "period": "Q3-FY2026",
+          "start": "2026-07-01",
+          "end": "2026-09-30",
+          "form": "10-Q",
+          "accn": "0001628280-26-069523",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 46104
+    },
+    {
+      "anchor": "5.85",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "and basic earnings per share of $5.85.",
+      "interpretation": {
+        "quote": "and basic earnings per share of $5.85.",
+        "metric": "eps_basic",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "5.85",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “and basic earnings per share of $5.85.”\nSuggested edit: JPMORGAN CHASE & CO reported basic EPS of $5.58 per share for the quarter ended September 30, 2026.\nSource: 10-Q · 0001628280-26-069523 · https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareBasic/Q3-FY2026/26-069523",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareBasic",
+          "value": 5.58,
+          "unit": "USD/shares",
+          "period": "Q3-FY2026",
+          "start": "2026-07-01",
+          "end": "2026-09-30",
+          "form": "10-Q",
+          "accn": "0001628280-26-069523",
+          "filed": "2026-11-03",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026069523/jpm-20260930.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 76086
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 24,
+        "endMs": 20879,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 20880,
+        "endMs": 26321,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 26323,
+        "endMs": 35945,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 35946,
+        "endMs": 41515,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 41516,
+        "endMs": 50939,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 50940,
+        "endMs": 56077,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 56077,
+        "endMs": 66246,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 66246,
+        "endMs": 70678,
+        "failed": false
+      },
+      {
+        "task": "auditor:c4@r1.e1",
+        "role": "auditor",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 70679,
+        "endMs": 80667,
+        "failed": false
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 24,
+    "totalMs": 80668
+  }
+}

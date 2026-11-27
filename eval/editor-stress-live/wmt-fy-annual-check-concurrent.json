@@ -1,0 +1,65 @@
+{
+  "startedAt": "2026-11-27T12:29:11.575Z",
+  "row": {
+    "case": "wmt-fy-annual-check",
+    "scheduler": "concurrent",
+    "correctByCutoff": 0,
+    "correctBySecondaryCutoff": 0,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 4,
+    "correctOutcomes": 0,
+    "expectedOutcomes": 4,
+    "elapsedMs": 65773,
+    "timedOut": false,
+    "extraction": "failed",
+    "peakLoops": 1,
+    "calls": {
+      "provider-error": 1
+    }
+  },
+  "expected": [
+    {
+      "anchor": "713.163 billion",
+      "outcome": "MATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "29.852 billion",
+      "outcome": "MISMATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "2.73",
+      "outcome": "MATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "2.96",
+      "outcome": "ABSTAIN",
+      "correct": false,
+      "unfinished": true
+    }
+  ],
+  "claims": [],
+  "offers": [],
+  "trace": {
+    "timing": "mixed",
+    "timingNote": "Mixed response sources; durations are not comparable to live latency.",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 24,
+        "endMs": 65773,
+        "failed": true
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 24,
+    "totalMs": 65773
+  }
+}

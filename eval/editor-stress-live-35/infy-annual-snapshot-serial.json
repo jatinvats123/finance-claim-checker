@@ -1,0 +1,482 @@
+{
+  "startedAt": "2026-11-27T12:58:30.983Z",
+  "row": {
+    "case": "infy-annual-snapshot",
+    "scheduler": "serial",
+    "correctByCutoff": 1,
+    "correctBySecondaryCutoff": 1,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 5,
+    "expectedOutcomes": 5,
+    "elapsedMs": 70930,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 15
+    }
+  },
+  "expected": [
+    {
+      "anchor": "18.212 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "5.053 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "2.981 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "0.77",
+      "outcome": "ABSTAIN",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "20 billion",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "18.212 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "In FY2023 Infosys posted consolidated revenue of US$18.212 billion.",
+      "interpretation": {
+        "quote": "In FY2023 Infosys posted consolidated revenue of US$18.212 billion.",
+        "metric": "revenue",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2023,
+        "fiscalPeriod": "FY",
+        "statedNumber": "18.212",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "RevenueFromContractsWithCustomers/FY-FY2023/23-028187",
+          "role": "current",
+          "concept": "ifrs-full:RevenueFromContractsWithCustomers",
+          "value": 18212000000,
+          "unit": "USD",
+          "period": "FY-FY2023",
+          "start": "2022-04-01",
+          "end": "2023-03-31",
+          "form": "20-F",
+          "accn": "0000950170-23-028187",
+          "filed": "2023-06-15",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017023028187/infy-20230331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 968,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 In FY2023 Infosys posted consolidated revenue of US$18.212 billion."
+        },
+        {
+          "at": 969,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "RevenueFromContractsWithCustomers/FY-FY2023/23-028187: the only consolidated USD RevenueFromContractsWithCustomers figure for FY-FY2023 (same value in 3 filings)"
+        },
+        {
+          "at": 969,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 RevenueFromContractsWithCustomers/FY-FY2023/23-028187"
+        },
+        {
+          "at": 969,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $18.212B vs stated $18.212 billion)"
+        },
+        {
+          "at": 30936,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully represents the revenue metric and fiscal period from the quote and matches the filing data."
+        }
+      ]
+    },
+    {
+      "anchor": "5.053 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The annual comparison gives gross profit of US$5.053 billion",
+      "interpretation": {
+        "quote": "The annual comparison gives gross profit of US$5.053 billion",
+        "metric": "gross_profit",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2023,
+        "fiscalPeriod": "FY",
+        "statedNumber": "5.053",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “The annual comparison gives gross profit of US$5.053 billion”\nSuggested edit: INFOSYS LIMITED reported gross profit of $5.503B for the year ended March 31, 2023.\nSource: 20-F · 0000950170-23-028187 · https://www.sec.gov/Archives/edgar/data/1067491/000095017023028187/infy-20230331.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/FY-FY2023/23-028187",
+          "role": "current",
+          "concept": "ifrs-full:GrossProfit",
+          "value": 5503000000,
+          "unit": "USD",
+          "period": "FY-FY2023",
+          "start": "2022-04-01",
+          "end": "2023-03-31",
+          "form": "20-F",
+          "accn": "0000950170-23-028187",
+          "filed": "2023-06-15",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017023028187/infy-20230331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 6681,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 The annual comparison gives gross profit of US$5.053 billion"
+        },
+        {
+          "at": 6682,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "GrossProfit/FY-FY2023/23-028187: the only consolidated USD GrossProfit figure for FY-FY2023 (same value in 3 filings)"
+        },
+        {
+          "at": 6682,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 GrossProfit/FY-FY2023/23-028187"
+        },
+        {
+          "at": 6682,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $5.503B vs stated $5.053 billion)"
+        },
+        {
+          "at": 45914,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the article's statement of US$5.053 billion for FY2023 gross profit, while the official filing reports US$5.503 billion, resulting in a genuine factual mismatch."
+        }
+      ]
+    },
+    {
+      "anchor": "2.981 billion",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "and net income attributable to owners of US$2.981 billion.",
+      "interpretation": {
+        "quote": "and net income attributable to owners of US$2.981 billion.",
+        "metric": "net_income",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2023,
+        "fiscalPeriod": "FY",
+        "statedNumber": "2.981",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "ProfitLossAttributableToOwnersOfParent/FY-FY2023/23-028187",
+          "role": "current",
+          "concept": "ifrs-full:ProfitLossAttributableToOwnersOfParent",
+          "value": 2981000000,
+          "unit": "USD",
+          "period": "FY-FY2023",
+          "start": "2022-04-01",
+          "end": "2023-03-31",
+          "form": "20-F",
+          "accn": "0000950170-23-028187",
+          "filed": "2023-06-15",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017023028187/infy-20230331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11090,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 and net income attributable to owners of US$2.981 billion."
+        },
+        {
+          "at": 11091,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "ProfitLossAttributableToOwnersOfParent/FY-FY2023/23-028187: the only consolidated USD ProfitLossAttributableToOwnersOfParent figure for FY-FY2023 (same value in 3 filings)"
+        },
+        {
+          "at": 11091,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 ProfitLossAttributableToOwnersOfParent/FY-FY2023/23-028187"
+        },
+        {
+          "at": 11092,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $2.981B vs stated $2.981 billion)"
+        },
+        {
+          "at": 61272,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully interprets the quoted text for net income attributable to owners of the parent and matches the official filing data for FY2023."
+        }
+      ]
+    },
+    {
+      "anchor": "0.77",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "An adjusted non-GAAP table shows FY2023 diluted earnings per share of US$0.77.",
+      "interpretation": {
+        "quote": "An adjusted non-GAAP table shows FY2023 diluted earnings per share of US$0.77.",
+        "metric": "eps_diluted",
+        "accounting": "non_gaap",
+        "kind": "level",
+        "fiscalYear": 2023,
+        "fiscalPeriod": "FY",
+        "statedNumber": "0.77",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "NOT_VERIFIABLE",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (rule); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [],
+      "history": [
+        {
+          "at": 15978,
+          "claimId": "c4",
+          "kind": "claim.extracted",
+          "detail": "r1 An adjusted non-GAAP table shows FY2023 diluted earnings per share of US$0.77."
+        },
+        {
+          "at": 15979,
+          "claimId": "c4",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NOT_IN_STATEMENTS"
+        },
+        {
+          "at": 15979,
+          "claimId": "c4",
+          "kind": "calculation",
+          "detail": "r1.e1 NOT_VERIFIABLE"
+        },
+        {
+          "at": 15979,
+          "claimId": "c4",
+          "kind": "audit.approved",
+          "detail": "r1.e1 rule gate passed; nothing in the financial statements to compute against"
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "5.053 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The annual comparison gives gross profit of US$5.053 billion",
+      "interpretation": {
+        "quote": "The annual comparison gives gross profit of US$5.053 billion",
+        "metric": "gross_profit",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2023,
+        "fiscalPeriod": "FY",
+        "statedNumber": "5.053",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “The annual comparison gives gross profit of US$5.053 billion”\nSuggested edit: INFOSYS LIMITED reported gross profit of $5.503B for the year ended March 31, 2023.\nSource: 20-F · 0000950170-23-028187 · https://www.sec.gov/Archives/edgar/data/1067491/000095017023028187/infy-20230331.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/FY-FY2023/23-028187",
+          "role": "current",
+          "concept": "ifrs-full:GrossProfit",
+          "value": 5503000000,
+          "unit": "USD",
+          "period": "FY-FY2023",
+          "start": "2022-04-01",
+          "end": "2023-03-31",
+          "form": "20-F",
+          "accn": "0000950170-23-028187",
+          "filed": "2023-06-15",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017023028187/infy-20230331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 45914
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 6,
+        "endMs": 21381,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 21382,
+        "endMs": 26219,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 26220,
+        "endMs": 35630,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 35631,
+        "endMs": 40649,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 40650,
+        "endMs": 50898,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 50899,
+        "endMs": 56071,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 56072,
+        "endMs": 66353,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 66355,
+        "endMs": 70930,
+        "failed": false
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 6,
+    "totalMs": 70931
+  }
+}

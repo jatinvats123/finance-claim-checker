@@ -1,0 +1,569 @@
+{
+  "startedAt": "2026-11-27T12:56:55.186Z",
+  "row": {
+    "case": "aapl-march-quarter-units",
+    "scheduler": "serial",
+    "correctByCutoff": 2,
+    "correctBySecondaryCutoff": 1,
+    "expectedCorrections": 2,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 5,
+    "expectedOutcomes": 5,
+    "elapsedMs": 90785,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 19
+    }
+  },
+  "expected": [
+    {
+      "anchor": "111.184 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "54.781 million",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "35.885 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "2.10",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "155 billion",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "111.184 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Apple's net sales in Q2 FY2026 were $111.184 billion.",
+      "interpretation": {
+        "quote": "Apple's net sales in Q2 FY2026 were $111.184 billion.",
+        "metric": "revenue",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q2",
+        "statedNumber": "111.184",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/Q2-FY2026/26-000013",
+          "role": "current",
+          "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+          "value": 111184000000,
+          "unit": "USD",
+          "period": "Q2-FY2026",
+          "start": "2025-12-28",
+          "end": "2026-03-28",
+          "form": "10-Q",
+          "accn": "0000320193-26-000013",
+          "filed": "2026-05-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1274,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Apple's net sales in Q2 FY2026 were $111.184 billion."
+        },
+        {
+          "at": 30972,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 RevenueFromContractWithCustomerExcludingAssessedTax/Q2-FY2026/26-000013"
+        },
+        {
+          "at": 30973,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $111.184B vs stated $111.184 billion)"
+        },
+        {
+          "at": 85796,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully represents the quoted sentence and correctly matches the financial statement metric and scale."
+        }
+      ]
+    },
+    {
+      "anchor": "54.781 million",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The draft gives gross profit as $54.781 million",
+      "interpretation": {
+        "quote": "The draft gives gross profit as $54.781 million",
+        "metric": "gross_profit",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q2",
+        "statedNumber": "54.781",
+        "statedUnit": "money",
+        "scale": "million",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “The draft gives gross profit as $54.781 million”\nSuggested edit: Apple Inc. reported gross profit of $54.781B for the quarter ended March 28, 2026.\nSource: 10-Q · 0000320193-26-000013 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/Q2-FY2026/26-000013",
+          "role": "current",
+          "concept": "us-gaap:GrossProfit",
+          "value": 54781000000,
+          "unit": "USD",
+          "period": "Q2-FY2026",
+          "start": "2025-12-28",
+          "end": "2026-03-28",
+          "form": "10-Q",
+          "accn": "0000320193-26-000013",
+          "filed": "2026-05-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 6095,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 The draft gives gross profit as $54.781 million"
+        },
+        {
+          "at": 6097,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "GrossProfit/Q2-FY2026/26-000013: the only consolidated USD GrossProfit figure for Q2-FY2026"
+        },
+        {
+          "at": 6097,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 GrossProfit/Q2-FY2026/26-000013"
+        },
+        {
+          "at": 6098,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $54.781B vs stated $54.781 million)"
+        },
+        {
+          "at": 45931,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the article text saying 54.781 million, even though the filing reports billions, making the MISMATCH correct."
+        }
+      ]
+    },
+    {
+      "anchor": "35.885 billion",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "operating income as $35.885 billion for the same three months ended March 28, 2026.",
+      "interpretation": {
+        "quote": "operating income as $35.885 billion for the same three months ended March 28, 2026.",
+        "metric": "operating_income",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q2",
+        "statedNumber": "35.885",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/Q2-FY2026/26-000013",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 35885000000,
+          "unit": "USD",
+          "period": "Q2-FY2026",
+          "start": "2025-12-28",
+          "end": "2026-03-28",
+          "form": "10-Q",
+          "accn": "0000320193-26-000013",
+          "filed": "2026-05-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11076,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 operating income as $35.885 billion for the same three months ended March 28, 2026."
+        },
+        {
+          "at": 11078,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "OperatingIncomeLoss/Q2-FY2026/26-000013: the only consolidated USD OperatingIncomeLoss figure for Q2-FY2026"
+        },
+        {
+          "at": 11078,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 OperatingIncomeLoss/Q2-FY2026/26-000013"
+        },
+        {
+          "at": 11079,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $35.885B vs stated $35.885 billion)"
+        },
+        {
+          "at": 61393,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully represents the quoted sentence and correctly matches the reported operating income for the specified period."
+        }
+      ]
+    },
+    {
+      "anchor": "2.10",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Apple reported diluted earnings per share of $2.10 for that quarter.",
+      "interpretation": {
+        "quote": "Apple reported diluted earnings per share of $2.10 for that quarter.",
+        "metric": "eps_diluted",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q2",
+        "statedNumber": "2.10",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Apple reported diluted earnings per share of $2.10 for that quarter.”\nSuggested edit: Apple Inc. reported diluted EPS of $2.01 per share for the quarter ended March 28, 2026.\nSource: 10-Q · 0000320193-26-000013 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/Q2-FY2026/26-000013",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 2.01,
+          "unit": "USD/shares",
+          "period": "Q2-FY2026",
+          "start": "2025-12-28",
+          "end": "2026-03-28",
+          "form": "10-Q",
+          "accn": "0000320193-26-000013",
+          "filed": "2026-05-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 16029,
+          "claimId": "c4",
+          "kind": "claim.extracted",
+          "detail": "r1 Apple reported diluted earnings per share of $2.10 for that quarter."
+        },
+        {
+          "at": 16031,
+          "claimId": "c4",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareDiluted/Q2-FY2026/26-000013: the only consolidated USD EarningsPerShareDiluted figure for Q2-FY2026"
+        },
+        {
+          "at": 16031,
+          "claimId": "c4",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareDiluted/Q2-FY2026/26-000013"
+        },
+        {
+          "at": 16032,
+          "claimId": "c4",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $2.01 per share vs stated $2.10 per share)"
+        },
+        {
+          "at": 76107,
+          "claimId": "c4",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully represents the quoted sentence and correctly identifies the mismatch with official filings."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "54.781 million",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The draft gives gross profit as $54.781 million",
+      "interpretation": {
+        "quote": "The draft gives gross profit as $54.781 million",
+        "metric": "gross_profit",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q2",
+        "statedNumber": "54.781",
+        "statedUnit": "money",
+        "scale": "million",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “The draft gives gross profit as $54.781 million”\nSuggested edit: Apple Inc. reported gross profit of $54.781B for the quarter ended March 28, 2026.\nSource: 10-Q · 0000320193-26-000013 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/Q2-FY2026/26-000013",
+          "role": "current",
+          "concept": "us-gaap:GrossProfit",
+          "value": 54781000000,
+          "unit": "USD",
+          "period": "Q2-FY2026",
+          "start": "2025-12-28",
+          "end": "2026-03-28",
+          "form": "10-Q",
+          "accn": "0000320193-26-000013",
+          "filed": "2026-05-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 45932
+    },
+    {
+      "anchor": "2.10",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Apple reported diluted earnings per share of $2.10 for that quarter.",
+      "interpretation": {
+        "quote": "Apple reported diluted earnings per share of $2.10 for that quarter.",
+        "metric": "eps_diluted",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q2",
+        "statedNumber": "2.10",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “Apple reported diluted earnings per share of $2.10 for that quarter.”\nSuggested edit: Apple Inc. reported diluted EPS of $2.01 per share for the quarter ended March 28, 2026.\nSource: 10-Q · 0000320193-26-000013 · https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/Q2-FY2026/26-000013",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 2.01,
+          "unit": "USD/shares",
+          "period": "Q2-FY2026",
+          "start": "2025-12-28",
+          "end": "2026-03-28",
+          "form": "10-Q",
+          "accn": "0000320193-26-000013",
+          "filed": "2026-05-01",
+          "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 76108
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 35,
+        "endMs": 21302,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 21303,
+        "endMs": 26018,
+        "failed": false
+      },
+      {
+        "task": "evidence:c1@r1#1",
+        "role": "evidence",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 0,
+        "startMs": 26020,
+        "endMs": 36366,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 36367,
+        "endMs": 41053,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 41053,
+        "endMs": 50758,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 50760,
+        "endMs": 55734,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 55735,
+        "endMs": 65838,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 65840,
+        "endMs": 71090,
+        "failed": false
+      },
+      {
+        "task": "auditor:c4@r1.e1",
+        "role": "auditor",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 71091,
+        "endMs": 81358,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 81359,
+        "endMs": 90785,
+        "failed": false
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 35,
+    "totalMs": 90786
+  }
+}

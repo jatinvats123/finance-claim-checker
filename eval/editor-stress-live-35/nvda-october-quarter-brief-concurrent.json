@@ -1,0 +1,565 @@
+{
+  "startedAt": "2026-11-27T13:06:51.766Z",
+  "row": {
+    "case": "nvda-october-quarter-brief",
+    "scheduler": "concurrent",
+    "correctByCutoff": 2,
+    "correctBySecondaryCutoff": 1,
+    "expectedCorrections": 2,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 5,
+    "expectedOutcomes": 5,
+    "elapsedMs": 80719,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 5,
+    "calls": {
+      "live": 17
+    }
+  },
+  "expected": [
+    {
+      "anchor": "57.006 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "41.489 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "36.010 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "1.03",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "120 billion",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "57.006 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "consolidated revenue of $57.006 billion",
+      "interpretation": {
+        "quote": "consolidated revenue of $57.006 billion",
+        "metric": "revenue",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "57.006",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "Revenues/Q3-FY2026/25-000230",
+          "role": "current",
+          "concept": "us-gaap:Revenues",
+          "value": 57006000000,
+          "unit": "USD",
+          "period": "Q3-FY2026",
+          "start": "2025-07-28",
+          "end": "2025-10-26",
+          "form": "10-Q",
+          "accn": "0001045810-25-000230",
+          "filed": "2025-11-19",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1099,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 consolidated revenue of $57.006 billion"
+        },
+        {
+          "at": 1103,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "Revenues/Q3-FY2026/25-000230: the only consolidated USD Revenues figure for Q3-FY2026"
+        },
+        {
+          "at": 1103,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 Revenues/Q3-FY2026/25-000230"
+        },
+        {
+          "at": 1104,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $57.006B vs stated $57.006 billion)"
+        },
+        {
+          "at": 15763,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately reflects the quote and matches the financial statement data."
+        }
+      ]
+    },
+    {
+      "anchor": "41.489 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "gross profit is stated as $41.489 billion",
+      "interpretation": {
+        "quote": "gross profit is stated as $41.489 billion",
+        "metric": "gross_profit",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "41.489",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “gross profit is stated as $41.489 billion”\nSuggested edit: NVIDIA CORP reported gross profit of $41.849B for the quarter ended October 26, 2025.\nSource: 10-Q · 0001045810-25-000230 · https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/Q3-FY2026/25-000230",
+          "role": "current",
+          "concept": "us-gaap:GrossProfit",
+          "value": 41849000000,
+          "unit": "USD",
+          "period": "Q3-FY2026",
+          "start": "2025-07-28",
+          "end": "2025-10-26",
+          "form": "10-Q",
+          "accn": "0001045810-25-000230",
+          "filed": "2025-11-19",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11209,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 gross profit is stated as $41.489 billion"
+        },
+        {
+          "at": 11210,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "GrossProfit/Q3-FY2026/25-000230: the only consolidated USD GrossProfit figure for Q3-FY2026"
+        },
+        {
+          "at": 11210,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 GrossProfit/Q3-FY2026/25-000230"
+        },
+        {
+          "at": 11211,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $41.849B vs stated $41.489 billion)"
+        },
+        {
+          "at": 31357,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim faithfully represents the quoted text stating gross profit as $41.489 billion, and the mismatch with the actual filing figure of $41.849 billion is correctly identified."
+        }
+      ]
+    },
+    {
+      "anchor": "36.010 billion",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "operating income as $36.010 billion",
+      "interpretation": {
+        "quote": "operating income as $36.010 billion",
+        "metric": "operating_income",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "36.010",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/Q3-FY2026/25-000230",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 36010000000,
+          "unit": "USD",
+          "period": "Q3-FY2026",
+          "start": "2025-07-28",
+          "end": "2025-10-26",
+          "form": "10-Q",
+          "accn": "0001045810-25-000230",
+          "filed": "2025-11-19",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 26343,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 operating income as $36.010 billion"
+        },
+        {
+          "at": 26344,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "OperatingIncomeLoss/Q3-FY2026/25-000230: the only consolidated USD OperatingIncomeLoss figure for Q3-FY2026"
+        },
+        {
+          "at": 26344,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 OperatingIncomeLoss/Q3-FY2026/25-000230"
+        },
+        {
+          "at": 26344,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $36.010B vs stated $36.010 billion)"
+        },
+        {
+          "at": 50816,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully extracts the operating income metric, scale, period, and value from the quote, and deterministic checks confirm the match against official filings."
+        }
+      ]
+    },
+    {
+      "anchor": "1.03",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "diluted earnings per share are shown as $1.03",
+      "interpretation": {
+        "quote": "diluted earnings per share are shown as $1.03",
+        "metric": "eps_diluted",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "1.03",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “diluted earnings per share are shown as $1.03”\nSuggested edit: NVIDIA CORP reported diluted EPS of $1.3 per share for the quarter ended October 26, 2025.\nSource: 10-Q · 0001045810-25-000230 · https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/Q3-FY2026/25-000230",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 1.3,
+          "unit": "USD/shares",
+          "period": "Q3-FY2026",
+          "start": "2025-07-28",
+          "end": "2025-10-26",
+          "form": "10-Q",
+          "accn": "0001045810-25-000230",
+          "filed": "2025-11-19",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 46771,
+          "claimId": "c4",
+          "kind": "claim.extracted",
+          "detail": "r1 diluted earnings per share are shown as $1.03"
+        },
+        {
+          "at": 46773,
+          "claimId": "c4",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareDiluted/Q3-FY2026/25-000230: the only consolidated USD EarningsPerShareDiluted figure for Q3-FY2026"
+        },
+        {
+          "at": 46773,
+          "claimId": "c4",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareDiluted/Q3-FY2026/25-000230"
+        },
+        {
+          "at": 46773,
+          "claimId": "c4",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $1.3 per share vs stated $1.03 per share)"
+        },
+        {
+          "at": 70834,
+          "claimId": "c4",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the stated diluted earnings per share of $1.03 from the article text, which correctly results in a MISMATCH against the official Q3 FY2026 diluted EPS of $1.30."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "41.489 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "gross profit is stated as $41.489 billion",
+      "interpretation": {
+        "quote": "gross profit is stated as $41.489 billion",
+        "metric": "gross_profit",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "41.489",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “gross profit is stated as $41.489 billion”\nSuggested edit: NVIDIA CORP reported gross profit of $41.849B for the quarter ended October 26, 2025.\nSource: 10-Q · 0001045810-25-000230 · https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/Q3-FY2026/25-000230",
+          "role": "current",
+          "concept": "us-gaap:GrossProfit",
+          "value": 41849000000,
+          "unit": "USD",
+          "period": "Q3-FY2026",
+          "start": "2025-07-28",
+          "end": "2025-10-26",
+          "form": "10-Q",
+          "accn": "0001045810-25-000230",
+          "filed": "2025-11-19",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 31358
+    },
+    {
+      "anchor": "1.03",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "diluted earnings per share are shown as $1.03",
+      "interpretation": {
+        "quote": "diluted earnings per share are shown as $1.03",
+        "metric": "eps_diluted",
+        "accounting": "unspecified",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "1.03",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “diluted earnings per share are shown as $1.03”\nSuggested edit: NVIDIA CORP reported diluted EPS of $1.3 per share for the quarter ended October 26, 2025.\nSource: 10-Q · 0001045810-25-000230 · https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/Q3-FY2026/25-000230",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 1.3,
+          "unit": "USD/shares",
+          "period": "Q3-FY2026",
+          "start": "2025-07-28",
+          "end": "2025-10-26",
+          "form": "10-Q",
+          "accn": "0001045810-25-000230",
+          "filed": "2025-11-19",
+          "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 70835
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 49,
+        "endMs": 66402,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 1101,
+        "endMs": 5824,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1106,
+        "endMs": 36121,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 11209,
+        "endMs": 20749,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 11212,
+        "endMs": 56038,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 26343,
+        "endMs": 40669,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 26345,
+        "endMs": 75721,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 46772,
+        "endMs": 61233,
+        "failed": false
+      },
+      {
+        "task": "auditor:c4@r1.e1",
+        "role": "auditor",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 46775,
+        "endMs": 80718,
+        "failed": false
+      }
+    ],
+    "peakActive": 5,
+    "peakAtMs": 26345,
+    "totalMs": 80720
+  }
+}

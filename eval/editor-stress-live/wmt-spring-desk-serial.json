@@ -1,0 +1,378 @@
+{
+  "startedAt": "2026-11-27T11:57:11.908Z",
+  "row": {
+    "case": "wmt-spring-desk",
+    "scheduler": "serial",
+    "correctByCutoff": 0,
+    "correctBySecondaryCutoff": 0,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 3,
+    "correctOutcomes": 1,
+    "expectedOutcomes": 4,
+    "elapsedMs": 99906,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 1,
+    "calls": {
+      "live": 16
+    }
+  },
+  "expected": [
+    {
+      "anchor": "177.751 billion",
+      "outcome": "MATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "7.135 billion",
+      "outcome": "MISMATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "5.330 billion",
+      "outcome": "MATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "3.25",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "177.751 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "For the three months ended April 30, 2026, Walmart registered total revenue of $177.751 billion",
+      "interpretation": {
+        "quote": "For the three months ended April 30, 2026, Walmart registered total revenue of $177.751 billion",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q1",
+        "statedNumber": "177.751",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "incomplete",
+        "label": "Review incomplete",
+        "detail": "Forecast warning conflicts with the reference. The period ended 2026-04-30 and was reported in 10-Q on 2026-05-29. Check the article wording."
+      },
+      "correct": false,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "Revenues/Q1-FY2027/26-000102",
+          "role": "current",
+          "concept": "us-gaap:Revenues",
+          "value": 177751000000,
+          "unit": "USD",
+          "period": "Q1-FY2027",
+          "start": "2026-02-01",
+          "end": "2026-04-30",
+          "form": "10-Q",
+          "accn": "0000104169-26-000102",
+          "filed": "2026-05-29",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1718,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 For the three months ended April 30, 2026, Walmart registered total revenue of $177.751 billion"
+        },
+        {
+          "at": 1719,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "Revenues/Q1-FY2027/26-000102: the only consolidated USD Revenues figure for Q1-FY2027"
+        },
+        {
+          "at": 1720,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 Revenues/Q1-FY2027/26-000102"
+        },
+        {
+          "at": 1720,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $177.751B vs stated $177.751 billion)"
+        },
+        {
+          "at": 21038,
+          "claimId": "c1",
+          "kind": "context.disputed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2026-04-30 and was reported in 10-Q on 2026-05-29. Check the article wording. Proposed warning: The paragraph includes a forward-looking estimate for FY2028 that is presented alongside historical results for FY2027."
+        },
+        {
+          "at": 31117,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately reflects the quote and matches the financial data from the 10-Q filing."
+        }
+      ]
+    },
+    {
+      "anchor": "7.135 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "In that first quarter of FY2027, operating income was $7.135 billion",
+      "interpretation": {
+        "quote": "In that first quarter of FY2027, operating income was $7.135 billion",
+        "metric": "operating_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q1",
+        "statedNumber": "7.135",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "incomplete",
+        "label": "Review incomplete",
+        "detail": "Forecast warning conflicts with the reference. The period ended 2026-04-30 and was reported in 10-Q on 2026-05-29. Check the article wording."
+      },
+      "correct": false,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "OperatingIncomeLoss/Q1-FY2027/26-000102",
+          "role": "current",
+          "concept": "us-gaap:OperatingIncomeLoss",
+          "value": 7493000000,
+          "unit": "USD",
+          "period": "Q1-FY2027",
+          "start": "2026-02-01",
+          "end": "2026-04-30",
+          "form": "10-Q",
+          "accn": "0000104169-26-000102",
+          "filed": "2026-05-29",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 6199,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 In that first quarter of FY2027, operating income was $7.135 billion"
+        },
+        {
+          "at": 6200,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "OperatingIncomeLoss/Q1-FY2027/26-000102: the only consolidated USD OperatingIncomeLoss figure for Q1-FY2027"
+        },
+        {
+          "at": 6200,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 OperatingIncomeLoss/Q1-FY2027/26-000102"
+        },
+        {
+          "at": 6200,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $7.493B vs stated $7.135 billion)"
+        },
+        {
+          "at": 41391,
+          "claimId": "c2",
+          "kind": "context.disputed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2026-04-30 and was reported in 10-Q on 2026-05-29. Check the article wording. Proposed warning: The paragraph presents an analyst's future estimate alongside historical financial results, which should be clearly distinguished."
+        },
+        {
+          "at": 51552,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully reflects the quote, despite the mismatch with actual Q1 FY2027 data (it matches Q1 FY2026 data)."
+        }
+      ]
+    },
+    {
+      "anchor": "5.330 billion",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "net income attributable to Walmart was $5.330 billion",
+      "interpretation": {
+        "quote": "net income attributable to Walmart was $5.330 billion",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2027,
+        "fiscalPeriod": "Q1",
+        "statedNumber": "5.330",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "incomplete",
+        "label": "Review incomplete",
+        "detail": "Forecast warning conflicts with the reference. The period ended 2026-04-30 and was reported in 10-Q on 2026-05-29. Check the article wording."
+      },
+      "correct": false,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "NetIncomeLoss/Q1-FY2027/26-000102",
+          "role": "current",
+          "concept": "us-gaap:NetIncomeLoss",
+          "value": 5330000000,
+          "unit": "USD",
+          "period": "Q1-FY2027",
+          "start": "2026-02-01",
+          "end": "2026-04-30",
+          "form": "10-Q",
+          "accn": "0000104169-26-000102",
+          "filed": "2026-05-29",
+          "url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11543,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 net income attributable to Walmart was $5.330 billion"
+        },
+        {
+          "at": 11544,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "NetIncomeLoss/Q1-FY2027/26-000102: the only consolidated USD NetIncomeLoss figure for Q1-FY2027"
+        },
+        {
+          "at": 11544,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NetIncomeLoss/Q1-FY2027/26-000102"
+        },
+        {
+          "at": 11544,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $5.330B vs stated $5.330 billion)"
+        },
+        {
+          "at": 84568,
+          "claimId": "c3",
+          "kind": "context.disputed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2026-04-30 and was reported in 10-Q on 2026-05-29. Check the article wording. Proposed warning: The paragraph presents a forward-looking analyst estimate as part of the context for historical results."
+        },
+        {
+          "at": 94517,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately reflects the quoted financial metric, period, and value."
+        }
+      ]
+    }
+  ],
+  "offers": [],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 44,
+        "endMs": 16366,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 16368,
+        "endMs": 25855,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 25856,
+        "endMs": 35988,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 35994,
+        "endMs": 45977,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 45978,
+        "endMs": 83721,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 83722,
+        "endMs": 90111,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 90113,
+        "endMs": 99906,
+        "failed": false
+      }
+    ],
+    "peakActive": 1,
+    "peakAtMs": 44,
+    "totalMs": 99907
+  }
+}

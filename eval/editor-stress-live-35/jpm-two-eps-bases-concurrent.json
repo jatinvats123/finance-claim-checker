@@ -1,0 +1,476 @@
+{
+  "startedAt": "2026-11-27T12:49:50.712Z",
+  "row": {
+    "case": "jpm-two-eps-bases",
+    "scheduler": "concurrent",
+    "correctByCutoff": 1,
+    "correctBySecondaryCutoff": 1,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 0,
+    "correctOutcomes": 4,
+    "expectedOutcomes": 4,
+    "elapsedMs": 71033,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 5,
+    "calls": {
+      "live": 15
+    }
+  },
+  "expected": [
+    {
+      "anchor": "58.471 billion",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "19.79",
+      "outcome": "MATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "17.95",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "20.32",
+      "outcome": "ABSTAIN",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "58.471 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "JPMorgan Chase & Co. closed FY2024 with consolidated net income of $58.471 billion.",
+      "interpretation": {
+        "quote": "JPMorgan Chase & Co. closed FY2024 with consolidated net income of $58.471 billion.",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "58.471",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "NetIncomeLoss/FY-FY2024/25-000270",
+          "role": "current",
+          "concept": "us-gaap:NetIncomeLoss",
+          "value": 58471000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "form": "10-K",
+          "accn": "0000019617-25-000270",
+          "filed": "2025-02-14",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000001961725000270/",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1608,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 JPMorgan Chase & Co. closed FY2024 with consolidated net income of $58.471 billion."
+        },
+        {
+          "at": 1609,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "NetIncomeLoss/FY-FY2024/25-000270: the only consolidated USD NetIncomeLoss figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 1609,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NetIncomeLoss/FY-FY2024/25-000270"
+        },
+        {
+          "at": 1609,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $58.471B vs stated $58.471 billion)"
+        },
+        {
+          "at": 16345,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully represents the quoted sentence and correctly matches the reported consolidated net income of $58.471 billion for FY2024."
+        }
+      ]
+    },
+    {
+      "anchor": "19.79",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Basic earnings per share for the year were $19.79.",
+      "interpretation": {
+        "quote": "Basic earnings per share for the year were $19.79.",
+        "metric": "eps_basic",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "19.79",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareBasic/FY-FY2024/25-000270",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareBasic",
+          "value": 19.79,
+          "unit": "USD/shares",
+          "period": "FY-FY2024",
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "form": "10-K",
+          "accn": "0000019617-25-000270",
+          "filed": "2025-02-14",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000001961725000270/",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11630,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 Basic earnings per share for the year were $19.79."
+        },
+        {
+          "at": 11631,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareBasic/FY-FY2024/25-000270: the only consolidated USD EarningsPerShareBasic figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 11631,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareBasic/FY-FY2024/25-000270"
+        },
+        {
+          "at": 11631,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $19.79 per share vs stated $19.79 per share)"
+        },
+        {
+          "at": 31095,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation faithfully represents the quoted sentence regarding basic earnings per share and matches the filing data."
+        }
+      ]
+    },
+    {
+      "anchor": "17.95",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The draft gives FY2024 diluted earnings per share as $17.95.",
+      "interpretation": {
+        "quote": "The draft gives FY2024 diluted earnings per share as $17.95.",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "17.95",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “The draft gives FY2024 diluted earnings per share as $17.95.”\nSuggested edit: JPMORGAN CHASE & CO reported diluted EPS of $19.75 per share for the year ended December 31, 2024.\nSource: 10-K · 0000019617-25-000270 · https://www.sec.gov/Archives/edgar/data/19617/000001961725000270/",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/FY-FY2024/25-000270",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 19.75,
+          "unit": "USD/shares",
+          "period": "FY-FY2024",
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "form": "10-K",
+          "accn": "0000019617-25-000270",
+          "filed": "2025-02-14",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000001961725000270/",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 26385,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 The draft gives FY2024 diluted earnings per share as $17.95."
+        },
+        {
+          "at": 26387,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "EarningsPerShareDiluted/FY-FY2024/25-000270: the only consolidated USD EarningsPerShareDiluted figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 26387,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 EarningsPerShareDiluted/FY-FY2024/25-000270"
+        },
+        {
+          "at": 26389,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $19.75 per share vs stated $17.95 per share)"
+        },
+        {
+          "at": 50992,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim correctly interprets the article's text, and the MISMATCH verdict correctly reflects the difference between the article's stated EPS ($17.95) and the official filing ($19.75)."
+        }
+      ]
+    },
+    {
+      "anchor": "20.32",
+      "claimId": "c4",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "A separate non-GAAP line uses adjusted diluted earnings per share of $20.32 for that fiscal year.",
+      "interpretation": {
+        "quote": "A separate non-GAAP line uses adjusted diluted earnings per share of $20.32 for that fiscal year.",
+        "metric": "eps_diluted",
+        "accounting": "non_gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "20.32",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "NOT_VERIFIABLE",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (rule); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [],
+      "history": [
+        {
+          "at": 46286,
+          "claimId": "c4",
+          "kind": "claim.extracted",
+          "detail": "r1 A separate non-GAAP line uses adjusted diluted earnings per share of $20.32 for that fiscal year."
+        },
+        {
+          "at": 46287,
+          "claimId": "c4",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 NOT_IN_STATEMENTS"
+        },
+        {
+          "at": 46287,
+          "claimId": "c4",
+          "kind": "calculation",
+          "detail": "r1.e1 NOT_VERIFIABLE"
+        },
+        {
+          "at": 46288,
+          "claimId": "c4",
+          "kind": "audit.approved",
+          "detail": "r1.e1 rule gate passed; nothing in the financial statements to compute against"
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "17.95",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The draft gives FY2024 diluted earnings per share as $17.95.",
+      "interpretation": {
+        "quote": "The draft gives FY2024 diluted earnings per share as $17.95.",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "17.95",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “The draft gives FY2024 diluted earnings per share as $17.95.”\nSuggested edit: JPMORGAN CHASE & CO reported diluted EPS of $19.75 per share for the year ended December 31, 2024.\nSource: 10-K · 0000019617-25-000270 · https://www.sec.gov/Archives/edgar/data/19617/000001961725000270/",
+      "inputs": [
+        {
+          "evidenceId": "EarningsPerShareDiluted/FY-FY2024/25-000270",
+          "role": "current",
+          "concept": "us-gaap:EarningsPerShareDiluted",
+          "value": 19.75,
+          "unit": "USD/shares",
+          "period": "FY-FY2024",
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "form": "10-K",
+          "accn": "0000019617-25-000270",
+          "filed": "2025-02-14",
+          "url": "https://www.sec.gov/Archives/edgar/data/19617/000001961725000270/",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 50992
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 26,
+        "endMs": 65996,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 1609,
+        "endMs": 5787,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1610,
+        "endMs": 35700,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 11631,
+        "endMs": 20755,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 11632,
+        "endMs": 55778,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 26386,
+        "endMs": 41011,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 26390,
+        "endMs": 71033,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 46287,
+        "endMs": 60939,
+        "failed": false
+      }
+    ],
+    "peakActive": 5,
+    "peakAtMs": 26390,
+    "totalMs": 71033
+  }
+}

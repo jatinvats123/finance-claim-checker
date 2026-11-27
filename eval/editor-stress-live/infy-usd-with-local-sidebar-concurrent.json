@@ -1,0 +1,423 @@
+{
+  "startedAt": "2026-11-27T12:03:26.410Z",
+  "row": {
+    "case": "infy-usd-with-local-sidebar",
+    "scheduler": "concurrent",
+    "correctByCutoff": 1,
+    "correctBySecondaryCutoff": 1,
+    "expectedCorrections": 1,
+    "falseCorrections": 0,
+    "unfinishedReviews": 1,
+    "correctOutcomes": 3,
+    "expectedOutcomes": 4,
+    "elapsedMs": 88073,
+    "timedOut": false,
+    "extraction": "done",
+    "peakLoops": 5,
+    "calls": {
+      "live": 15
+    }
+  },
+  "expected": [
+    {
+      "anchor": "5.587 billion",
+      "outcome": "MATCH",
+      "correct": false,
+      "unfinished": true
+    },
+    {
+      "anchor": "3.843 billion",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "1,53,000 crore",
+      "outcome": "ABSTAIN",
+      "correct": true,
+      "unfinished": false
+    },
+    {
+      "anchor": "5.25 billion",
+      "outcome": "SKIP",
+      "correct": true,
+      "unfinished": false
+    }
+  ],
+  "claims": [
+    {
+      "anchor": "5.587 billion",
+      "claimId": "c1",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "Infosys Limited disclosed US$5.587 billion in gross profit for FY2024",
+      "interpretation": {
+        "quote": "Infosys Limited disclosed US$5.587 billion in gross profit for FY2024",
+        "metric": "gross_profit",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "5.587",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "verdict": "MATCH",
+      "review": {
+        "status": "incomplete",
+        "label": "Review incomplete",
+        "detail": "Forecast warning conflicts with the reference. The period ended 2024-03-31 and was reported in 20-F on 2024-06-24. Check the article wording."
+      },
+      "correct": false,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "GrossProfit/FY-FY2024/24-076649",
+          "role": "current",
+          "concept": "ifrs-full:GrossProfit",
+          "value": 5587000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-076649",
+          "filed": "2024-06-24",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017024076649/infy-20240331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 1392,
+          "claimId": "c1",
+          "kind": "claim.extracted",
+          "detail": "r1 Infosys Limited disclosed US$5.587 billion in gross profit for FY2024"
+        },
+        {
+          "at": 1393,
+          "claimId": "c1",
+          "kind": "evidence.direct",
+          "detail": "GrossProfit/FY-FY2024/24-076649: the only consolidated USD GrossProfit figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 1393,
+          "claimId": "c1",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 GrossProfit/FY-FY2024/24-076649"
+        },
+        {
+          "at": 1396,
+          "claimId": "c1",
+          "kind": "calculation",
+          "detail": "r1.e1 MATCH (actual $5.587B vs stated $5.587 billion)"
+        },
+        {
+          "at": 6062,
+          "claimId": "c1",
+          "kind": "context.disputed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2024-03-31 and was reported in 20-F on 2024-06-24. Check the article wording. Proposed warning: The paragraph includes a forward-looking analyst forecast for FY2027 which should not be conflated with the historical FY2024 results."
+        },
+        {
+          "at": 15820,
+          "claimId": "c1",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the gross profit figure for FY2024 as stated in the source."
+        }
+      ]
+    },
+    {
+      "anchor": "3.843 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The same paragraph gives FY2024 operating profit as US$3.843 billion.",
+      "interpretation": {
+        "quote": "The same paragraph gives FY2024 operating profit as US$3.843 billion.",
+        "metric": "operating_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "3.843",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “The same paragraph gives FY2024 operating profit as US$3.843 billion.”\nSuggested edit: INFOSYS LIMITED reported operating income of $3.834B for the year ended March 31, 2024.\nSource: 20-F · 0000950170-24-076649 · https://www.sec.gov/Archives/edgar/data/1067491/000095017024076649/infy-20240331.htm",
+      "inputs": [
+        {
+          "evidenceId": "ProfitLossFromOperatingActivities/FY-FY2024/24-076649",
+          "role": "current",
+          "concept": "ifrs-full:ProfitLossFromOperatingActivities",
+          "value": 3834000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-076649",
+          "filed": "2024-06-24",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017024076649/infy-20240331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 11886,
+          "claimId": "c2",
+          "kind": "claim.extracted",
+          "detail": "r1 The same paragraph gives FY2024 operating profit as US$3.843 billion."
+        },
+        {
+          "at": 11887,
+          "claimId": "c2",
+          "kind": "evidence.direct",
+          "detail": "ProfitLossFromOperatingActivities/FY-FY2024/24-076649: the only consolidated USD ProfitLossFromOperatingActivities figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 11887,
+          "claimId": "c2",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 ProfitLossFromOperatingActivities/FY-FY2024/24-076649"
+        },
+        {
+          "at": 11888,
+          "claimId": "c2",
+          "kind": "calculation",
+          "detail": "r1.e1 MISMATCH (actual $3.834B vs stated $3.843 billion)"
+        },
+        {
+          "at": 36307,
+          "claimId": "c2",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The interpretation accurately captures the stated number in the text, and the MISMATCH verdict correctly identifies the discrepancy between the article's stated figure and the actual filing value."
+        }
+      ]
+    },
+    {
+      "anchor": "1,53,000 crore",
+      "claimId": "c3",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "A local-market sidebar describes reported consolidated revenue for FY2024 as ₹1,53,000 crore in Indian rupees.",
+      "interpretation": {
+        "quote": "A local-market sidebar describes reported consolidated revenue for FY2024 as ₹1,53,000 crore in Indian rupees.",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "153000",
+        "statedUnit": "money",
+        "scale": "crore",
+        "qualifier": "exact",
+        "currency": "INR",
+        "consolidation": "consolidated"
+      },
+      "verdict": "NOT_COMPUTABLE",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": false,
+      "inputs": [
+        {
+          "evidenceId": "RevenueFromContractsWithCustomers/FY-FY2024/24-076649",
+          "role": "current",
+          "concept": "ifrs-full:RevenueFromContractsWithCustomers",
+          "value": 18562000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-076649",
+          "filed": "2024-06-24",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017024076649/infy-20240331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "history": [
+        {
+          "at": 63336,
+          "claimId": "c3",
+          "kind": "claim.extracted",
+          "detail": "r1 A local-market sidebar describes reported consolidated revenue for FY2024 as ₹1,53,000 crore in Indian rupees."
+        },
+        {
+          "at": 63338,
+          "claimId": "c3",
+          "kind": "evidence.direct",
+          "detail": "RevenueFromContractsWithCustomers/FY-FY2024/24-076649: the only consolidated USD RevenueFromContractsWithCustomers figure for FY-FY2024 (same value in 2 filings)"
+        },
+        {
+          "at": 63338,
+          "claimId": "c3",
+          "kind": "evidence.bound",
+          "detail": "r1.e1 RevenueFromContractsWithCustomers/FY-FY2024/24-076649"
+        },
+        {
+          "at": 63338,
+          "claimId": "c3",
+          "kind": "calculation",
+          "detail": "r1.e1 NOT_COMPUTABLE"
+        },
+        {
+          "at": 68299,
+          "claimId": "c3",
+          "kind": "context.dismissed",
+          "detail": "Forecast warning conflicts with the reference. The period ended 2024-03-31 and was reported in 20-F on 2024-06-24. Check the article wording. The quoted wording explicitly reports historical results. Proposed warning: The paragraph mixes historical results with an analyst forecast, which may be misinterpreted as a result."
+        },
+        {
+          "at": 78037,
+          "claimId": "c3",
+          "kind": "audit.approved",
+          "detail": "r1.e1 The claim accurately reflects the article's statement, and the mismatch with the reported USD revenue is correctly noted as not comparable."
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "anchor": "3.843 billion",
+      "claimId": "c2",
+      "revision": 1,
+      "evidenceRevision": 1,
+      "quote": "The same paragraph gives FY2024 operating profit as US$3.843 billion.",
+      "interpretation": {
+        "quote": "The same paragraph gives FY2024 operating profit as US$3.843 billion.",
+        "metric": "operating_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2024,
+        "fiscalPeriod": "FY",
+        "statedNumber": "3.843",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "consolidated"
+      },
+      "verdict": "MISMATCH",
+      "review": {
+        "status": "complete",
+        "label": "Reviewed",
+        "detail": "Audit approved by auditor (LLM review); context review finished."
+      },
+      "correct": true,
+      "correctCorrection": true,
+      "correction": "Original: “The same paragraph gives FY2024 operating profit as US$3.843 billion.”\nSuggested edit: INFOSYS LIMITED reported operating income of $3.834B for the year ended March 31, 2024.\nSource: 20-F · 0000950170-24-076649 · https://www.sec.gov/Archives/edgar/data/1067491/000095017024076649/infy-20240331.htm",
+      "inputs": [
+        {
+          "evidenceId": "ProfitLossFromOperatingActivities/FY-FY2024/24-076649",
+          "role": "current",
+          "concept": "ifrs-full:ProfitLossFromOperatingActivities",
+          "value": 3834000000,
+          "unit": "USD",
+          "period": "FY-FY2024",
+          "start": "2023-04-01",
+          "end": "2024-03-31",
+          "form": "20-F",
+          "accn": "0000950170-24-076649",
+          "filed": "2024-06-24",
+          "url": "https://www.sec.gov/Archives/edgar/data/1067491/000095017024076649/infy-20240331.htm",
+          "currency": "USD",
+          "consolidation": "consolidated"
+        }
+      ],
+      "timeMs": 36308
+    }
+  ],
+  "trace": {
+    "timing": "live",
+    "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 5,
+        "endMs": 82430,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 1393,
+        "endMs": 40939,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1397,
+        "endMs": 42556,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 11887,
+        "endMs": 26066,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 11889,
+        "endMs": 49307,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 63337,
+        "endMs": 83288,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e1",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 63340,
+        "endMs": 88072,
+        "failed": false
+      }
+    ],
+    "peakActive": 5,
+    "peakAtMs": 11889,
+    "totalMs": 88073
+  }
+}

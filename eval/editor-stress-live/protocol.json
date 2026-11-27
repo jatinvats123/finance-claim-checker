@@ -1,0 +1,45 @@
+{
+  "mode": "live",
+  "scope": "full",
+  "manifest": "editor-stress-cases.json",
+  "draftIds": [
+    "aapl-annual-archive",
+    "wmt-spring-desk",
+    "wit-crore-tables",
+    "infy-usd-with-local-sidebar",
+    "nvda-annual-bottom-line",
+    "jpm-two-eps-bases",
+    "wmt-fy-annual-check",
+    "aapl-march-quarter-units",
+    "infy-annual-snapshot",
+    "wit-annual-profit-rows",
+    "jpm-quarter-results-box",
+    "nvda-october-quarter-brief"
+  ],
+  "startedAt": "2026-11-27T11:50:26.372Z",
+  "model": "gemini-3.1-flash-lite",
+  "limits": {
+    "maxCalls": 35,
+    "maxConcurrent": 4,
+    "rpm": 12,
+    "requestTimeoutMs": 30000,
+    "retries": 1
+  },
+  "timeoutMs": 180000,
+  "pauseBetweenArmsMs": 5000,
+  "deadlineMs": 120000,
+  "secondaryDeadlineMs": 60000,
+  "specHash": "e6862c91d6e136733c102e47f107b9d211ee19950c4358ef11da46ada3823950",
+  "snapshotHashes": {
+    "AAPL": "bfa3e1d298398b30859158621820b203ea8697c44055a3969d92a10bb7591656",
+    "WMT": "8e5cd730bbfe4493dd332269f7f66bc1dab490b6bd5a2e2b9bf9a48ff19e609d",
+    "WIT": "351612a481c775be7637f3f68bf9203a73558d238312f8c685f947cf6b318417",
+    "INFY": "8d3ec8f90bf1442dbad2dff0df9c19f98fc8af9b279dc3a803de03441efd4e41",
+    "NVDA": "f3e04384f54526a23a0c9f220060d0c8e11accb8f980efe7fcbd75c58de32442",
+    "JPM": "2f4a4cff94521dd316102f5706d669bf0d910cd1f52b5c86cda3f51207c50f8c"
+  },
+  "resumedAt": [
+    "2026-11-27T11:54:28.707Z",
+    "2026-11-27T12:26:55.485Z"
+  ]
+}
