@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import type { MetaView, RunView } from "../../src/web/types"
+import type { MetaView, ResolveView, RunView } from "../../src/web/types"
 
-export type { MetaView, RunView }
-export type { ClaimView, AgentView, TimelineEntry, CalcInput, ContextWarning, HistoryEntry, ReviewStatus, VerdictCode } from "../../src/web/types"
+export type { MetaView, RunView, ResolveView }
+export type { ClaimView, AgentView, TimelineEntry, CalcInput, ContextWarning, HistoryEntry, ReviewStatus, VerdictCode, Candidate, ReferenceView, ReferencePreview } from "../../src/web/types"
 
 export class ApiError extends Error {
 	constructor(
@@ -36,7 +36,21 @@ export function useMeta() {
 	return { meta, error }
 }
 
-export type StartBody = { source: "example"; replay?: "recorded" | "fixtures" } | { source: "custom"; mode: "live" | "replay"; title: string; text: string }
+export type StartBody =
+	| { source: "example"; replay?: "recorded" | "fixtures" }
+	| {
+			source: "custom"
+			mode: "live" | "replay"
+			title: string
+			text: string
+			company?: { cik?: string; query?: string; name?: string }
+			report?: { url?: string; file?: { name: string; base64: string } }
+	  }
+
+/** Identify the company and preview its reference (no run, no model call). */
+export function resolveArticle(body: { title: string; text: string; company?: { cik?: string; query?: string }; mode: "live" | "replay" }, signal?: AbortSignal) {
+	return api<ResolveView>("/api/resolve", { method: "POST", body: JSON.stringify(body), signal })
+}
 
 /**
  * Starts runs only on explicit calls (never on mount), streams RunView snapshots over SSE.

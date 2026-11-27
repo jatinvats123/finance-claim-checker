@@ -8,7 +8,7 @@ import { readArticle } from "../src/article.js"
 
 const { text } = readArticle("data/articles/nvda-q2-fy2027.md")
 const base = { accounting: "unspecified", qualifier: "exact", fiscalYear: 2027, fiscalPeriod: "Q2" }
-const level = (o: Record<string, unknown>) => ({ ...base, kind: "level", statedUnit: "usd", scale: "units", metric: "revenue", ...o })
+const level = (o: Record<string, unknown>) => ({ ...base, kind: "level", statedUnit: "money", scale: "units", metric: "revenue", ...o })
 const change = (o: Record<string, unknown>) => ({ ...base, kind: "change", direction: "increase", statedUnit: "percent", scale: "units", metric: "revenue", ...o })
 
 describe("anchoring guard", () => {
@@ -20,13 +20,13 @@ describe("anchoring guard", () => {
 
 	it("requires units when no scale word follows, and units for per-share values", () => {
 		const q = "diluted earnings per share came in at $2.46"
-		expect(() => validateInterpretation(level({ quote: q, metric: "eps_diluted", statedUnit: "usd_per_share", statedNumber: "2.46" }), text)).not.toThrow()
-		expect(() => validateInterpretation(level({ quote: q, metric: "eps_diluted", statedUnit: "usd_per_share", statedNumber: "2.46", scale: "billion" }), text)).toThrow()
+		expect(() => validateInterpretation(level({ quote: q, metric: "eps_diluted", statedUnit: "per_share", statedNumber: "2.46" }), text)).not.toThrow()
+		expect(() => validateInterpretation(level({ quote: q, metric: "eps_diluted", statedUnit: "per_share", statedNumber: "2.46", scale: "billion" }), text)).toThrow()
 		expect(() => validateInterpretation(level({ quote: "Nvidia reported revenue of $96.2 billion", statedNumber: "96.2", scale: "units" }), text)).toThrow(/scale "units"/)
 	})
 
 	it("matches the number as a whole number, not inside another one", () => {
-		expect(() => validateInterpretation(level({ quote: "diluted earnings per share came in at $2.46", metric: "eps_diluted", statedUnit: "usd_per_share", statedNumber: "2" }), text)).toThrow(/does not appear as a number/)
+		expect(() => validateInterpretation(level({ quote: "diluted earnings per share came in at $2.46", metric: "eps_diluted", statedUnit: "per_share", statedNumber: "2" }), text)).toThrow(/does not appear as a number/)
 	})
 
 	describe("complete numeric tokens (synthetic article)", () => {

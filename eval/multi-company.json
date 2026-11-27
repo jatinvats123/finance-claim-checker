@@ -1,0 +1,47 @@
+{
+	"description": "Fresh articles about four other companies (two fiscal calendars besides NVIDIA's, two 20-F filers, INR and USD) plus an unknown company. Ground truth computed by hand from the committed SEC snapshots (data/sec-snapshot/*.json, fetched 2026-11-26/27).",
+	"articles": {
+		"apple": { "path": "data/articles/apple-fy2026.md" },
+		"walmart": { "path": "data/articles/walmart-q2-fy2027.md" },
+		"wipro": { "path": "data/articles/wipro-fy2025-inr.md" },
+		"infosys": { "path": "data/articles/infosys-fy2025-inr.md" },
+		"zentrix": { "path": "data/articles/zentrix-robotics.md", "expectReferenceError": "COMPANY_NOT_FOUND" }
+	},
+	"claims": [
+		{ "id": "A1", "article": "apple", "metric": "revenue", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "478.8", "expected": "MATCH", "truth": "FY2026 revenue $478.834B (10-K accn 0000320193-26-000026)" },
+		{ "id": "A2", "article": "apple", "metric": "revenue", "kind": "change", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "15", "expected": "MATCH", "truth": "478.834 / 416.161 = +15.06%" },
+		{ "id": "A3", "article": "apple", "metric": "revenue", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "416.2", "expected": "MATCH", "truth": "FY2025 revenue $416.161B" },
+		{ "id": "A4", "article": "apple", "metric": "net_income", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "132.2", "expected": "MATCH", "truth": "FY2026 net income $132.175B" },
+		{ "id": "A5", "article": "apple", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "8.89", "expected": "MISMATCH", "truth": "FY2026 diluted EPS $8.98 (digits transposed)" },
+		{ "id": "A6", "article": "apple", "metric": "revenue", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "Q4", "statedNumber": "114.5", "expected": "MATCH", "truth": "Q4 FY2026 = FY − 9M = $114.477B (derived)" },
+		{ "id": "A7", "article": "apple", "metric": "gross_profit", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "223.6", "expected": "MISMATCH", "truth": "FY2026 gross profit $233.602B" },
+
+		{ "id": "W1", "article": "walmart", "metric": "revenue", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "187.9", "expected": "MATCH", "truth": "Q2 FY2027 total revenues $187.937B (10-Q accn 0000104169-26-000154)" },
+		{ "id": "W2", "article": "walmart", "metric": "revenue", "kind": "change", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "5.9", "expected": "MATCH", "truth": "187.937 / 177.402 = +5.94%" },
+		{ "id": "W3", "article": "walmart", "metric": "net_income", "kind": "change", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "9.4", "expected": "MATCH", "truth": "6.366 / 7.026 = −9.39%" },
+		{ "id": "W4", "article": "walmart", "metric": "net_income", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "6.4", "expected": "MATCH", "truth": "net income attributable to Walmart $6.366B" },
+		{ "id": "W5", "article": "walmart", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "0.80", "expected": "MATCH", "truth": "diluted EPS $0.80" },
+		{ "id": "W6", "article": "walmart", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2026, "fiscalPeriod": "Q2", "statedNumber": "0.88", "expected": "MATCH", "truth": "Q2 FY2026 diluted EPS $0.88" },
+		{ "id": "W7", "article": "walmart", "metric": "other", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "0.68", "expected": "ABSTAIN", "truth": "adjusted EPS: not a statement line item" },
+		{ "id": "W8", "article": "walmart", "metric": "operating_income", "kind": "change", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "28.8", "expected": "MATCH", "truth": "9.383 / 7.286 = +28.78%" },
+		{ "id": "W9", "article": "walmart", "metric": "operating_income", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "Q2", "statedNumber": "9.4", "expected": "MATCH", "truth": "operating income $9.383B" },
+		{ "id": "W10", "article": "walmart", "metric": "revenue", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "H1", "statedNumber": "365.7", "expected": "MATCH", "truth": "H1 FY2027 total revenues $365.688B" },
+		{ "id": "W11", "article": "walmart", "metric": "operating_income", "kind": "level", "fiscalYear": 2027, "fiscalPeriod": "H1", "statedNumber": "19.9", "expected": "MISMATCH", "truth": "H1 FY2027 operating income $16.876B" },
+
+		{ "id": "P1", "article": "wipro", "metric": "revenue", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "89088", "expected": "MATCH", "truth": "FY2025 revenue ₹890,884 million = ₹89,088.4 crore (20-F accn 0000950170-25-076303)" },
+		{ "id": "P2", "article": "wipro", "metric": "revenue", "kind": "change", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "0.75", "expected": "MATCH", "truth": "890,884 / 897,603 = −0.75%" },
+		{ "id": "P3", "article": "wipro", "metric": "revenue", "kind": "level", "fiscalYear": 2024, "fiscalPeriod": "FY", "statedNumber": "89760", "expected": "MATCH", "truth": "FY2024 revenue ₹897,603 million = ₹89,760.3 crore" },
+		{ "id": "P4", "article": "wipro", "metric": "net_income", "kind": "change", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "18.9", "expected": "MATCH", "truth": "131,354 / 110,452 = +18.92%" },
+		{ "id": "P5", "article": "wipro", "metric": "net_income", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "13135", "expected": "MATCH", "truth": "profit attributable to owners ₹131,354 million = ₹13,135.4 crore" },
+		{ "id": "P6", "article": "wipro", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "12.52", "expected": "MATCH", "truth": "diluted EPS ₹12.52" },
+		{ "id": "P7", "article": "wipro", "metric": "operating_income", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "151271", "expected": "MISMATCH", "truth": "₹151,271 million = ₹15,127.1 crore; the article says ₹1,51,271 crore (million read as crore)" },
+		{ "id": "P8", "article": "wipro", "metric": "revenue", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "10.4", "expected": "MATCH", "truth": "USD convenience translation in the 20-F: $10.428B" },
+
+		{ "id": "I1", "article": "infosys", "metric": "revenue", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "162990", "expected": "ABSTAIN", "truth": "Infosys's 20-F is in USD only: a rupee figure cannot be compared (no exchange rate applied)" },
+		{ "id": "I2", "article": "infosys", "metric": "net_income", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "26713", "expected": "ABSTAIN", "truth": "rupee figure vs USD statements: not comparable" },
+		{ "id": "I3", "article": "infosys", "metric": "revenue", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "19.28", "expected": "MATCH", "truth": "FY2025 revenue $19.277B (20-F accn 0000950170-25-091925)" },
+		{ "id": "I4", "article": "infosys", "metric": "revenue", "kind": "change", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "3.9", "expected": "MATCH", "truth": "19.277 / 18.562 = +3.85%" },
+		{ "id": "I5", "article": "infosys", "metric": "eps_diluted", "kind": "level", "fiscalYear": 2025, "fiscalPeriod": "FY", "statedNumber": "0.76", "expected": "MATCH", "truth": "diluted EPS $0.76" },
+		{ "id": "I6", "article": "infosys", "metric": "revenue", "kind": "change", "fiscalYear": 2026, "fiscalPeriod": "FY", "statedNumber": "3", "expected": "SKIP", "truth": "guidance for the coming year" }
+	]
+}

@@ -13,8 +13,8 @@ import { MAX_CORRECTIONS } from "../domain/store.js"
 import type { Calculation } from "../domain/types.js"
 import { EV, handler, need, paragraphOf, reply, type Ctx, type EvidenceRef } from "../runtime/context.js"
 
-const INSTRUCTION = `You are the auditor. Deterministic checks have already passed: the evidence comes from 10-Q/10-K statements, matches the claim's metric, fiscal period and duration, and the comparison base is the correct period from the same filing.
-Your job is what code cannot check: does the claim interpretation faithfully represent the quoted sentence? Check metric, period, comparison basis (a basis the sentence does not state must be "unspecified"), GAAP vs adjusted, the stated number, its scale and qualifier.
+const INSTRUCTION = `You are the auditor. Deterministic checks have already passed: the evidence comes from official financial statements (SEC 10-Q/10-K/20-F/40-F, or a verified page of the company's official report), matches the claim's metric, fiscal period, duration, currency and consolidation, and the comparison base is the correct period from the same filing.
+Your job is what code cannot check: does the claim interpretation faithfully represent the quoted sentence? Check metric, period, comparison basis (a basis the sentence does not state must be "unspecified"), reported vs adjusted, the stated number, its scale (including lakh/crore) and qualifier.
 - If the interpretation misreads the sentence, call request_correction with target "claim" and say exactly what to change.
 - If the evidence is the wrong line item, call request_correction with target "evidence".
 - Otherwise call approve with a one-sentence note. A MISMATCH verdict is a valid outcome to approve — you approve the check, not the article.

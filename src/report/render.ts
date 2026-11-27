@@ -8,7 +8,8 @@ import type { CallRecord } from "../llm/runner.js"
 import type { RunResult } from "../runtime/pipeline.js"
 import { describeClaim } from "../agents/extractor.js"
 
-export const DISCLAIMER = "Not financial advice. This tool checks whether numbers in a text match a company's SEC financial statements; it does not evaluate the company or recommend any action."
+export const DISCLAIMER =
+	"Not financial advice. This tool checks whether numbers in a text match a company's official financial statements (SEC filings or the company's published report); it does not evaluate the company or recommend any action."
 
 const tty = process.stdout.isTTY && !process.env.NO_COLOR
 const c = (code: number) => (s: string) => (tty ? `\x1b[${code}m${s}\x1b[0m` : s)
@@ -20,7 +21,7 @@ const dim = c(2),
 	magenta = c(35),
 	cyan = c(36),
 	bold = c(1)
-const AGENT_COLOR: Record<string, (s: string) => string> = { Extractor: cyan, Evidence: blue, Context: magenta, Calculator: yellow, Auditor: green, Desk: dim, Supervisor: dim }
+const AGENT_COLOR: Record<string, (s: string) => string> = { Reader: cyan, Extractor: cyan, Evidence: blue, Context: magenta, Calculator: yellow, Auditor: green, Desk: dim, Supervisor: dim }
 
 export function verdictBadge(v?: string): string {
 	switch (v) {
@@ -33,7 +34,7 @@ export function verdictBadge(v?: string): string {
 		case "NOT_VERIFIABLE":
 			return yellow("? NOT VERIFIABLE")
 		case "REFERENCE_NOT_YET_FILED":
-			return yellow("⧗ NO 10-Q/10-K IN DATASET")
+			return yellow("⧗ NO STATEMENT FOR PERIOD")
 		default:
 			return dim("… pending")
 	}
@@ -84,6 +85,12 @@ export function liveLine(e: SemanticEvent, names: Map<string, string>, state: Ch
 			return `${t} ${tag} ${magenta("⟲ STALE")} ${p.reason}`
 		case "task.failed":
 			return `${t} ${tag} ${red("✘ task failed")} ${p.task}`
+		case "reference.ready":
+			return `${t} ${tag} reference ready (${p.facts} facts)`
+		case "reference.failed":
+			return `${t} ${tag} ${red("reference unavailable")}: ${p.reason}`
+		case "report.progress":
+			return `${t} ${tag} report facts verified: ${p.accepted} (proposals rejected: ${p.rejected})`
 		case "extraction.done":
 			return `${t} ${tag} extraction ${p.failed ? red("FAILED") : "finished"}`
 		default:
@@ -125,19 +132,23 @@ function receipt(claim: Claim, state: CheckerState): string {
 	out.push(`| | |`)
 	out.push(`|---|---|`)
 	out.push(`| Claim read as | ${describeClaim(i)}; stated **${calc?.statedDisplay ?? i.statedNumber}** |`)
-	if (calc?.actualDisplay) out.push(`| From the filings | **${calc.actualDisplay}** |`)
+	if (calc?.actualDisplay) out.push(`| From the ${state.referenceInfo.kind === "sec" ? "filings" : "report"} | **${calc.actualDisplay}** |`)
 	if (calc?.difference) out.push(`| Difference | ${calc.difference} |`)
 	if (calc?.toleranceRule) out.push(`| Tolerance | ${calc.toleranceRule} |`)
 	if (calc?.formula) out.push(`| Formula | \`${calc.formula}\` |`)
 	if (calc?.substituted) out.push(`| Computed | \`${calc.substituted}\` |`)
 	out.push("")
 	if (calc?.inputs.length) {
-		out.push(`**Evidence** (values resolved by id from SEC XBRL data; the model never supplies them)`)
+		out.push(`**Evidence** (values resolved by id from the reference — SEC XBRL data or verified report pages; the model never supplies them)`)
 		out.push("")
-		out.push(`| Role | Evidence id | Line item | Period | Dates | Value | Unit | Source filing |`)
+		out.push(`| Role | Evidence id | Line item | Period | Dates | Value | Unit | Source |`)
 		out.push(`|---|---|---|---|---|---|---|---|`)
 		for (const x of calc.inputs) {
-			out.push(`| ${x.role} | \`${x.evidenceId}\` | ${x.concept} | ${x.period} | ${x.start} → ${x.end} | ${fmtExact(x.value)} | ${x.unit} | [${x.form} ${x.accn}, filed ${x.filed}](${x.url})${x.derivation ? ` (derived: ${x.derivation})` : ""} |`)
+			const src = x.location
+				? `[official report p.${x.location.page}](${x.url}): row “${x.location.row}”, column “${x.location.column}”, printed ${x.location.printed} (${x.location.unitNote})`
+				: `[${x.form} ${x.accn}, filed ${x.filed}](${x.url})`
+			const cons = x.consolidation && x.consolidation !== "consolidated" ? ` (${x.consolidation})` : ""
+			out.push(`| ${x.role} | \`${x.evidenceId}\` | ${x.concept} | ${x.period} | ${x.start} → ${x.end} | ${fmtExact(x.value)} | ${x.unit}${cons} | ${src}${x.derivation ? ` (derived: ${x.derivation})` : ""} |`)
 		}
 		out.push("")
 	}
@@ -167,7 +178,7 @@ function receipt(claim: Claim, state: CheckerState): string {
 
 export function renderMarkdown(result: RunResult, meta: ReportMeta): string {
 	const { state } = result
-	const snap = state.registry.snapshot
+	const ref = state.referenceInfo
 	const claims = [...state.claims.values()]
 	const count = (v: string) => claims.filter((cl) => state.calcs.get(cl.id)?.verdict === v).length
 	const prov = provenanceSummary(meta.calls)
@@ -176,13 +187,24 @@ export function renderMarkdown(result: RunResult, meta: ReportMeta): string {
 	out.push("")
 	out.push(`> ${DISCLAIMER}`)
 	out.push("")
-	out.push(`**Company:** ${snap.entityName} (${snap.ticker}, CIK ${snap.cik}) · **Article:** \`${meta.articlePath}\``)
+	const ids = [ref.ticker, ref.cik && `CIK ${ref.cik}`].filter(Boolean).join(", ")
+	out.push(`**Company:** ${ref.entityName}${ids ? ` (${ids})` : ""} · **Article:** \`${meta.articlePath}\``)
 	out.push("")
-	out.push(`**Reference documents:** 10-Q (quarterly, unaudited) and 10-K (annual, audited) financial statements only, as XBRL facts from SEC EDGAR fetched ${snap.source.fetchedAt}. Earnings releases filed as 8-K exhibits are never used as the reference: checking a release against itself would be circular. Supported metrics: revenue, net income, gross profit, operating income, diluted and basic EPS.`)
+	if (ref.kind === "sec") {
+		out.push(
+			`**Reference documents:** financial statements filed with the SEC — 10-Q (quarterly, unaudited), 10-K (annual, audited) and, for foreign issuers, 20-F/40-F annual reports — as XBRL facts from SEC EDGAR fetched ${ref.fetchedAt}${ref.reportingCurrency ? ` (reporting currency ${ref.reportingCurrency})` : ""}. Earnings releases (8-K/6-K) are never used as the reference: checking a release against itself would be circular. Supported metrics: revenue, net income, gross profit, operating income, diluted and basic EPS.`,
+		)
+	} else {
+		const r = state.report
+		const pages = r ? [...new Set(r.accepted.map((f) => f.location?.page))].join(", ") || "none" : "none"
+		out.push(
+			`**Reference document:** ${ref.label}, fetched ${ref.fetchedAt} (${ref.note ?? ""}). Every figure used was read by the Reader agent and verified by code on its page (row, value on that row, column date, unit note, consolidated/standalone heading)${r ? `: ${r.accepted.length} facts verified on pages ${pages}, ${r.rejected.length} proposals rejected` : ""}.${r?.error ? ` **Reference unavailable:** ${r.error}.` : ""}`,
+		)
+	}
 	out.push("")
 	out.push(`| Verdict | Claims |`)
 	out.push(`|---|---|`)
-	const label: Record<string, string> = { REFERENCE_NOT_YET_FILED: `REFERENCE UNAVAILABLE IN DATASET (as of ${snap.source.fetchedAt.slice(0, 10)})` }
+	const label: Record<string, string> = { REFERENCE_NOT_YET_FILED: `REFERENCE UNAVAILABLE (${ref.kind === "sec" ? `SEC data as of ${ref.fetchedAt.slice(0, 10)}` : "not in the report"})` }
 	for (const v of ["MATCH", "MISMATCH", "NOT_COMPUTABLE", "NOT_VERIFIABLE", "REFERENCE_NOT_YET_FILED"]) out.push(`| ${label[v] ?? v.replace(/_/g, " ")} | ${count(v)} |`)
 	out.push("")
 	out.push(`| Claim | Quote | Numerical result | Context warnings | Audit |`)
@@ -209,7 +231,11 @@ export function renderMarkdown(result: RunResult, meta: ReportMeta): string {
 	}
 	if (meta.trace) out.push(`- Concurrency (measured from Mozaik loop start/end events): peak ${meta.trace.peakActive} agent loops active at once across ${meta.trace.lanes.length} loops. ${meta.trace.timingNote}`)
 	for (const cs of meta.cassettes) out.push(`- Cassette \`${cs.path}\` — provenance **${cs.provenance}**: ${cs.description}`)
-	out.push(`- SEC data: [company facts](${snap.source.companyFactsUrl}), [filing index](${snap.source.submissionsUrl}), fetched ${snap.source.fetchedAt}.`)
+	out.push(`- Reference: ${ref.sources.map((x) => (x.url ? `[${x.label}](${x.url})` : x.label)).join(", ")}, fetched ${ref.fetchedAt}.`)
+	if (state.report?.rejected.length) {
+		out.push(`- Report facts proposed by the Reader and rejected by code (${state.report.rejected.length}):`)
+		for (const r of state.report.rejected.slice(0, 40)) out.push(`  - ${JSON.stringify(r.proposed)} — ${r.reason}`)
+	}
 	out.push(`- Calculations, period/unit checks, evidence validation and revision control ran for real in this mode; only model responses are replayed when the mode is \`replay\`.`)
 	out.push(`- Stale results rejected: ${state.staleRejections.length}`)
 	for (const s of state.staleRejections) out.push(`  - ${(s.at / 1000).toFixed(2)}s ${s.detail}`)
@@ -244,8 +270,22 @@ export function toJson(result: RunResult, meta: ReportMeta) {
 	return {
 		disclaimer: DISCLAIMER,
 		article: { title: state.article!.title, path: meta.articlePath },
-		company: { ticker: state.registry.snapshot.ticker, cik: state.registry.snapshot.cik, name: state.registry.snapshot.entityName },
-		secSource: state.registry.snapshot.source,
+		company: { ticker: state.referenceInfo.ticker, cik: state.referenceInfo.cik, name: state.referenceInfo.entityName },
+		reference: state.referenceInfo,
+		secSource: state.registry?.snapshot?.source,
+		report: state.report
+			? {
+					url: state.report.doc.url,
+					fileName: state.report.doc.fileName,
+					sha256: state.report.doc.sha256,
+					pages: state.report.doc.pageCount,
+					statementPages: state.report.pages.map((p) => p.n),
+					status: state.report.status,
+					error: state.report.error,
+					verifiedFacts: state.report.accepted,
+					rejectedProposals: state.report.rejected,
+				}
+			: undefined,
 		run: { mode: meta.mode, model: meta.model, mozaik: meta.mozaikVersion, timedOut: result.timedOut, elapsedMs: result.elapsedMs, modelCalls: meta.calls, cassettes: meta.cassettes, usage: meta.usage, trace: meta.trace },
 		claims: [...state.claims.values()].map((cl) => ({
 			...cl,

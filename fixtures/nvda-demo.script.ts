@@ -43,16 +43,16 @@ const script: AuthorScript = {
 		"Hand-written model responses for the NVIDIA Q2 FY2027 demo article (not recorded model output). Includes simulated latency and two deliberate agent mistakes to exercise the auditor's correction paths.",
 	tasks: {
 		"extractor:article": [
-			call("submit_claim", claim({ quote: "Nvidia reported revenue of $96.2 billion for its fiscal second quarter of 2027", metric: "revenue", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "96.2", statedUnit: "usd", scale: "billion" })),
+			call("submit_claim", claim({ quote: "Nvidia reported revenue of $96.2 billion for its fiscal second quarter of 2027", metric: "revenue", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "96.2", statedUnit: "money", scale: "billion" })),
 			call("submit_claim", claim({ quote: "Revenue more than doubled from a year earlier", metric: "revenue", kind: "change", fiscalYear: 2027, fiscalPeriod: "Q2", comparison: "yoy", direction: "increase", statedNumber: "2", statedUnit: "multiple", qualifier: "more_than" })),
 			call("submit_claim", claim({ quote: "Revenue more than doubled from a year earlier, rising 126%", metric: "revenue", kind: "change", fiscalYear: 2027, fiscalPeriod: "Q2", comparison: "yoy", direction: "increase", statedNumber: "126", statedUnit: "percent" })),
 			call("submit_claim", C4_R1),
-			call("submit_claim", claim({ quote: "Net income climbed 18% to $59.7 billion", metric: "net_income", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "59.7", statedUnit: "usd", scale: "billion" })),
-			call("submit_claim", claim({ quote: "diluted earnings per share came in at $2.46", metric: "eps_diluted", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "2.46", statedUnit: "usd_per_share" })),
-			call("submit_claim", claim({ quote: "Excluding one-time items, adjusted net income was $54.0 billion", metric: "net_income", accounting: "non_gaap", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "54.0", statedUnit: "usd", scale: "billion" })),
-			call("submit_claim", claim({ quote: "For the first half of fiscal 2027, revenue totaled $177.8 million", metric: "revenue", kind: "level", fiscalYear: 2027, fiscalPeriod: "H1", statedNumber: "177.8", statedUnit: "usd", scale: "million" })),
-			call("submit_claim", claim({ quote: "That compares with revenue of $57.0 billion for all of fiscal 2026", metric: "revenue", kind: "level", fiscalYear: 2026, fiscalPeriod: "FY", statedNumber: "57.0", statedUnit: "usd", scale: "billion" })),
-			call("submit_claim", claim({ quote: "Last week Nvidia said third-quarter revenue reached $115.8 billion", metric: "revenue", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q3", statedNumber: "115.8", statedUnit: "usd", scale: "billion" })),
+			call("submit_claim", claim({ quote: "Net income climbed 18% to $59.7 billion", metric: "net_income", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "59.7", statedUnit: "money", scale: "billion" })),
+			call("submit_claim", claim({ quote: "diluted earnings per share came in at $2.46", metric: "eps_diluted", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "2.46", statedUnit: "per_share" })),
+			call("submit_claim", claim({ quote: "Excluding one-time items, adjusted net income was $54.0 billion", metric: "net_income", accounting: "non_gaap", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "54.0", statedUnit: "money", scale: "billion" })),
+			call("submit_claim", claim({ quote: "For the first half of fiscal 2027, revenue totaled $177.8 million", metric: "revenue", kind: "level", fiscalYear: 2027, fiscalPeriod: "H1", statedNumber: "177.8", statedUnit: "money", scale: "million" })),
+			call("submit_claim", claim({ quote: "That compares with revenue of $57.0 billion for all of fiscal 2026", metric: "revenue", kind: "level", fiscalYear: 2026, fiscalPeriod: "FY", statedNumber: "57.0", statedUnit: "money", scale: "billion" })),
+			call("submit_claim", claim({ quote: "Last week Nvidia said third-quarter revenue reached $115.8 billion", metric: "revenue", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q3", statedNumber: "115.8", statedUnit: "money", scale: "billion" })),
 			say("Submitted 10 claims."),
 		],
 

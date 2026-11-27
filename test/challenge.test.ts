@@ -14,7 +14,7 @@ import demo from "../fixtures/nvda-demo.script.js"
 const call = (name: string, args: Record<string, unknown>): ScriptTurn => ({ call: { name, args } })
 const say = (text: string): ScriptTurn => ({ say: text })
 
-const C1 = { quote: "Nvidia reported revenue of $96.2 billion for its fiscal second quarter of 2027", metric: "revenue", accounting: "unspecified", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "96.2", statedUnit: "usd", scale: "billion" }
+const C1 = { quote: "Nvidia reported revenue of $96.2 billion for its fiscal second quarter of 2027", metric: "revenue", accounting: "unspecified", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "96.2", statedUnit: "money", scale: "billion" }
 
 // The demo script plus scripted answers for the two rechecks (stands in for the live model).
 const script: AuthorScript = {
@@ -27,7 +27,7 @@ const script: AuthorScript = {
 		"auditor:c1@r2.e2": [call("approve", { claimId: "c1", claimRevision: 2, evidenceRevision: 2, note: "approximate reading confirmed" }), say("done")],
 		"extractor-fix:c9@r1": [say('The sentence says "all of fiscal 2026"; the full-year reading is right.')],
 		// a reviewer trying to make the units error disappear: the anchoring guard rejects it
-		"extractor-fix:c8@r1": [call("revise_claim", { claimId: "c8", fromRevision: 1, reason: "reviewer says billion", quote: "For the first half of fiscal 2027, revenue totaled $177.8 million", metric: "revenue", accounting: "unspecified", kind: "level", fiscalYear: 2027, fiscalPeriod: "H1", statedNumber: "177.8", statedUnit: "usd", scale: "billion", qualifier: "exact" }), say("done")],
+		"extractor-fix:c8@r1": [call("revise_claim", { claimId: "c8", fromRevision: 1, reason: "reviewer says billion", quote: "For the first half of fiscal 2027, revenue totaled $177.8 million", metric: "revenue", accounting: "unspecified", kind: "level", fiscalYear: 2027, fiscalPeriod: "H1", statedNumber: "177.8", statedUnit: "money", scale: "billion", qualifier: "exact" }), say("done")],
 	},
 }
 

@@ -2,8 +2,10 @@ import type { FiscalPeriod } from "../sec/evidence.js"
 
 export type Metric = "revenue" | "net_income" | "gross_profit" | "operating_income" | "eps_diluted" | "eps_basic" | "other"
 export type Accounting = "gaap" | "non_gaap" | "unspecified"
-export type Scale = "units" | "thousand" | "million" | "billion" | "trillion"
-export type StatedUnit = "usd" | "usd_per_share" | "percent" | "multiple"
+export type Scale = "units" | "thousand" | "lakh" | "million" | "crore" | "billion" | "trillion" | "lakh_crore"
+/** money = an amount in a currency; per_share = an amount per share (EPS). */
+export type StatedUnit = "money" | "per_share" | "percent" | "multiple"
+export type ClaimConsolidation = "consolidated" | "standalone" | "unspecified"
 export type Qualifier = "exact" | "about" | "more_than" | "less_than" | "at_least"
 
 /** What the extractor says a sentence claims. Everything the calculator needs, nothing it computes. */
@@ -23,6 +25,10 @@ export type ClaimInterpretation = {
 	statedUnit: StatedUnit
 	scale: Scale
 	qualifier: Qualifier
+	/** ISO currency the article states for this amount ("₹" → INR, "US$" → USD), read by code from the quote; "unspecified" when it states none. */
+	currency?: string
+	/** Read by code from the sentence ("standalone net profit"); "unspecified" when it does not say. */
+	consolidation?: ClaimConsolidation
 }
 
 export type Claim = {
@@ -63,6 +69,9 @@ export type CalcInput = {
 	filed: string
 	url: string
 	derivation?: string
+	currency?: string
+	consolidation?: string
+	location?: { page: number; row: string; column: string; printed: string; unitNote: string }
 }
 
 export type Calculation = {

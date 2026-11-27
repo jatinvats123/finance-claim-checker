@@ -18,7 +18,7 @@ const interp = (o: Partial<ClaimInterpretation> = {}): ClaimInterpretation => ({
 	fiscalYear: 2027,
 	fiscalPeriod: "Q2",
 	statedNumber: "96.2",
-	statedUnit: "usd",
+	statedUnit: "money",
 	scale: "billion",
 	qualifier: "exact",
 	...o,

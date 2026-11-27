@@ -30,7 +30,7 @@ export type Trace = {
 	totalMs: number
 }
 
-const AGENT: Record<AgentRole, string> = { extractor: "Extractor", "extractor-fix": "Extractor", evidence: "Evidence", context: "Context", auditor: "Auditor" }
+const AGENT: Record<AgentRole, string> = { reader: "Reader", extractor: "Extractor", "extractor-fix": "Extractor", evidence: "Evidence", context: "Context", auditor: "Auditor" }
 export const agentOf = (role: AgentRole) => AGENT[role]
 
 export class LaneTracer {

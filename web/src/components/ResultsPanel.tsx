@@ -64,7 +64,7 @@ export function ResultsPanel({ run, selectedId, onSelect, onLocate }: Props) {
 			<ol className="cards" aria-label="Claims, in article order">
 				{shown.map((c) => (
 					<li key={c.id}>
-						<ClaimCard claim={c} selected={c.id === selectedId} snapshot={run.snapshotFetchedAt} onSelect={onSelect} onLocate={onLocate} />
+						<ClaimCard claim={c} selected={c.id === selectedId} snapshot={run.snapshotFetchedAt} refLabel={run.reference.kind === "sec" ? "Filings" : "Report"} onSelect={onSelect} onLocate={onLocate} />
 					</li>
 				))}
 			</ol>
@@ -82,7 +82,7 @@ function SummaryItem({ n, label, tone }: { n: number; label: string; tone: strin
 	)
 }
 
-function ClaimCard({ claim: c, selected, snapshot, onSelect, onLocate }: { claim: ClaimView; selected: boolean; snapshot: string; onSelect: (id: string) => void; onLocate: (id: string) => void }) {
+function ClaimCard({ claim: c, selected, snapshot, refLabel, onSelect, onLocate }: { claim: ClaimView; selected: boolean; snapshot: string; refLabel: string; onSelect: (id: string) => void; onLocate: (id: string) => void }) {
 	return (
 		<article className={`card${selected ? " is-selected" : ""}`} aria-labelledby={`card-${c.id}`}>
 			<button className="card-main" onClick={() => onSelect(c.id)} aria-pressed={selected} aria-describedby={`card-${c.id}-quote`}>
@@ -105,11 +105,11 @@ function ClaimCard({ claim: c, selected, snapshot, onSelect, onLocate }: { claim
 							<span className="fig-label">Article</span> <span className="fig num">{c.calc.statedDisplay}</span>
 						</span>
 						<span>
-							<span className="fig-label">Filings</span> <span className="fig num">{c.calc.actualDisplay}</span>
+							<span className="fig-label">{refLabel}</span> <span className="fig num">{c.calc.actualDisplay}</span>
 						</span>
 					</span>
 				) : c.verdict === "REFERENCE_NOT_YET_FILED" ? (
-					<span className="card-note">No 10-Q/10-K for {c.periodLabel} in SEC data fetched {fmtDate(snapshot)}. A filing may exist now.</span>
+					<span className="card-note">No statement for {c.periodLabel} in the reference (fetched {fmtDate(snapshot)}).</span>
 				) : c.verdict === "NOT_VERIFIABLE" ? (
 					<span className="card-note">Article states {c.statedDisplay}. Adjusted figures are not in the financial statements.</span>
 				) : c.verdict === "NOT_COMPUTABLE" ? (

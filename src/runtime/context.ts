@@ -14,6 +14,10 @@ import type { AgentRole, TaskTracker } from "./tasks.js"
 /** Custom semantic events the participants publish and react to. */
 export const EV = {
 	ARTICLE_SUBMITTED: "article.submitted",
+	/** The reference (SEC statements, or an official report verified by the Reader) is ready for evidence search. */
+	REFERENCE_READY: "reference.ready",
+	REFERENCE_FAILED: "reference.failed",
+	REPORT_PROGRESS: "report.progress",
 	CLAIM_REVISED: "claim.revised",
 	EXTRACTION_DONE: "extraction.done",
 	EVIDENCE_BOUND: "evidence.bound",

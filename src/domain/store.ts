@@ -7,8 +7,22 @@
  * Revising one claim never touches another claim's results.
  */
 import { RuntimeState } from "@mozaik-ai/core"
-import type { EvidenceRegistry } from "../sec/evidence.js"
+import type { PdfPage, ReportDoc } from "../docs/pdf.js"
+import type { EvidenceRegistry, RawFact, ReferenceInfo } from "../sec/evidence.js"
 import type { AuditState, Calculation, Claim, ClaimInterpretation, ContextWarning, EvidenceBinding } from "./types.js"
+
+/** An official report being read for this run: facts are added only after code verified them on their page. */
+export type ReportState = {
+	doc: ReportDoc
+	info: ReferenceInfo
+	pages: PdfPage[]
+	basis: string
+	docCurrency?: string
+	accepted: RawFact[]
+	rejected: { proposed: unknown; reason: string }[]
+	status: "reading" | "ready" | "failed"
+	error?: string
+}
 
 export type Accepted<T> = { ok: true; value: T }
 export type Rejected = { ok: false; stale: boolean; reason: string }
@@ -19,7 +33,11 @@ export type HistoryEntry = { at: number; claimId?: string; kind: string; detail:
 export const MAX_CORRECTIONS = 2
 
 export class CheckerState extends RuntimeState {
+	/** Set when the reference is ready (immediately for SEC data; after the Reader for a report). */
 	registry!: EvidenceRegistry
+	/** What the run checks against, known from the start (company, source, fetch date). */
+	referenceInfo!: ReferenceInfo
+	report?: ReportState
 	article?: { title: string; text: string; ticker: string }
 	readonly claims = new Map<string, Claim>()
 	readonly bindings = new Map<string, EvidenceBinding>()

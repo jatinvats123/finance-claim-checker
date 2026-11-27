@@ -1,0 +1,364 @@
+{
+  "summary": {
+    "source": "replay of data/replay/recordings/ (genuine model responses recorded earlier)",
+    "extractionCoverage": "28/28 (100%)",
+    "verdictCorrectWhenExtracted": "28/28 (100%)",
+    "endToEndCorrect": "28/28 (100%)",
+    "abstentionsOnCheckableClaims": "0/28",
+    "unsupportedClaimsHandledCorrectly": "3/3",
+    "forecastsCorrectlySkipped": "1/1",
+    "extractedButNotFullyReviewed": "1/28",
+    "spuriousExtractions": 0,
+    "runFailures": "0/5"
+  },
+  "rows": [
+    {
+      "id": "A1",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c1",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "FY2026 revenue $478.834B (10-K accn 0000320193-26-000026)"
+    },
+    {
+      "id": "A2",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c2",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "478.834 / 416.161 = +15.06%"
+    },
+    {
+      "id": "A3",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c3",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "FY2025 revenue $416.161B"
+    },
+    {
+      "id": "A4",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c4",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "FY2026 net income $132.175B"
+    },
+    {
+      "id": "A5",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c5",
+      "verdict": "MISMATCH",
+      "review": "reviewed",
+      "truth": "FY2026 diluted EPS $8.98 (digits transposed)"
+    },
+    {
+      "id": "A6",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c6",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q4 FY2026 = FY − 9M = $114.477B (derived)"
+    },
+    {
+      "id": "A7",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c7",
+      "verdict": "MISMATCH",
+      "review": "reviewed",
+      "truth": "FY2026 gross profit $233.602B"
+    },
+    {
+      "id": "W1",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c1",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q2 FY2027 total revenues $187.937B (10-Q accn 0000104169-26-000154)"
+    },
+    {
+      "id": "W2",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c2",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "187.937 / 177.402 = +5.94%"
+    },
+    {
+      "id": "W3",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c3",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "6.366 / 7.026 = −9.39%"
+    },
+    {
+      "id": "W4",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c4",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "net income attributable to Walmart $6.366B"
+    },
+    {
+      "id": "W5",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c5",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "diluted EPS $0.80"
+    },
+    {
+      "id": "W6",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c6",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "Q2 FY2026 diluted EPS $0.88"
+    },
+    {
+      "id": "W7",
+      "expected": "ABSTAIN",
+      "outcome": "extracted → NOT_VERIFIABLE",
+      "correct": true,
+      "claimId": "c7",
+      "verdict": "NOT_VERIFIABLE",
+      "review": "reviewed",
+      "truth": "adjusted EPS: not a statement line item"
+    },
+    {
+      "id": "W8",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c8",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "9.383 / 7.286 = +28.78%"
+    },
+    {
+      "id": "W9",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c9",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "operating income $9.383B"
+    },
+    {
+      "id": "W10",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c10",
+      "verdict": "MATCH",
+      "review": "not fully reviewed (failed)",
+      "truth": "H1 FY2027 total revenues $365.688B"
+    },
+    {
+      "id": "W11",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c11",
+      "verdict": "MISMATCH",
+      "review": "reviewed",
+      "truth": "H1 FY2027 operating income $16.876B"
+    },
+    {
+      "id": "P1",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c1",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "FY2025 revenue ₹890,884 million = ₹89,088.4 crore (20-F accn 0000950170-25-076303)"
+    },
+    {
+      "id": "P2",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c2",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "890,884 / 897,603 = −0.75%"
+    },
+    {
+      "id": "P3",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c3",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "FY2024 revenue ₹897,603 million = ₹89,760.3 crore"
+    },
+    {
+      "id": "P4",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c4",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "131,354 / 110,452 = +18.92%"
+    },
+    {
+      "id": "P5",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c5",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "profit attributable to owners ₹131,354 million = ₹13,135.4 crore"
+    },
+    {
+      "id": "P6",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c6",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "diluted EPS ₹12.52"
+    },
+    {
+      "id": "P7",
+      "expected": "MISMATCH",
+      "outcome": "MISMATCH",
+      "correct": true,
+      "claimId": "c7",
+      "verdict": "MISMATCH",
+      "review": "reviewed",
+      "truth": "₹151,271 million = ₹15,127.1 crore; the article says ₹1,51,271 crore (million read as crore)"
+    },
+    {
+      "id": "P8",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c8",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "USD convenience translation in the 20-F: $10.428B"
+    },
+    {
+      "id": "I1",
+      "expected": "ABSTAIN",
+      "outcome": "extracted → NOT_COMPUTABLE",
+      "correct": true,
+      "claimId": "c1",
+      "verdict": "NOT_COMPUTABLE",
+      "review": "reviewed",
+      "truth": "Infosys's 20-F is in USD only: a rupee figure cannot be compared (no exchange rate applied)"
+    },
+    {
+      "id": "I2",
+      "expected": "ABSTAIN",
+      "outcome": "extracted → NOT_COMPUTABLE",
+      "correct": true,
+      "claimId": "c2",
+      "verdict": "NOT_COMPUTABLE",
+      "review": "reviewed",
+      "truth": "rupee figure vs USD statements: not comparable"
+    },
+    {
+      "id": "I3",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c3",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "FY2025 revenue $19.277B (20-F accn 0000950170-25-091925)"
+    },
+    {
+      "id": "I4",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c4",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "19.277 / 18.562 = +3.85%"
+    },
+    {
+      "id": "I5",
+      "expected": "MATCH",
+      "outcome": "MATCH",
+      "correct": true,
+      "claimId": "c5",
+      "verdict": "MATCH",
+      "review": "reviewed",
+      "truth": "diluted EPS $0.76"
+    },
+    {
+      "id": "I6",
+      "expected": "SKIP",
+      "outcome": "skipped",
+      "correct": true,
+      "truth": "guidance for the coming year"
+    }
+  ],
+  "spurious": [],
+  "runs": {
+    "apple": {
+      "status": "done",
+      "calls": {
+        "recorded": 70
+      }
+    },
+    "walmart": {
+      "status": "done",
+      "calls": {
+        "recorded": 85,
+        "cache-miss": 3
+      }
+    },
+    "wipro": {
+      "status": "done",
+      "calls": {
+        "recorded": 64
+      }
+    },
+    "infosys": {
+      "status": "done",
+      "calls": {
+        "recorded": 48
+      }
+    },
+    "zentrix": {
+      "status": "reference error COMPANY_NOT_FOUND (expected): No SEC filer is named in the article. Enter the company name or ticker, or provide its official financial report (PDF)."
+    }
+  }
+}

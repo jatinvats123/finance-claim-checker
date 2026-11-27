@@ -333,8 +333,13 @@ export class CheckerRunner implements InferenceRunner {
  * exported in 6.0.0, so obtain the runner the runtime itself would build, via public API only.
  * Google models use our signature-preserving Gemini mapper (see gemini.ts); everything else is stock.
  */
+export const EXTRA_GEMINI_MODELS = ["gemini-3.1-flash-lite"]
+
 function mozaikDefaultRunner(): InferenceRunner {
 	class Throwaway extends RuntimeState {}
 	const models = supportedModels.map((m) => (m.specification.provider === "google" ? { ...m, endpoint: geminiEndpoint() } : m))
+	// Gemini models Mozaik 6.0.0 does not list, with the same capability spec as gemini-3.5-flash-lite (same API family)
+	const lite = models.find((m) => m.specification.name === "gemini-3.5-flash-lite")
+	if (lite) for (const name of EXTRA_GEMINI_MODELS) if (!models.some((m) => m.specification.name === name)) models.push({ ...lite, specification: { ...lite.specification, name } })
 	return defineRuntime<Throwaway>().initializeRuntime({ state: new Throwaway(), inferenceRunnerConfig: { supportedModels: models } }).getInferenceRunner()
 }

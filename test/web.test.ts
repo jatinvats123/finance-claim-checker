@@ -9,6 +9,9 @@ import { readArticle } from "../src/article.js"
 import { CheckerState } from "../src/domain/store.js"
 import { CheckerRunner, type AuthorScript } from "../src/llm/runner.js"
 import { loadSnapshot } from "../src/sec/edgar.js"
+import { loadCompanyIndex } from "../src/company/companies.js"
+
+const companyIndex = loadCompanyIndex()
 import { EvidenceRegistry } from "../src/sec/evidence.js"
 import { createApp, EXAMPLE_ARTICLE } from "../src/web/server.js"
 import type { MetaView, RunView } from "../src/web/types.js"
@@ -37,7 +40,7 @@ async function stream(base: string, id: string): Promise<RunView[]> {
 }
 
 describe("web API with the included example (keyless)", () => {
-	const app = createApp({ staticDir: "test/__no_build__" })
+	const app = createApp({ companyIndex, staticDir: "test/__no_build__" })
 	let base = ""
 	let final: RunView
 	let snapshots: RunView[]
@@ -101,7 +104,7 @@ describe("web API with the included example (keyless)", () => {
 			["c9", "MISMATCH"],
 			["c10", "REFERENCE_NOT_YET_FILED"],
 		])
-		expect(final.claims.find((c) => c.id === "c10")!.verdictLabel).toBe("Reference unavailable in this dataset")
+		expect(final.claims.find((c) => c.id === "c10")!.verdictLabel).toBe("No statement for this period in the reference")
 		expect(final.summary).toMatchObject({ match: 4, mismatch: 4, notVerifiable: 1, referenceUnavailable: 1, reviewComplete: 10, reviewIncomplete: 0 })
 		// claim cards never disappear or reorder between snapshots
 		for (let i = 1; i < snapshots.length; i++) {
@@ -201,7 +204,7 @@ describe("web API with the included example (keyless)", () => {
 
 describe("genuine recording replay", () => {
 	it("replays only the recorded model run, labelled as recorded, with no fixture fallback", async () => {
-		const app = createApp({ replaySpeed: 1000 })
+		const app = createApp({ companyIndex, replaySpeed: 1000 })
 		const base = await listen(app)
 		const meta = (await (await fetch(`${base}/api/meta`)).json()) as MetaView
 		const rec = meta.replayOptions.find((o) => o.id === "recorded")!
@@ -220,7 +223,7 @@ describe("genuine recording replay", () => {
 
 describe("custom articles", () => {
 	it("an edited article in replay mode is an explicit cache miss", async () => {
-		const app = createApp()
+		const app = createApp({ companyIndex })
 		const base = await listen(app)
 		const ex = readArticle(EXAMPLE_ARTICLE)
 		const { body } = await post(base, { source: "custom", mode: "replay", title: ex.title, text: ex.text + " Shares rose 5%." })
@@ -234,10 +237,10 @@ describe("custom articles", () => {
 
 	it("bounds public load: replay runs are capped, live runs run one at a time", async () => {
 		const hang: InferenceRunner = { run: () => new Promise(() => undefined), stream: () => { throw new Error("unused") } }
-		const app = createApp({ env: { ANTHROPIC_API_KEY: "test-placeholder" }, liveInner: () => hang, maxReplayRuns: 1, timeoutMs: 3_000 })
+		const app = createApp({ companyIndex, env: { ANTHROPIC_API_KEY: "test-placeholder" }, liveInner: () => hang, maxReplayRuns: 1, timeoutMs: 3_000 })
 		const base = await listen(app)
-		const live1 = await post(base, { source: "custom", mode: "live", title: "t", text: "Revenue rose 5%." })
-		const live2 = await post(base, { source: "custom", mode: "live", title: "t", text: "Revenue rose 6%." })
+		const live1 = await post(base, { source: "custom", mode: "live", title: "t", text: "Nvidia said revenue rose 5%." })
+		const live2 = await post(base, { source: "custom", mode: "live", title: "t", text: "Nvidia said revenue rose 6%." })
 		expect(live1.status).toBe(202)
 		expect(live2.status).toBe(429)
 		expect(live2.body.code).toBe("LIVE_BUSY")
@@ -253,9 +256,9 @@ describe("custom articles", () => {
 	}, 30_000)
 
 	it("live mode without a provider key explains the configuration", async () => {
-		const app = createApp({ env: {} })
+		const app = createApp({ companyIndex, env: {} })
 		const base = await listen(app)
-		const r = await post(base, { source: "custom", mode: "live", title: "t", text: "Revenue rose 5%." })
+		const r = await post(base, { source: "custom", mode: "live", title: "t", text: "Nvidia said revenue rose 5%." })
 		expect(r.status).toBe(400)
 		expect(r.body.code).toBe("LIVE_NOT_CONFIGURED")
 		expect(r.body.error).toMatch(/ANTHROPIC_API_KEY.*\.env/)
@@ -265,6 +268,7 @@ describe("custom articles", () => {
 	it("failed audits and context reviews are never shown as fully reviewed", async () => {
 		const failing = new Set(["auditor:c1@r1.e1", "context:c2@r1"])
 		const app = createApp({
+			companyIndex,
 			env: { ANTHROPIC_API_KEY: "test-placeholder" },
 			liveInner: (tasks) => {
 				const scripted = new CheckerRunner({ mode: "author", tasks, script: script as AuthorScript })
@@ -301,9 +305,84 @@ describe("custom articles", () => {
 	}, 30_000)
 })
 
+describe("company-independent custom articles", () => {
+	const resolve = async (base: string, body: unknown) => {
+		const r = await fetch(`${base}/api/resolve`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+		return (await r.json()) as any
+	}
+
+	it("identifies the company and previews its reference before any run; asks when ambiguous", async () => {
+		const app = createApp({ companyIndex })
+		const base = await listen(app)
+		const apple = await resolve(base, { title: "Apple's year", text: "Apple reported revenue of $478.8 billion for fiscal 2026.", mode: "replay" })
+		expect(apple.resolution).toMatchObject({ status: "resolved", company: { name: "Apple Inc." } })
+		expect(apple.reference).toMatchObject({ kind: "sec", ticker: "AAPL", source: "committed", reportingCurrency: "USD" })
+		expect(apple.reference.latest).toMatch(/^FY-FY2026 \(10-K/)
+		const wipro = await resolve(base, { title: "", text: "Wipro posted revenue of ₹89,088 crore.", mode: "replay" })
+		expect(wipro.reference).toMatchObject({ kind: "sec", reportingCurrency: "INR", forms: ["20-F"] })
+		const two = await resolve(base, { title: "Microsoft and Apple", text: "Microsoft said revenue grew. Apple said sales fell. Microsoft again.", mode: "replay" })
+		expect(two.resolution.status).toBe("ambiguous")
+		const picked = await resolve(base, { title: "", text: "anything at all about results", company: { cik: "320193" }, mode: "replay" })
+		expect(picked.resolution).toMatchObject({ status: "resolved", company: { tickers: ["AAPL"] } })
+		const search = (await (await fetch(`${base}/api/companies?q=walmart`)).json()) as any
+		expect(search.candidates[0]).toMatchObject({ name: "Walmart Inc." })
+		app.server.close()
+	})
+
+	it("never checks against another company's data: unknown and ambiguous companies stop with a reason", async () => {
+		const app = createApp({ companyIndex })
+		const base = await listen(app)
+		const unknown = await post(base, { source: "custom", mode: "replay", title: "", text: "Zentrix Robotics, a private robot maker, said revenue doubled to $40 million." })
+		expect(unknown.status).toBe(404)
+		expect(unknown.body).toMatchObject({ code: "COMPANY_NOT_FOUND", needsReport: true })
+		const ambiguous = await post(base, { source: "custom", mode: "replay", title: "Microsoft and Apple", text: "Microsoft said revenue grew. Apple said sales fell. Microsoft again." })
+		expect(ambiguous.status).toBe(409)
+		expect(ambiguous.body.code).toBe("COMPANY_AMBIGUOUS")
+		expect(ambiguous.body.candidates.length).toBeGreaterThan(1)
+		// a public server never fetches private or local addresses as "reports"
+		const local = await post(base, { source: "custom", mode: "replay", title: "", text: "TestCo revenue was Rs 5 crore.", company: { name: "TestCo" }, report: { url: "http://localhost:8080/secret.pdf" } })
+		expect(local.status).toBe(422)
+		expect(local.body.code).toBe("REPORT_URL_REJECTED")
+		const notPdf = await post(base, { source: "custom", mode: "replay", title: "", text: "TestCo revenue was Rs 5 crore.", company: { name: "TestCo" }, report: { file: { name: "x.pdf", base64: Buffer.from("<html>not a pdf</html>").toString("base64") } } })
+		expect(notPdf.status).toBe(422)
+		expect(notPdf.body.code).toBe("REPORT_NOT_PDF")
+		app.server.close()
+	})
+
+	it("a fresh sample article replays its genuine recording against its own company's statements", async () => {
+		const app = createApp({ companyIndex, replaySpeed: 1000 })
+		const base = await listen(app)
+		const meta = (await (await fetch(`${base}/api/meta`)).json()) as MetaView
+		const apple = meta.samples.find((s) => s.id === "apple")!
+		expect(apple.text).toMatch(/Apple reported revenue/)
+		const { status, body } = await post(base, { source: "custom", mode: "replay", title: apple.title, text: apple.text })
+		expect(status).toBe(202)
+		const final = (await stream(base, body.id)).at(-1)!
+		expect(final.reference).toMatchObject({ kind: "sec", entityName: "Apple Inc.", ticker: "AAPL" })
+		if (final.status === "cache_miss") return app.server.close() // no recording of this sample in this checkout
+		expect(final.status).toBe("done")
+		expect(final.provenance.kind).toBe("recorded")
+		expect(final.claims.find((c) => c.statedDisplay === "$8.89 per share")?.verdict).toBe("MISMATCH")
+		expect(final.claims.every((c) => c.review.status === "complete")).toBe(true)
+		app.server.close()
+	}, 60_000)
+
+	it("a custom article about another company runs against that company's statements (cache miss without a recording)", async () => {
+		const app = createApp({ companyIndex })
+		const base = await listen(app)
+		const { status, body } = await post(base, { source: "custom", mode: "replay", title: "Walmart quarter", text: "Walmart Inc. (NYSE: WMT) reported total revenue of $187.9 billion for the second quarter of fiscal 2027. Shares rose." })
+		expect(status).toBe(202)
+		const final = (await stream(base, body.id)).at(-1)!
+		expect(final.reference).toMatchObject({ kind: "sec", entityName: "Walmart Inc.", ticker: "WMT" })
+		expect(final.company.name).toBe("Walmart Inc.")
+		expect(["cache_miss", "done"]).toContain(final.status)
+		app.server.close()
+	})
+})
+
 describe("view model", () => {
 	const registry = new EvidenceRegistry(loadSnapshot("NVDA"))
-	const interp = { quote: "revenue of $96.2 billion", metric: "revenue", accounting: "unspecified", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "96.2", statedUnit: "usd", scale: "billion", qualifier: "exact" } as const
+	const interp = { quote: "revenue of $96.2 billion", metric: "revenue", accounting: "unspecified", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "96.2", statedUnit: "money", scale: "billion", qualifier: "exact" } as const
 
 	function stateWith(text: string) {
 		const s = new CheckerState()

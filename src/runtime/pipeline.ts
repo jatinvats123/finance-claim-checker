@@ -13,16 +13,37 @@ import { createCalculator } from "../agents/calculator.js"
 import { createContextAgent } from "../agents/context-agent.js"
 import { createEvidenceAgent } from "../agents/evidence-agent.js"
 import { createExtractor } from "../agents/extractor.js"
+import { createReader } from "../agents/reader.js"
+import type { ReportDoc } from "../docs/pdf.js"
+import { documentBasis, documentCurrency, selectStatementPages } from "../docs/verify.js"
 import { CheckerState } from "../domain/store.js"
 import type { InferenceRunner, SemanticEvent } from "@mozaik-ai/core"
-import { EvidenceRegistry } from "../sec/evidence.js"
+import { EvidenceRegistry, type ReferenceInfo } from "../sec/evidence.js"
 import type { SecSnapshot } from "../sec/types.js"
 import { AnyEvent, EV, handler, makeCtx } from "./context.js"
 import { TaskTracker, type Task } from "./tasks.js"
 
+/** An official report (PDF) to check against, for a company without usable SEC data. */
+export type PreparedReport = { doc: ReportDoc; company: { name: string; ticker?: string } }
+
+export function reportInfo(r: PreparedReport): ReferenceInfo {
+	const where = r.doc.url ?? (r.doc.fileName ? `uploaded file "${r.doc.fileName}"` : "uploaded PDF")
+	return {
+		kind: "report",
+		entityName: r.company.name,
+		ticker: r.company.ticker,
+		fetchedAt: r.doc.fetchedAt,
+		label: `Official report (PDF): ${where}`,
+		sources: [{ label: r.doc.url ? "Report PDF" : `Uploaded PDF (sha256 ${r.doc.sha256.slice(0, 12)}…)${r.doc.statedSourceUrl ? `, stated source ${r.doc.statedSourceUrl} (not fetched)` : ""}`, url: r.doc.url ?? r.doc.statedSourceUrl ?? "" }],
+		note: `${r.doc.pageCount} pages, ${(r.doc.bytes / 1e6).toFixed(2)} MB, sha256 ${r.doc.sha256}`,
+	}
+}
+
 export type RunOptions = {
 	article: { title: string; text: string; ticker: string }
-	snapshot: SecSnapshot
+	/** Reference: SEC data for the company, or an official report. Exactly one. */
+	snapshot?: SecSnapshot
+	report?: PreparedReport
 	runner: InferenceRunner
 	tasks: TaskTracker
 	model: string
@@ -45,7 +66,14 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 	const t0 = Date.now()
 	const rt = defineRuntime<CheckerState>()
 	const state = new CheckerState()
-	state.registry = new EvidenceRegistry(opts.snapshot)
+	if (opts.snapshot) {
+		state.registry = new EvidenceRegistry(opts.snapshot)
+		state.referenceInfo = state.registry.info
+	} else if (opts.report) {
+		const doc = opts.report.doc
+		state.referenceInfo = reportInfo(opts.report)
+		state.report = { doc, info: state.referenceInfo, pages: selectStatementPages(doc), basis: documentBasis(doc), docCurrency: documentCurrency(doc), accepted: [], rejected: [], status: "reading" }
+	} else throw new Error("runChecker needs a reference: snapshot (SEC) or report")
 	state.article = opts.article
 	rt.initializeRuntime({ state, inferenceRunnerConfig: { runner: opts.runner } })
 	const ctx = makeCtx(rt, state, opts.tasks, opts.model)
@@ -80,6 +108,26 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 		const fail = task.failure ? `${task.failure.kind}: ${task.failure.message}` : undefined
 		const { claimId, claimRevision } = task
 		switch (task.role) {
+			case "reader": {
+				const r = state.report!
+				if (!fail && r.accepted.length) {
+					state.registry = new EvidenceRegistry({ kind: "report", info: r.info, facts: r.accepted })
+					const labelled = state.registry.all().filter((f) => !f.derivation).length
+					if (labelled) {
+						r.status = "ready"
+						state.log("reference.ready", `${labelled} facts verified on pages ${[...new Set(r.accepted.map((f) => f.location?.page))].join(", ")} (${r.rejected.length} proposals rejected)`)
+						ctx.emit(EV.REFERENCE_READY, ctx.deskId, { facts: labelled })
+						break
+					}
+				}
+				r.status = "failed"
+				r.error = fail ?? (r.accepted.length ? "verified facts could not be placed in a fiscal year (the report has no annual column)" : `no figure could be verified on the report's statement pages (${r.rejected.length} proposals rejected)`)
+				state.extraction = "failed"
+				state.extractionError = fail ?? `REFERENCE_UNAVAILABLE: ${r.error}`
+				state.log("reference.failed", r.error)
+				ctx.emit(EV.REFERENCE_FAILED, ctx.deskId, { reason: r.error })
+				break
+			}
 			case "extractor":
 				state.extraction = fail ? "failed" : "done"
 				state.extractionError = fail
@@ -149,14 +197,25 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 	const desk = createHuman({ name: "Desk", capabilities: ["submits-articles"], handlers: [] })
 	ctx.deskId = desk.getId()
 
-	const participants = [supervisor, desk, createExtractor(ctx), createEvidenceAgent(ctx), createContextAgent(ctx), createCalculator(ctx), createAuditor(ctx)]
+	const participants = [supervisor, desk, createReader(ctx), createExtractor(ctx), createEvidenceAgent(ctx), createContextAgent(ctx), createCalculator(ctx), createAuditor(ctx)]
 	for (const p of participants) {
 		names.set(p.getId(), p.getManifest().name)
 		rt.join(p)
 	}
 
 	const done = waitSettled(opts.timeoutMs ?? 10 * 60_000)
-	ctx.emit(EV.ARTICLE_SUBMITTED, desk.getId(), { title: opts.article.title, ticker: opts.article.ticker })
+	if (state.report && !state.report.pages.length) {
+		// nothing that looks like a financial statement: say so instead of asking a model to guess
+		state.report.status = "failed"
+		state.report.error = `no financial-statement page (revenue, profit and EPS rows with a unit note and column dates) was found in the ${state.report.doc.pageCount}-page report`
+		state.extraction = "failed"
+		state.extractionError = `REFERENCE_UNAVAILABLE: ${state.report.error}`
+		state.log("reference.failed", state.report.error)
+		ctx.emit(EV.REFERENCE_FAILED, desk.getId(), { reason: state.report.error })
+	} else {
+		ctx.emit(EV.ARTICLE_SUBMITTED, desk.getId(), { title: opts.article.title, ticker: opts.article.ticker })
+		if (!state.report) ctx.emit(EV.REFERENCE_READY, desk.getId(), { facts: state.registry.all().length })
+	}
 	const timedOut = await done
 
 	/** Reviewer challenge: reopen one settled claim, let the extractor answer, re-run only that claim's work. */

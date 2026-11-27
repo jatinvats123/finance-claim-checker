@@ -6,10 +6,16 @@ import type { EvidenceFact } from "../src/sec/evidence.js"
 const meta = { claimId: "c1", claimRevision: 1, evidenceRevision: 1 }
 
 function fact(value: number, o: Partial<EvidenceFact> = {}): EvidenceFact {
+	const unit = o.unit ?? "USD"
 	return {
 		id: o.id ?? `X/${value}`,
 		concept: "us-gaap:Revenues",
-		unit: "USD",
+		unit,
+		currency: unit.slice(0, 3),
+		perShare: unit.endsWith("/shares"),
+		consolidation: "consolidated",
+		basis: "US GAAP",
+		source: "sec-xbrl",
 		value,
 		start: "2026-04-27",
 		end: "2026-07-26",
@@ -36,7 +42,7 @@ function claim(o: Partial<ClaimInterpretation>): ClaimInterpretation {
 		fiscalYear: 2027,
 		fiscalPeriod: "Q2",
 		statedNumber: "96.2",
-		statedUnit: "usd",
+		statedUnit: "money",
 		scale: "billion",
 		qualifier: "exact",
 		...o,
@@ -60,9 +66,9 @@ describe("level claims", () => {
 
 	it("handles per-share values and rejects a dollar-scale reading of EPS", () => {
 		const eps = fact(2.46, { concept: "us-gaap:EarningsPerShareDiluted", unit: "USD/shares" })
-		expect(calculate(meta, claim({ metric: "eps_diluted", statedNumber: "2.46", statedUnit: "usd_per_share", scale: "units" }), eps).verdict).toBe("MATCH")
-		expect(calculate(meta, claim({ metric: "eps_diluted", statedNumber: "2.46", statedUnit: "usd", scale: "units" }), eps).verdict).toBe("NOT_COMPUTABLE")
-		expect(calculate(meta, claim({ metric: "eps_diluted", statedNumber: "2.46", statedUnit: "usd_per_share", scale: "units" }), fact(2.46)).verdict).toBe("NOT_COMPUTABLE") // USD fact for EPS
+		expect(calculate(meta, claim({ metric: "eps_diluted", statedNumber: "2.46", statedUnit: "per_share", scale: "units" }), eps).verdict).toBe("MATCH")
+		expect(calculate(meta, claim({ metric: "eps_diluted", statedNumber: "2.46", statedUnit: "money", scale: "units" }), eps).verdict).toBe("NOT_COMPUTABLE")
+		expect(calculate(meta, claim({ metric: "eps_diluted", statedNumber: "2.46", statedUnit: "per_share", scale: "units" }), fact(2.46)).verdict).toBe("NOT_COMPUTABLE") // USD fact for EPS
 	})
 
 	it("applies qualifiers", () => {

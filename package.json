@@ -2,11 +2,11 @@
   "name": "finance-claim-checker",
   "version": "0.1.0",
   "private": true,
-  "description": "Concurrent Mozaik agents that check numbers in finance articles against SEC 10-Q/10-K financial statements.",
+  "description": "Concurrent Mozaik agents that check the numbers in a finance article about any company against its official financial statements (SEC filings or the company report PDF).",
   "type": "module",
   "license": "MIT",
   "engines": {
-    "node": "^20.19.0 || >=22.12.0"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "start": "tsx src/cli.ts --mode replay",
@@ -19,10 +19,13 @@
     "web:build": "vite build",
     "web:serve": "tsx src/web/server.ts",
     "web:dev": "vite",
-    "eval": "tsx scripts/eval.ts"
+    "eval": "tsx scripts/eval.ts --spec eval/multi-company.json --recordings data/replay/recordings",
+    "snapshot:companies": "tsx scripts/snapshot-companies.ts",
+    "eval:nvda": "tsx scripts/eval.ts --spec eval/expected.json --recordings eval/recordings"
   },
   "dependencies": {
     "@mozaik-ai/core": "6.0.0",
+    "pdfjs-dist": "6.4.299",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

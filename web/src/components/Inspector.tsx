@@ -21,15 +21,15 @@ type Props = {
 function conclusion(c: ClaimView): string {
 	switch (c.verdict) {
 		case "MATCH":
-			return `The article's ${c.calc?.statedDisplay} agrees with the filings (${c.calc?.actualDisplay}) within the stated precision.`
+			return `The article's ${c.calc?.statedDisplay} agrees with the official statements (${c.calc?.actualDisplay}) within the stated precision.`
 		case "MISMATCH":
-			return `The article states ${c.calc?.statedDisplay}; the filings give ${c.calc?.actualDisplay}.${c.calc?.difference ? ` ${c.calc.difference.replace(/^actual − stated = /, "Difference: ")}.` : ""}`
+			return `The article states ${c.calc?.statedDisplay}; the official statements give ${c.calc?.actualDisplay}.${c.calc?.difference ? ` ${c.calc.difference.replace(/^actual − stated = /, "Difference: ")}.` : ""}`
 		case "NOT_COMPUTABLE":
 			return c.calc?.notes[0] ?? "The calculation could not be performed with the bound evidence."
 		case "NOT_VERIFIABLE":
-			return "This figure cannot be checked against the 10-Q/10-K financial statements."
+			return "This figure is not a line item of the financial statements, so it cannot be checked against them."
 		case "REFERENCE_NOT_YET_FILED":
-			return "No 10-Q or 10-K covering this period exists in the bundled SEC dataset."
+			return "No financial statement covering this period is in the reference used for this run."
 		default:
 			return "The agents are still working on this claim."
 	}
@@ -42,7 +42,8 @@ function EvidenceRow({ x, role }: { x: CalcInput; role: string }) {
 		<tr>
 			<th scope="row">
 				{ROLE_LABEL[role] ?? role}
-				<div className="cell-sub">{x.concept.replace("us-gaap:", "")}</div>
+				<div className="cell-sub">{x.concept.replace(/^(us-gaap|ifrs-full|report):/, "")}</div>
+				{x.consolidation === "standalone" && <div className="cell-sub">Standalone</div>}
 			</th>
 			<td>
 				<div>{x.period.replace(/^(\w+)-FY(\d+)$/, "$1 FY$2")}</div>
@@ -55,12 +56,28 @@ function EvidenceRow({ x, role }: { x: CalcInput; role: string }) {
 				<div className="cell-sub">{x.unit}</div>
 			</td>
 			<td>
-				<a href={x.url} target="_blank" rel="noreferrer noopener" className="ext-link">
-					{x.form} <IconExternal size={12} />
-				</a>
-				<div className="cell-sub num">
-					{x.accn} · filed {x.filed}
-				</div>
+				{x.location ? (
+					<>
+						<a href={x.url} target="_blank" rel="noreferrer noopener" className="ext-link">
+							Report p.{x.location.page} <IconExternal size={12} />
+						</a>
+						<div className="cell-sub">
+							Row “{x.location.row}” · column “{x.location.column}”
+						</div>
+						<div className="cell-sub num">
+							Printed {x.location.printed} ({x.location.unitNote})
+						</div>
+					</>
+				) : (
+					<>
+						<a href={x.url} target="_blank" rel="noreferrer noopener" className="ext-link">
+							{x.form} <IconExternal size={12} />
+						</a>
+						<div className="cell-sub num">
+							{x.accn} · filed {x.filed}
+						</div>
+					</>
+				)}
 				{x.derivation && <div className="cell-sub">Derived: {x.derivation}</div>}
 			</td>
 		</tr>
@@ -128,6 +145,18 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 						<dd>{c.accountingLabel}</dd>
 						<dt>Stated</dt>
 						<dd className="num">{c.calc?.statedDisplay ?? `${i.statedNumber} (${i.statedUnit}, ${i.scale})`}</dd>
+						{i.currency && (
+							<>
+								<dt>Currency</dt>
+								<dd>{i.currency === "unspecified" ? "not stated (compared in the reference's currency)" : `${i.currency} (read from the text)`}</dd>
+							</>
+						)}
+						{i.consolidation && (
+							<>
+								<dt>Basis</dt>
+								<dd>{i.consolidation === "unspecified" ? "consolidated or standalone not stated" : `${i.consolidation} (read from the text)`}</dd>
+							</>
+						)}
 					</dl>
 				</section>
 
@@ -135,7 +164,11 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 					<h3>Evidence</h3>
 					{inputs.length > 0 ? (
 						<>
-							<p className="muted small">Values from SEC XBRL financial data in 10-Q/10-K filings, looked up by evidence id. Links open the original filing.</p>
+							<p className="muted small">
+								{run.reference.kind === "sec"
+									? "Values from SEC XBRL financial statements (10-Q, 10-K, 20-F, 40-F), looked up by evidence id. Links open the original filing."
+									: "Values read from the company's official report and verified by code on the page (row, value on that row, column date, unit note, consolidated/standalone heading). Links open the report at that page."}
+							</p>
 							<div className="table-wrap">
 								<table className="evidence-table">
 									<thead>
@@ -161,7 +194,9 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 						<div className="reference">
 							<p>
 								{c.evidence.reference.status === "REFERENCE_NOT_YET_FILED"
-									? `No 10-Q/10-K covering ${c.periodLabel} is in the SEC data fetched ${fmtDate(run.snapshotFetchedAt)}. This does not establish that no filing exists today.`
+									? run.reference.kind === "sec"
+										? `No 10-Q/10-K/20-F covering ${c.periodLabel} is in the SEC data fetched ${fmtDate(run.snapshotFetchedAt)}. This does not establish that no filing exists today.`
+										: `The official report used for this run has no column for ${c.periodLabel}.`
 									: c.evidence.reference.detail}
 							</p>
 							{c.evidence.reference.earningsReleases.length > 0 && (

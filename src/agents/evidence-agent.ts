@@ -8,14 +8,16 @@ import { METRIC_CONCEPTS, type VerifiableMetric } from "../sec/types.js"
 import { EV, handler, need, paragraphOf, reply, type ClaimRef, type CorrectionPayload, type Ctx } from "../runtime/context.js"
 import type { Claim } from "../domain/types.js"
 
-const INSTRUCTION = `You attach SEC evidence to one claim. Work one tool call per message.
+const INSTRUCTION = `You attach official financial-statement evidence to one claim. Work one tool call per message.
 1. Call search_facts for the claim's metric and fiscal period. For a change claim, also search the comparison period.
 2. Call bind_evidence with fact ids exactly as returned — never numbers.
 Rules:
 - The current figure must cover exactly the claim's period: a quarter claim needs a ~91-day quarterly fact, not a six- or nine-month year-to-date figure; FY needs the ~364-day annual fact.
+- Use the metric's primary line item (listed first) unless the claim's wording names another one.
+- Consolidated vs standalone: if the claim says standalone, bind a standalone fact; otherwise bind the consolidated one. Bind a fact in the currency the claim states when one exists; never pick a convenience translation over the reporting currency for an unstated currency.
 - Change claims: comparison "yoy" → same fiscal period one fiscal year earlier; "qoq" → the immediately preceding quarter (Q1's previous quarter is Q4 of the prior fiscal year). If comparison is "unspecified", bind the year-over-year base as baseFactId AND the quarter-over-quarter base as alternateBaseFactId.
-- Prefer the comparative presented in the same filing (same accession) as the current figure; it reflects splits and reclassifications.
-- Evidence comes only from 10-Q/10-K financial statements. If search_facts reports that no 10-Q/10-K covers the period, call report_no_reference. Never use earnings releases.
+- Prefer the comparative presented in the same filing or report as the current figure; it reflects splits and reclassifications.
+- Evidence comes only from financial statements (10-Q/10-K/20-F/40-F, or the company's official report given for this run). If search_facts reports that no statement covers the period, call report_no_reference. Never use earnings releases.
 When the evidence is bound, reply "done".`
 
 const PERIODS = ["Q1", "Q2", "Q3", "Q4", "FY", "H1", "9M"] as const
@@ -29,7 +31,10 @@ function view(f: EvidenceFact) {
 		days: f.days,
 		value: f.value,
 		unit: f.unit,
-		source: `${f.form} accn ${f.accn} filed ${f.filed}`,
+		consolidation: f.consolidation,
+		basis: f.basis,
+		...(f.translated ? { note: "convenience translation, not the reporting currency" } : {}),
+		source: f.location ? `official report p.${f.location.page}, row "${f.location.row}", column "${f.location.column}"` : `${f.form} accn ${f.accn} filed ${f.filed}`,
 		presented: f.derivation ? `derived: ${f.derivation.formula}` : f.isOriginal ? "original filing for this period" : "comparative in a later filing",
 	}
 }
@@ -42,7 +47,7 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 	const searchFacts: Tool = {
 		type: "function",
 		name: "search_facts",
-		description: "List 10-Q/10-K XBRL facts for a metric and fiscal period, with stable evidence ids.",
+		description: "List financial-statement facts for a metric and fiscal period, with stable evidence ids.",
 		parameters: {
 			type: "object",
 			properties: { metric: { type: "string", enum: Object.keys(METRIC_CONCEPTS) }, fiscalYear: { type: "integer" }, fiscalPeriod: { type: "string", enum: PERIODS } },
@@ -60,7 +65,7 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 				const latest = reg().latestReportedPeriod()
 				return reply({
 					facts: [],
-					status: reg().hasReferenceFor(fy, fp) ? "NO_FACT_FOR_METRIC" : "NO_10Q_10K_FOR_PERIOD",
+					status: reg().hasReferenceFor(fy, fp) ? "NO_FACT_FOR_METRIC" : "NO_STATEMENT_FOR_PERIOD",
 					latestReportedPeriod: latest ? `${periodLabel(latest.fy, latest.fp as FiscalPeriod)} ended ${latest.periodEnd} (${latest.form} filed ${latest.filed})` : null,
 				})
 			} catch (e) {
@@ -115,7 +120,7 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 	const reportNoReference: Tool = {
 		type: "function",
 		name: "report_no_reference",
-		description: "Declare that no 10-Q/10-K covers the claim's period yet. Verified deterministically before it is accepted.",
+		description: "Declare that no financial statement in the reference covers the claim's period. Verified deterministically before it is accepted.",
 		parameters: { type: "object", properties: { claimId: { type: "string" }, claimRevision: { type: "integer" } }, required: ["claimId", "claimRevision"], additionalProperties: false },
 		strict: false,
 		invoke: async (args) => {
@@ -124,7 +129,13 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 				const claim = state.claims.get(claimId)
 				if (!claim) return reply(`REJECTED: unknown claim ${claimId}`)
 				const { fiscalYear: fy, fiscalPeriod: fp } = claim.interpretation
-				if (reg().hasReferenceFor(fy, fp)) return reply(`REJECTED: a 10-Q/10-K covering ${periodLabel(fy, fp)} is on file; search again and bind it`)
+				if (reg().hasReferenceFor(fy, fp)) {
+					const metric = claim.interpretation.metric
+					const ids = metric in METRIC_CONCEPTS ? reg().search(metric as VerifiableMetric, fy, fp).slice(0, 3).map((f) => f.id) : []
+					return reply(
+						`REJECTED: ${periodLabel(fy, fp)} is covered by the reference${ids.length ? `: ${ids.join(", ")}` : ""}. Call bind_evidence with the fact for the claim's period even if its value differs from the article; the calculator reports the difference.`,
+					)
+				}
 				const releases = reg()
 					.earningsReleasesAfterLatestReport()
 					.map((r) => ({ accn: r.accessionNumber, filed: r.filingDate, url: reg().filingUrlFor(r.accessionNumber, r.primaryDocument) }))
@@ -134,7 +145,10 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 					claimRevision: Number(need(args, "claimRevision")),
 					noReference: {
 						status: "REFERENCE_NOT_YET_FILED",
-						detail: `No 10-Q/10-K covers ${periodLabel(fy, fp)} as of the SEC data fetched ${reg().snapshot.source.fetchedAt.slice(0, 10)}. Latest statements: ${latest ? `${periodLabel(latest.fy, latest.fp as FiscalPeriod)} (${latest.form} filed ${latest.filed})` : "none"}.`,
+						detail:
+							reg().info.kind === "sec"
+								? `No 10-Q/10-K/20-F covers ${periodLabel(fy, fp)} as of ${reg().asOf()}. Latest statements: ${latest ? `${periodLabel(latest.fy, latest.fp as FiscalPeriod)} (${latest.form} filed ${latest.filed})` : "none"}.`
+								: `The official report provided does not cover ${periodLabel(fy, fp)}. Periods in the report: ${reg().calendar.map((c) => periodLabel(c.fy, c.fp as FiscalPeriod)).join(", ") || "none"}.`,
 						earningsReleases: releases,
 					},
 					boundBy: "evidence-agent",
@@ -185,7 +199,7 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 						bind({
 							claimId: claim.id,
 							claimRevision: claim.revision,
-							noReference: { status: "NOT_IN_STATEMENTS", detail: c.accounting === "non_gaap" ? "Adjusted (non-GAAP) figure: not reported in 10-Q/10-K statements." : "Metric not mapped to a statement line item." },
+							noReference: { status: "NOT_IN_STATEMENTS", detail: c.accounting === "non_gaap" ? "Adjusted (non-GAAP) figure: not a line item of the financial statements." : "Metric not mapped to a statement line item." },
 							boundBy: "evidence (rule)",
 						})
 						return

@@ -17,7 +17,7 @@ function setup(interp: Partial<ClaimInterpretation>, b: Partial<EvidenceBinding>
 		revision: 1,
 		reason: "extracted",
 		correctionsUsed: 0,
-		interpretation: { quote: "q", metric: "revenue", accounting: "unspecified", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "96.2", statedUnit: "usd", scale: "billion", qualifier: "exact", ...interp },
+		interpretation: { quote: "q", metric: "revenue", accounting: "unspecified", kind: "level", fiscalYear: 2027, fiscalPeriod: "Q2", statedNumber: "96.2", statedUnit: "money", scale: "billion", qualifier: "exact", ...interp },
 	}
 	const binding: EvidenceBinding = { claimId: "c1", claimRevision: 1, evidenceRevision: 1, boundBy: "test", ...b }
 	const calc = calculate({ claimId: "c1", claimRevision: 1, evidenceRevision: 1 }, claim.interpretation, b.currentFactId ? reg.get(b.currentFactId) : undefined, b.baseFactId ? reg.get(b.baseFactId) : undefined)

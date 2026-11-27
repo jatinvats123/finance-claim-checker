@@ -2,6 +2,8 @@
  * Finance Claim Checker CLI.
  *
  *   npm start                                  keyless replay of the bundled NVIDIA demo
+ *   npm run check -- --article a.md --mode live                     any company: detected from the article (or --company "Apple")
+ *   npm run check -- --article a.md --company "TCS" --report https://…/results.pdf --mode live   a company without SEC data
  *   npm run check -- --article a.md --ticker NVDA --mode live      real model calls (needs a provider key)
  *   npm run check -- ... --mode record         live + save responses to data/replay/recordings/
  *   npm run check -- ... --mode author --script fixtures/nvda-demo.script.ts   seal hand-written fixtures
@@ -11,6 +13,10 @@ import { basename, join, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { parseArgs } from "node:util"
 import { readArticle } from "./article.js"
+import { currentCompanyIndex } from "./company/companies.js"
+import { prepareReference, ReferenceError } from "./runtime/reference.js"
+import type { PreparedReport } from "./runtime/pipeline.js"
+import type { SecSnapshot } from "./sec/types.js"
 import { defaultCassettePaths, defaultModel, loadCassettes, parseReplaySource, providerConfigured } from "./llm/cassettes.js"
 import type { LiveLimits, UsageSummary } from "./llm/limits.js"
 import { CheckerRunner, type AuthorScript, type LlmMode } from "./llm/runner.js"
@@ -23,7 +29,11 @@ import { getSnapshot, SecDataMissing } from "./sec/edgar.js"
 const { values: args } = parseArgs({
 	options: {
 		article: { type: "string", default: "data/articles/nvda-q2-fy2027.md" },
-		ticker: { type: "string", default: "NVDA" },
+		ticker: { type: "string" },
+		company: { type: "string" },
+		"company-name": { type: "string" },
+		report: { type: "string" },
+		"report-file": { type: "string" },
 		mode: { type: "string", default: "replay" },
 		model: { type: "string" },
 		cassette: { type: "string", multiple: true },
@@ -89,8 +99,43 @@ async function main() {
 		throw new Error("live/record mode needs ANTHROPIC_API_KEY, OPENAI_API_KEY or GEMINI_API_KEY (see README). Use --mode replay for the keyless demo.")
 	}
 
-	const article = { ...readArticle(args.article!), ticker: args.ticker!.toUpperCase() }
-	const snapshot = await getSnapshot(article.ticker, args["live-sec"]!)
+	const parsed = readArticle(args.article!)
+	let snapshot: SecSnapshot | undefined
+	let report: PreparedReport | undefined
+	let ticker = ""
+	const exampleArticle = args.article === "data/articles/nvda-q2-fy2027.md"
+	if (args.ticker || (exampleArticle && !args.company && !args.report && !args["report-file"])) {
+		// explicit ticker (or the bundled NVIDIA example): committed snapshot, or --live-sec
+		ticker = (args.ticker ?? "NVDA").toUpperCase()
+		snapshot = await getSnapshot(ticker, args["live-sec"]!)
+	} else {
+		const reportReq = args.report ? { url: args.report } : args["report-file"] ? { file: { name: basename(args["report-file"]), base64: readFileSync(args["report-file"]).toString("base64") } } : undefined
+		try {
+			const ref = await prepareReference(
+				{ article: parsed, company: { query: args.company, name: args["company-name"] ?? args.company }, report: reportReq, preferCommitted: !args["live-sec"] },
+				await currentCompanyIndex(),
+			)
+			if (ref.kind === "sec") {
+				snapshot = ref.snapshot
+				ticker = ref.snapshot.ticker
+				console.log(`Company: ${ref.company.name} (${ref.company.tickers.join(", ")}, CIK ${ref.company.cik})${ref.resolution ? ` · ${ref.resolution.status === "resolved" ? ref.resolution.reason : ""}` : ""} · SEC data: ${ref.snapshotSource}`)
+			} else {
+				report = ref.report
+				ticker = ref.report.company.ticker ?? ""
+				console.log(`Company: ${ref.report.company.name} · official report: ${ref.report.doc.url ?? ref.report.doc.fileName} (${ref.report.doc.pageCount} pages)`)
+			}
+		} catch (e) {
+			if (e instanceof ReferenceError) {
+				console.error(`${e.code}: ${e.message}`)
+				for (const c of e.extra.candidates ?? []) console.error(`  - ${c.name} (${c.tickers.join(", ")}, CIK ${c.cik}): ${c.why.join("; ")}`)
+				if (e.code === "COMPANY_AMBIGUOUS") console.error('Pass --company "<ticker or name>" to choose.')
+				if (e.extra.needsReport) console.error("Pass --report <PDF URL> (or --report-file <path>) with --company-name to check against the company's official report.")
+				process.exit(2)
+			}
+			throw e
+		}
+	}
+	const article = { ...parsed, ticker }
 	const tasks = new TaskTracker()
 
 	const cassettes = mode === "replay" ? loadCassettes(args.cassette?.length ? args.cassette : defaultCassettePaths(parseReplaySource(args["replay-source"]))) : []
@@ -112,8 +157,8 @@ async function main() {
 	}
 	const mozaikVersion = JSON.parse(readFileSync("node_modules/@mozaik-ai/core/package.json", "utf8")).version
 
-	console.log(`Finance Claim Checker · ${snapshot.entityName} (${snapshot.ticker}) · mode ${mode}${mode === "replay" ? ` (${cassettes.map((c) => `${c.data.provenance}: ${c.path}`).join("; ") || "no cassettes"})` : ` · model ${model}`}`)
-	console.log(`SEC reference data: ${args["live-sec"] ? "fetched live" : `snapshot fetched ${snapshot.source.fetchedAt}`} · 10-Q/10-K only`)
+	console.log(`Finance Claim Checker · ${snapshot ? `${snapshot.entityName} (${snapshot.ticker})` : report!.company.name} · mode ${mode}${mode === "replay" ? ` (${cassettes.map((c) => `${c.data.provenance}: ${c.path}`).join("; ") || "no cassettes"})` : ` · model ${model}`}`)
+	console.log(snapshot ? `Reference: SEC statements (10-Q/10-K/20-F/40-F), data fetched ${snapshot.source.fetchedAt}` : `Reference: official report ${report!.doc.url ?? report!.doc.fileName}, fetched ${report!.doc.fetchedAt} (sha256 ${report!.doc.sha256.slice(0, 12)}…)`)
 	console.log(DISCLAIMER + "\n")
 
 	const t0 = Date.now()
@@ -121,6 +166,7 @@ async function main() {
 	const result = await runChecker({
 		article,
 		snapshot,
+		report,
 		runner,
 		tasks,
 		model,

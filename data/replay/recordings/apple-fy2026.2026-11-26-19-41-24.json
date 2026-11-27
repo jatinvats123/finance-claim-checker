@@ -1,0 +1,1220 @@
+{
+ "provenance": "recorded",
+ "description": "Genuine responses from gemini-3.1-flash-lite, recorded by --mode record",
+ "createdAt": "2026-11-26T19:41:24.610Z",
+ "keyVersion": 2,
+ "model": "gemini-3.1-flash-lite",
+ "entries": {
+  "d7acc39a2d00e12888bbd409": {
+   "task": "extractor:article",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "submit_claim",
+     "args": {
+      "statedUnit": "money",
+      "fiscalPeriod": "FY",
+      "fiscalYear": 2026,
+      "metric": "revenue",
+      "quote": "Apple reported revenue of $478.8 billion for fiscal 2026",
+      "statedNumber": "478.8",
+      "qualifier": "exact",
+      "scale": "billion",
+      "kind": "level",
+      "accounting": "gaap"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:41:26.360Z",
+   "latencyMs": 1698
+  },
+  "eb269d24f1685d672cea365b": {
+   "task": "context:c1@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "add_context_warning",
+     "args": {
+      "message": "The claim does not substantiate the superlative claim of record sales made in the title.",
+      "claimId": "c1",
+      "claimRevision": 1,
+      "code": "RECORD_OR_SUPERLATIVE"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:41:30.875Z",
+   "latencyMs": 4513
+  },
+  "c001c549f154ba5dcd86796f": {
+   "task": "extractor:article",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "submit_claim",
+     "args": {
+      "direction": "increase",
+      "qualifier": "exact",
+      "kind": "change",
+      "statedNumber": "15",
+      "fiscalPeriod": "FY",
+      "scale": "units",
+      "quote": "up 15% from $416.2 billion a year earlier",
+      "comparison": "yoy",
+      "fiscalYear": 2026,
+      "statedUnit": "percent",
+      "metric": "revenue",
+      "accounting": "gaap"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:41:35.879Z",
+   "latencyMs": 9517
+  },
+  "94e979ba5b47a0afbd18c9ea": {
+   "task": "evidence:c1@r1#1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "fiscalPeriod": "FY",
+      "fiscalYear": 2026,
+      "metric": "revenue"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:41:40.380Z",
+   "latencyMs": 14017
+  },
+  "1e639430023b8336c94f8113": {
+   "task": "context:c1@r1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:41:45.533Z",
+   "latencyMs": 14658
+  },
+  "fc1ff6960614a551396820c1": {
+   "task": "context:c2@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "add_context_warning",
+     "args": {
+      "code": "RECORD_OR_SUPERLATIVE",
+      "claimRevision": 1,
+      "message": "The paragraph frames the 15% increase as part of a record-setting performance, but the superlative claim in the title is not explicitly supported by the revenue figures provided in the text.",
+      "claimId": "c2"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:41:50.663Z",
+   "latencyMs": 14783
+  },
+  "ee951c24cbffa0746daebd25": {
+   "task": "extractor:article",
+   "turn": 2,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "submit_claim",
+     "args": {
+      "quote": "up 15% from $416.2 billion a year earlier",
+      "statedUnit": "money",
+      "qualifier": "exact",
+      "direction": "increase",
+      "scale": "billion",
+      "comparison": "yoy",
+      "accounting": "gaap",
+      "statedNumber": "416.2",
+      "kind": "level",
+      "fiscalYear": 2026,
+      "fiscalPeriod": "FY",
+      "metric": "revenue"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:41:55.892Z",
+   "latencyMs": 20012
+  },
+  "15941e12c7660246d014b08b": {
+   "task": "evidence:c2@r1#1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "fiscalYear": 2026,
+      "fiscalPeriod": "FY",
+      "metric": "revenue"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:00.527Z",
+   "latencyMs": 24646
+  },
+  "84f04a5d532a43beae32a9f1": {
+   "task": "evidence:c1@r1#1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimId": "c1",
+      "claimRevision": 1,
+      "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:05.647Z",
+   "latencyMs": 25267
+  },
+  "36ffafd57d558907fb0204b3": {
+   "task": "context:c2@r1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:10.351Z",
+   "latencyMs": 19688
+  },
+  "06cee221991a703f3415ef02": {
+   "task": "extractor:article",
+   "turn": 3,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "submit_claim",
+     "args": {
+      "fiscalYear": 2026,
+      "quote": "Net income rose to $132.2 billion for the year",
+      "qualifier": "exact",
+      "accounting": "gaap",
+      "statedUnit": "money",
+      "scale": "billion",
+      "kind": "level",
+      "statedNumber": "132.2",
+      "fiscalPeriod": "FY",
+      "metric": "net_income"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:22.898Z",
+   "latencyMs": 27005
+  },
+  "9e9f5c332a9212a5d1e0b487": {
+   "task": "evidence:c3@r1#1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "revenue",
+      "fiscalPeriod": "FY",
+      "fiscalYear": 2026
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:27.553Z",
+   "latencyMs": 31660
+  },
+  "92058a9081b05baef6719fc7": {
+   "task": "evidence:c2@r1#1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "fiscalPeriod": "FY",
+      "metric": "revenue",
+      "fiscalYear": 2025
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:30.609Z",
+   "latencyMs": 30081
+  },
+  "617ef06503860824f311ed2a": {
+   "task": "evidence:c1@r1#1",
+   "turn": 2,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:35.758Z",
+   "latencyMs": 30110
+  },
+  "af1014df72cc90dc5a66f265": {
+   "task": "auditor:c1@r1.e1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "evidenceRevision": 1,
+      "claimId": "c1",
+      "note": "The interpretation accurately reflects the stated revenue and fiscal period mentioned in the text.",
+      "claimRevision": 1
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:40.616Z",
+   "latencyMs": 34960
+  },
+  "44e5e422c1e92c9bffaaf4ed": {
+   "task": "context:c4@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "add_context_warning",
+     "args": {
+      "claimRevision": 1,
+      "code": "RECORD_OR_SUPERLATIVE",
+      "message": "The article title characterizes the annual performance as a record, which frames this net income figure as part of a superlative performance without direct comparison in the text.",
+      "claimId": "c4"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:45.693Z",
+   "latencyMs": 22794
+  },
+  "53c646e7fd698750c7a42fcf": {
+   "task": "extractor:article",
+   "turn": 4,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "submit_claim",
+     "args": {
+      "fiscalPeriod": "FY",
+      "quote": "diluted earnings per share came in at $8.89",
+      "accounting": "gaap",
+      "statedNumber": "8.89",
+      "statedUnit": "per_share",
+      "scale": "units",
+      "metric": "eps_diluted",
+      "fiscalYear": 2026,
+      "qualifier": "exact",
+      "kind": "level"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:42:51.651Z",
+   "latencyMs": 28752
+  },
+  "37ce75383213517bc4ba560a": {
+   "task": "evidence:c4@r1#1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "fiscalPeriod": "FY",
+      "fiscalYear": 2026,
+      "metric": "net_income"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:03.278Z",
+   "latencyMs": 40378
+  },
+  "0db0451b851afe9bbc24ada7": {
+   "task": "context:c3@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "add_context_warning",
+     "args": {
+      "code": "RECORD_OR_SUPERLATIVE",
+      "claimId": "c3",
+      "claimRevision": 1,
+      "message": "The claim is framed within the context of 'record sales', which is not explicitly supported by the provided text or the claim data."
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:07.064Z",
+   "latencyMs": 71171
+  },
+  "a3ac38ebd8af3432153bfc93": {
+   "task": "evidence:c2@r1#1",
+   "turn": 2,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimId": "c2",
+      "claimRevision": 1,
+      "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+      "baseFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:10.981Z",
+   "latencyMs": 40372
+  },
+  "6080ecb1fe648a1475beb234": {
+   "task": "auditor:c1@r1.e1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:15.389Z",
+   "latencyMs": 34772
+  },
+  "a39c26de62d18d4fa98727b7": {
+   "task": "context:c4@r1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:20.785Z",
+   "latencyMs": 35091
+  },
+  "5ba3555b00646b10814bcb2f": {
+   "task": "extractor:article",
+   "turn": 5,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "submit_claim",
+     "args": {
+      "accounting": "gaap",
+      "kind": "level",
+      "fiscalPeriod": "Q4",
+      "fiscalYear": 2026,
+      "quote": "For the fourth quarter alone, revenue was $114.5 billion.",
+      "scale": "billion",
+      "statedNumber": "114.5",
+      "statedUnit": "money",
+      "qualifier": "exact",
+      "metric": "revenue"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:30.912Z",
+   "latencyMs": 39260
+  },
+  "a72b8e0f482e7932e043175f": {
+   "task": "context:c5@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "message",
+     "text": "no context issues\n\ndone"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:31.051Z",
+   "latencyMs": 39399
+  },
+  "9449bb4c806a95e94c906f99": {
+   "task": "evidence:c5@r1#1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "fiscalPeriod": "FY",
+      "fiscalYear": 2026,
+      "metric": "eps_diluted"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:40.006Z",
+   "latencyMs": 48353
+  },
+  "7b70176c1439ce6e2cff08c1": {
+   "task": "evidence:c2@r1#1",
+   "turn": 3,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:50.389Z",
+   "latencyMs": 39408
+  },
+  "b6d66a73383d8d7569d4ec1c": {
+   "task": "context:c3@r1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:51.120Z",
+   "latencyMs": 44056
+  },
+  "d612550b05175470c7265e4b": {
+   "task": "evidence:c4@r1#1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimRevision": 1,
+      "currentFactId": "NetIncomeLoss/FY-FY2026/26-000026",
+      "claimId": "c4"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:55.947Z",
+   "latencyMs": 52669
+  },
+  "18ed924f4b9d3a82d6a23e17": {
+   "task": "auditor:c2@r1.e1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "note": "The interpretation accurately reflects the text and the calculated change of ~15.06% supports the stated 15%.",
+      "claimId": "c2",
+      "evidenceRevision": 1,
+      "claimRevision": 1
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:43:59.920Z",
+   "latencyMs": 48936
+  },
+  "4837bc702f83beb77dabbce9": {
+   "task": "context:c6@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "add_context_warning",
+     "args": {
+      "message": "The paragraph omits the context that the record sales mentioned in the article title are not explicitly tied to the revenue or profit figures provided.",
+      "code": "RECORD_OR_SUPERLATIVE",
+      "claimRevision": 1,
+      "claimId": "c6"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:00.521Z",
+   "latencyMs": 29607
+  },
+  "13078fbfd6e79b5e702de042": {
+   "task": "extractor:article",
+   "turn": 6,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "submit_claim",
+     "args": {
+      "metric": "gross_profit",
+      "qualifier": "exact",
+      "scale": "billion",
+      "quote": "Gross profit for the full year was $223.6 billion",
+      "statedUnit": "money",
+      "fiscalPeriod": "FY",
+      "kind": "level",
+      "accounting": "gaap",
+      "statedNumber": "223.6",
+      "fiscalYear": 2026
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:06.044Z",
+   "latencyMs": 35130
+  },
+  "075d9f29111328eb7c4857c0": {
+   "task": "evidence:c5@r1#1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimRevision": 1,
+      "claimId": "c5",
+      "currentFactId": "EarningsPerShareDiluted/FY-FY2026/26-000026"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:15.291Z",
+   "latencyMs": 35284
+  },
+  "4899177a5a695deb0340c940": {
+   "task": "evidence:c6@r1#1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "revenue",
+      "fiscalYear": 2026,
+      "fiscalPeriod": "Q4"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:17.353Z",
+   "latencyMs": 46438
+  },
+  "06b0b459227a58842d143923": {
+   "task": "evidence:c4@r1#1",
+   "turn": 2,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:30.093Z",
+   "latencyMs": 34146
+  },
+  "d769acc3bb47874bd6a9c929": {
+   "task": "auditor:c2@r1.e1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:30.370Z",
+   "latencyMs": 30450
+  },
+  "8e18148b9d118fbf28465c15": {
+   "task": "auditor:c4@r1.e1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "claimRevision": 1,
+      "note": "The interpretation is faithful to the quote and accurately reflects the fiscal year period and the scale of the net income figure reported in the filing.",
+      "claimId": "c4",
+      "evidenceRevision": 1
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:31.816Z",
+   "latencyMs": 35868
+  },
+  "f831db09d436ef16d5f48038": {
+   "task": "context:c6@r1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:35.387Z",
+   "latencyMs": 34866
+  },
+  "213dbd098d63f9d9205b3b29": {
+   "task": "context:c7@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "add_context_warning",
+     "args": {
+      "claimRevision": 1,
+      "claimId": "c7",
+      "code": "MISLEADING_FRAMING",
+      "message": "Presenting a full-year figure alongside a fourth-quarter figure without explicit clarification can misleadingly imply the full-year figure is also specific to the fourth quarter."
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:40.506Z",
+   "latencyMs": 34461
+  },
+  "b84108b5a601dd78655da29f": {
+   "task": "evidence:c7@r1#1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "fiscalYear": 2026,
+      "metric": "gross_profit",
+      "fiscalPeriod": "FY"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:55.301Z",
+   "latencyMs": 49256
+  },
+  "3c5b65aa8d98fe08d6f47a07": {
+   "task": "evidence:c5@r1#1",
+   "turn": 2,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:55.609Z",
+   "latencyMs": 40318
+  },
+  "84b1447063810d3fb1ae64b1": {
+   "task": "evidence:c3@r1#1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "metric": "revenue"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:44:58.073Z",
+   "latencyMs": 150521
+  },
+  "d28af6a1e729457d1c88cb2f": {
+   "task": "auditor:c5@r1.e1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "note": "The interpretation is a faithful representation of the quoted text; the discrepancy between the stated number and the filing is a factual error in the article, not an interpretation error.",
+      "claimId": "c5",
+      "evidenceRevision": 1,
+      "claimRevision": 1
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:00.546Z",
+   "latencyMs": 45253
+  },
+  "19fc0334389eca6c6de83e8b": {
+   "task": "auditor:c4@r1.e1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:15.377Z",
+   "latencyMs": 43561
+  },
+  "e88babcf725aa100da2011e4": {
+   "task": "context:c7@r1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:17.064Z",
+   "latencyMs": 36557
+  },
+  "c55adb7d9b22b5f200bc2a13": {
+   "task": "evidence:c7@r1#1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimRevision": 1,
+      "currentFactId": "GrossProfit/FY-FY2026/26-000026",
+      "claimId": "c7"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:24.550Z",
+   "latencyMs": 29249
+  },
+  "323f49771f0224a2fd936fac": {
+   "task": "extractor:article",
+   "turn": 7,
+   "items": [
+    {
+     "type": "message",
+     "text": "All claims submitted."
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:26.295Z",
+   "latencyMs": 80250
+  },
+  "31e9e46343718edbb7f9ee5f": {
+   "task": "evidence:c3@r1#1",
+   "turn": 2,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimId": "c3",
+      "baseFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026",
+      "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+      "claimRevision": 1
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:34.086Z",
+   "latencyMs": 36012
+  },
+  "a53769dcf4b358adff9bf832": {
+   "task": "evidence:c7@r1#1",
+   "turn": 2,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:40.641Z",
+   "latencyMs": 16091
+  },
+  "f4c2723702899d0f5ccc8872": {
+   "task": "auditor:c5@r1.e1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:41.503Z",
+   "latencyMs": 40957
+  },
+  "0c30e9ec4f6914c96af11c7d": {
+   "task": "auditor:c7@r1.e1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "evidenceRevision": 1,
+      "claimId": "c7",
+      "claimRevision": 1,
+      "note": "The interpretation accurately reflects the stated value in the text, and the mismatch is correctly identified by the formula calculation against the financial filing."
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:45.506Z",
+   "latencyMs": 20954
+  },
+  "aadb70699f0b93c71cf11abb": {
+   "task": "extractor-fix:c3@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "revise_claim",
+     "args": {
+      "quote": "up 15% from $416.2 billion a year earlier",
+      "statedUnit": "money",
+      "accounting": "gaap",
+      "scale": "billion",
+      "fiscalYear": 2025,
+      "fromRevision": 1,
+      "fiscalPeriod": "FY",
+      "claimId": "c3",
+      "reason": "The year-earlier figure corresponds to fiscal year 2025.",
+      "metric": "revenue",
+      "statedNumber": "416.2",
+      "kind": "level",
+      "qualifier": "exact"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:56.089Z",
+   "latencyMs": 22001
+  },
+  "f5670e75b7f2409870efdf82": {
+   "task": "evidence:c3@r1#1",
+   "turn": 3,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:45:56.236Z",
+   "latencyMs": 22150
+  },
+  "3b0673670b12c33ab804b29b": {
+   "task": "auditor:c7@r1.e1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:00.592Z",
+   "latencyMs": 15086
+  },
+  "b6fa27a28e4255afeffcb74d": {
+   "task": "context:c3@r2",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "add_context_warning",
+     "args": {
+      "claimId": "c3",
+      "code": "RECORD_OR_SUPERLATIVE",
+      "message": "The article title characterizes the revenue as a record, but the paragraph itself does not substantiate this claim with historical context.",
+      "claimRevision": 2
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:10.651Z",
+   "latencyMs": 14561
+  },
+  "b37d619672891cb770509af0": {
+   "task": "context:c3@r2",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:20.475Z",
+   "latencyMs": 9824
+  },
+  "6d8bad74acf3ece6fee7ba97": {
+   "task": "evidence:c3@r2#1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "revenue",
+      "fiscalPeriod": "FY",
+      "fiscalYear": 2026
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:26.167Z",
+   "latencyMs": 30077
+  },
+  "75ecaa6d97f07285a9c2714c": {
+   "task": "evidence:c3@r2#1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "metric": "revenue",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:35.042Z",
+   "latencyMs": 8875
+  },
+  "1b2029142405c8cf03d66880": {
+   "task": "evidence:c3@r2#1",
+   "turn": 2,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "claimRevision": 2,
+      "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+      "claimId": "c3",
+      "baseFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:36.052Z",
+   "latencyMs": 1009
+  },
+  "c171d72024d2c2ab22327e00": {
+   "task": "evidence:c6@r1#1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/Q4-FY2026/derived",
+      "claimId": "c6",
+      "claimRevision": 1
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:40.602Z",
+   "latencyMs": 143249
+  },
+  "52370cc0c247940febe55053": {
+   "task": "evidence:c3@r2#1",
+   "turn": 3,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:42.504Z",
+   "latencyMs": 6451
+  },
+  "2f915cb41d63d5d97f0412d3": {
+   "task": "evidence:c3@r2#2",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "metric": "revenue"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:46.605Z",
+   "latencyMs": 10550
+  },
+  "06c1d729e1cfe83e613f3ec1": {
+   "task": "evidence:c6@r1#1",
+   "turn": 2,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:51.130Z",
+   "latencyMs": 10528
+  },
+  "dfaba0dffea19a20b38f3150": {
+   "task": "auditor:c6@r1.e1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "evidenceRevision": 1,
+      "claimRevision": 1,
+      "claimId": "c6",
+      "note": "The claim accurately reflects the revenue stated in the quote for the fourth quarter."
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:46:55.629Z",
+   "latencyMs": 15026
+  },
+  "1be9aff79efcc949c05f1865": {
+   "task": "auditor:c6@r1.e1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:47:05.861Z",
+   "latencyMs": 10231
+  },
+  "fa048329768607dc8d62a82a": {
+   "task": "evidence:c3@r2#2",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "search_facts",
+     "args": {
+      "fiscalPeriod": "FY",
+      "fiscalYear": 2024,
+      "metric": "revenue"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:47:13.326Z",
+   "latencyMs": 26720
+  },
+  "46c78df30047b86329bb634f": {
+   "task": "evidence:c3@r2#2",
+   "turn": 2,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "bind_evidence",
+     "args": {
+      "baseFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2024/25-000079",
+      "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/25-000079",
+      "claimRevision": 2,
+      "claimId": "c3"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:47:15.579Z",
+   "latencyMs": 2253
+  },
+  "473b36080b2176182afaea3a": {
+   "task": "evidence:c3@r2#2",
+   "turn": 3,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:47:20.841Z",
+   "latencyMs": 5262
+  },
+  "356dd24b3caebb9346a18a64": {
+   "task": "auditor:c3@r2.e3",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "evidenceRevision": 3,
+      "claimRevision": 2,
+      "note": "The interpretation faithfully represents the quote and fiscal period, and the rounding is within acceptable limits.",
+      "claimId": "c3"
+     }
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:47:33.442Z",
+   "latencyMs": 17860
+  },
+  "3b8029b652f0b6cd66f8e10e": {
+   "task": "auditor:c3@r2.e3",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:47:34.020Z",
+   "latencyMs": 577
+  },
+  "78fea0a0c8d335ab846314c6": {
+   "task": "extractor-fix:c3@r1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "The claim has been corrected to fiscal year 2025."
+    }
+   ],
+   "model": "gemini-3.1-flash-lite",
+   "recordedAt": "2026-11-26T19:47:44.402Z",
+   "latencyMs": 108312
+  }
+ }
+}

@@ -1569,3 +1569,160 @@ details > summary {
 	width: auto;
 	max-width: 280px;
 }
+
+/* ---------- Check your article (primary flow) ---------- */
+.check-form {
+	padding: 18px 20px 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+.check-head h2 {
+	font-size: 18px;
+	margin-bottom: 4px;
+}
+.check-head p {
+	font-size: 14px;
+	margin: 0;
+}
+.samples {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: center;
+}
+.sample-chip {
+	font: inherit;
+	font-size: 12.5px;
+	padding: 3px 10px;
+	border-radius: 999px;
+	border: 1px solid var(--border-strong);
+	background: var(--surface);
+	color: var(--text);
+	cursor: pointer;
+}
+.sample-chip:hover {
+	border-color: var(--primary);
+	color: var(--primary);
+}
+.company-status {
+	min-height: 20px;
+}
+.company-status p {
+	margin: 2px 0 0;
+}
+.resolved {
+	border: 1px solid #bfe0cd;
+	background: var(--good-bg);
+	border-radius: var(--radius-sm);
+	padding: 8px 10px;
+	font-size: 13.5px;
+}
+.resolved svg {
+	color: var(--good);
+	vertical-align: -2px;
+}
+.text-warn {
+	color: var(--warn);
+}
+.candidates {
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	padding: 8px 10px;
+	margin: 6px 0 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.candidates legend {
+	font-size: 13px;
+	font-weight: 600;
+	padding: 0 4px;
+}
+.candidate {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+	font-size: 13.5px;
+	font-weight: 400 !important;
+	cursor: pointer;
+	padding: 4px 6px;
+	border-radius: var(--radius-sm);
+}
+.candidate.is-chosen {
+	background: var(--primary-soft);
+}
+.candidate input {
+	margin-top: 4px;
+}
+.candidate > span {
+	display: flex;
+	flex-direction: column;
+}
+.report-box {
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	padding: 8px 12px;
+	background: var(--surface-2);
+}
+.report-box summary {
+	cursor: pointer;
+	font-size: 13.5px;
+	font-weight: 600;
+}
+.report-box[open] {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.report-box[open] summary {
+	margin-bottom: 2px;
+}
+.check-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+}
+.steps {
+	text-align: left;
+	margin: 0 0 12px;
+	padding-left: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-width: 560px;
+}
+.reference-summary {
+	margin: 10px 14px 0;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	background: var(--surface-2);
+	padding: 8px 12px;
+	font-size: 13.5px;
+}
+.reference-summary > summary {
+	cursor: pointer;
+	overflow-wrap: anywhere;
+}
+.ref-kicker {
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	color: var(--muted);
+}
+.ref-body {
+	margin-top: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	overflow-wrap: anywhere;
+}
+.rejected summary {
+	cursor: pointer;
+}
+.rejected .mono {
+	font-family: var(--mono);
+	font-size: 11.5px;
+}

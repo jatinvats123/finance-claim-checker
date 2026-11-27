@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { fmtDate, fmtSeconds, useMedia, useMeta, useRun, type RunView } from "./api"
 import { AgentStrip, CorrectionsBar, Lanes, Timeline } from "./components/Activity"
 import { ArticlePanel, type ArticleHandle } from "./components/ArticlePanel"
-import { CustomArticleDialog } from "./components/CustomArticle"
+import { CheckForm, emptyDraft, type Draft } from "./components/CheckForm"
+import { ReferenceSummary } from "./components/Reference"
 import { Modal } from "./components/Dialog"
 import { IconAlert, IconChevron, IconDoc, IconDownload, IconPlay, IconSpinner } from "./components/icons"
 import { Inspector } from "./components/Inspector"
@@ -20,6 +21,8 @@ function progressText(run: RunView): string {
 			return `Finished · ${p.discovered} claims · ${p.reviewed} of ${p.discovered} fully reviewed · ${fmtSeconds(run.elapsedMs)}${timing}`
 		case "cache_miss":
 			return "Stopped: no replay data for this article (cache miss)"
+		case "reference_unavailable":
+			return "Stopped: the reference could not be established"
 		case "timed_out":
 			return `Timed out · ${p.discovered} claims found · ${p.reviewed} fully reviewed`
 		default:
@@ -34,7 +37,7 @@ export default function App() {
 	const [historyOpen, setHistoryOpen] = useState(false)
 	const [tab, setTab] = useState<Tab>("article")
 	const [timelineOpen, setTimelineOpen] = useState(false)
-	const [customOpen, setCustomOpen] = useState<false | { title: string; text: string } | true>(false)
+	const [draft, setDraft] = useState<Draft>()
 	const [replayChoice, setReplayChoice] = useState<"recorded" | "fixtures">()
 	const article = useRef<ArticleHandle>(null)
 	const inspectorHeading = useRef<HTMLHeadingElement>(null)
@@ -78,8 +81,12 @@ export default function App() {
 		start({ source: "example", replay }).catch(() => undefined)
 	}
 
+	useEffect(() => {
+		if (meta && !draft) setDraft(emptyDraft(meta))
+	}, [meta, draft])
+
 	if (metaError) return <div className="fatal">Could not reach the checker server: {metaError}</div>
-	if (!meta) return <div className="loading" aria-busy="true">Loading…</div>
+	if (!meta || !draft) return <div className="loading" aria-busy="true">Loading…</div>
 
 	const replayOption = meta.replayOptions.find((o) => o.id === replay)
 	const articleTitle = run?.article.title ?? meta.example.title
@@ -88,7 +95,15 @@ export default function App() {
 	const showInspectorColumn = layout === "wide" && selected
 	const drawer = layout === "desktop" && selected
 
-	const articlePanel = (
+	const startCustom = async (b: Parameters<typeof start>[0]) => {
+		await start(b)
+		setTab("results")
+	}
+	const articlePanel = !run ? (
+		<section className="panel" aria-label="Check an article">
+			<CheckForm meta={meta} draft={draft} setDraft={setDraft} busy={running} onStart={startCustom} onRunExample={runExample} />
+		</section>
+	) : (
 		<section className="panel" aria-label="Article">
 			<div className="panel-head">
 				<h2 className="panel-title">
@@ -103,7 +118,7 @@ export default function App() {
 				claims={run?.claims ?? []}
 				selectedId={selectedId}
 				onSelect={(id) => select(id)}
-				note={!run || run.source === "example" ? <p className="synthetic-note">Synthetic test article written for this demo. It mixes NVIDIA's real reported figures with deliberate, realistic errors.</p> : undefined}
+				note={run.source === "example" ? <p className="synthetic-note">Synthetic test article written for this demo. It mixes NVIDIA's real reported figures with deliberate, realistic errors.</p> : undefined}
 			/>
 		</section>
 	)
@@ -124,17 +139,34 @@ export default function App() {
 						<p className="small mono">{run.error}</p>
 						<p>{meta.live.configured ? "Run it again in live mode to check new text." : meta.live.hint}</p>
 						<div className="notice-actions">
-							<button className="btn btn-primary" onClick={() => reset()}>
-								Restore included example
+							<button className="btn btn-primary" onClick={runExample}>
+								Run the included example
 							</button>
-							<button className="btn btn-secondary" onClick={() => setCustomOpen({ title: run.article.title, text: run.article.text })}>
+							<button className="btn btn-secondary" onClick={() => reset()}>
 								Edit article
+							</button>
+						</div>
+					</div>
+				</div>
+			) : run?.status === "reference_unavailable" ? (
+				<div className="panel-body">
+					<ReferenceSummary run={run} open />
+					<div className="notice notice-warn" role="alert">
+						<h3>The reference could not be established</h3>
+						<p>{run.reference.report?.error ?? run.error}</p>
+						<p>
+							<strong>Nothing was substituted:</strong> no figure is checked without a verified source.
+						</p>
+						<div className="notice-actions">
+							<button className="btn btn-secondary" onClick={() => reset()}>
+								Edit article or report
 							</button>
 						</div>
 					</div>
 				</div>
 			) : run ? (
 				<>
+					<ReferenceSummary run={run} />
 					{(run.status === "failed" || run.status === "timed_out") && (
 						<div className="notice notice-bad" role="alert">
 							<strong>{run.status === "timed_out" ? "The run timed out." : "The run failed."}</strong> {run.error} Partial results are shown below; claims without a finished review are marked as such.
@@ -143,7 +175,7 @@ export default function App() {
 					{run.claims.length === 0 && run.status === "running" ? (
 						<div className="panel-body empty">
 							<IconSpinner size={20} />
-							<p>Extractor is reading the article…</p>
+							<p>{run.reference.report && run.reference.report.status === "reading" ? "Reader is reading the report's statement pages; code verifies each figure on its page…" : "Extractor is reading the article…"}</p>
 						</div>
 					) : (
 						<ResultsPanel run={run} selectedId={selectedId} onSelect={(id) => select(id)} onLocate={locate} />
@@ -151,14 +183,23 @@ export default function App() {
 				</>
 			) : (
 				<div className="panel-body empty-state">
-					<h3>Run the included example</h3>
-					<p>The checker will extract each numerical claim from the article, find the matching figures in NVIDIA's 10-Q/10-K filings, recalculate them, and have an auditor review every result.</p>
-					<ul className="plain small muted">
-						<li>Model responses: {replayOption?.label}. {replayOption?.detail}</li>
-						<li>SEC lookups, calculations, rule checks and revision control run for real.</li>
-						<li>No API key or account is needed.</li>
-					</ul>
-					<button className="btn btn-primary" onClick={runExample} disabled={running}>
+					<h3>How a check works</h3>
+					<ol className="steps small">
+						<li>
+							<strong>Company.</strong> Identified from the article (or what you type) against SEC's full list of filers. If the text fits several companies, you choose.
+						</li>
+						<li>
+							<strong>Reference.</strong> The company's SEC financial statements (10-Q, 10-K, 20-F, 40-F), or its official report PDF. Never an earnings release, and never another company's data.
+						</li>
+						<li>
+							<strong>Concurrent agents.</strong> Extractor, Evidence, Context and Auditor agents (plus a Reader for reports) work on every claim at once; a deterministic calculator computes each verdict from evidence ids.
+						</li>
+						<li>
+							<strong>Checks.</strong> Currency, scale (thousand, lakh, million, crore, billion), fiscal period, reported vs adjusted, and consolidated vs standalone are validated by code. Missing data is reported, not invented.
+						</li>
+					</ol>
+					<p className="small muted">Or watch it on the included NVIDIA example. Model responses: {replayOption?.label}. No API key is needed.</p>
+					<button className="btn btn-secondary" onClick={runExample} disabled={running}>
 						<IconPlay size={14} /> Run included example
 					</button>
 				</div>
@@ -201,20 +242,27 @@ export default function App() {
 					</div>
 				</div>
 				<div className="header-meta">
-					<span className="pill pill-dark">
-						{meta.company.name} · {meta.company.ticker}
-					</span>
-					<span className="pill pill-dark">SEC data as of {fmtDate(meta.snapshotFetchedAt)}</span>
+					{run ? (
+						<>
+							<span className="pill pill-dark">
+								{run.reference.entityName}
+								{run.reference.ticker ? ` · ${run.reference.ticker}` : ""}
+							</span>
+							<span className="pill pill-dark">{run.reference.kind === "sec" ? `SEC data as of ${fmtDate(run.reference.fetchedAt)}` : `Official report · fetched ${fmtDate(run.reference.fetchedAt)}`}</span>
+						</>
+					) : (
+						<span className="pill pill-dark">Any SEC filer, or a company's official report (PDF)</span>
+					)}
 				</div>
 			</header>
 
 			<div className="runbar">
 				<div className="runbar-actions">
-					<button className="btn btn-primary" onClick={runExample} disabled={running} aria-describedby="example-label">
-						{running ? <IconSpinner size={14} /> : <IconPlay size={14} />} {running ? "Running…" : "Run included example"}
+					<button className="btn btn-primary" onClick={() => reset()} disabled={running || !run}>
+						{running ? <IconSpinner size={14} /> : <IconDoc size={14} />} {running ? "Running…" : "Check your article"}
 					</button>
-					<button className="btn btn-secondary" onClick={() => setCustomOpen(true)} disabled={running}>
-						Check your own article
+					<button className="btn btn-secondary" onClick={runExample} disabled={running} aria-describedby="example-label">
+						<IconPlay size={14} /> Run NVIDIA example
 					</button>
 					{meta.replayOptions.filter((o) => o.available).length > 1 && (
 						<label className="replay-select">
@@ -230,13 +278,15 @@ export default function App() {
 							</select>
 						</label>
 					)}
-					<span className="label-chip" id="example-label" title={replayOption?.detail}>
-						Synthetic example · {replayOption?.short} · Real calculations
-					</span>
+					{(!run || run.source === "example") && (
+						<span className="label-chip" id="example-label" title={replayOption?.detail}>
+							Example: synthetic article · {replayOption?.short} · Real calculations
+						</span>
+					)}
 				</div>
 				<div className="runbar-status">
 					<span className="status-text" aria-live="polite">
-						{run ? progressText(run) : runError ? <span className="text-bad">{runError}</span> : "Ready · nothing has been run yet"}
+						{run ? progressText(run) : runError ? <span className="text-bad">{runError}</span> : "Ready · paste an article to check"}
 					</span>
 					{run && run.provenance.kind !== "none" && (
 						<span className={`pill prov prov-${run.provenance.kind}`} title={Object.entries(run.provenance.counts).map(([k, v]) => `${k}: ${v}`).join(", ")}>
@@ -321,18 +371,6 @@ export default function App() {
 				<Modal labelledBy="inspector-title" variant="drawer" onClose={() => setSelectedId(undefined)} initialFocus={inspectorHeading}>
 					{inspector}
 				</Modal>
-			)}
-
-			{customOpen && (
-				<CustomArticleDialog
-					meta={meta}
-					initial={typeof customOpen === "object" ? customOpen : undefined}
-					onClose={() => setCustomOpen(false)}
-					onStart={async (b) => {
-						await start(b)
-						setTab("results")
-					}}
-				/>
 			)}
 
 			<footer className="footer">

@@ -59,7 +59,28 @@ export type ClaimView = {
 	order: number
 }
 
-export type AgentName = "Extractor" | "Evidence" | "Context" | "Calculator" | "Auditor"
+export type AgentName = "Reader" | "Extractor" | "Evidence" | "Context" | "Calculator" | "Auditor"
+
+/** What a run checks against: SEC statements, or a company's official report (PDF) verified page by page. */
+export type ReferenceView = {
+	kind: "sec" | "report"
+	entityName: string
+	ticker?: string
+	cik?: string
+	label: string
+	fetchedAt: string
+	sources: { label: string; url: string }[]
+	reportingCurrency?: string
+	note?: string
+	report?: {
+		status: "reading" | "ready" | "failed"
+		pageCount: number
+		statementPages: number[]
+		verified: { id?: string; metric: string; period: string; consolidation: string; page: number; row: string; column: string; printed: string; unitNote: string; value: number; unit: string }[]
+		rejected: { proposed: unknown; reason: string }[]
+		error?: string
+	}
+}
 
 export type AgentView = {
 	name: AgentName
@@ -83,7 +104,7 @@ export type ProvenanceView = {
 	simulatedTiming: boolean
 }
 
-export type RunStatus = "running" | "done" | "cache_miss" | "failed" | "timed_out"
+export type RunStatus = "running" | "done" | "cache_miss" | "reference_unavailable" | "failed" | "timed_out"
 
 export type RunView = {
 	id: string
@@ -93,8 +114,9 @@ export type RunView = {
 	startedAt: string
 	elapsedMs: number
 	article: { title: string; text: string }
-	company: { ticker: string; name: string; cik: string }
+	company: { ticker?: string; name: string; cik?: string }
 	snapshotFetchedAt: string
+	reference: ReferenceView
 	extraction: { status: "running" | "done" | "failed"; error?: string }
 	claims: ClaimView[]
 	agents: AgentView[]
@@ -110,8 +132,13 @@ export type RunView = {
 
 export type MetaView = {
 	product: { name: string; tagline: string; disclaimer: string }
+	/** The optional NVIDIA example's company (custom articles resolve their own). */
 	company: { ticker: string; name: string; cik: string }
 	companies: { ticker: string; name: string }[]
+	/** SEC's list of filers that custom articles are resolved against. */
+	companyIndex?: { count: number; fetchedAt: string; source: string }
+	/** Fresh articles about other companies, with genuine recorded runs where available. */
+	samples: { id: string; label: string; title: string; text: string; company?: string; reportUrl?: string; note: string }[]
 	snapshotFetchedAt: string
 	example: { title: string; text: string; path: string; label: string }
 	replaySources: { path: string; provenance: string; description: string }[]
@@ -121,3 +148,13 @@ export type MetaView = {
 	live: { configured: boolean; model?: string; hint: string }
 	mozaikVersion: string
 }
+
+export type Candidate = { cik: string; name: string; tickers: string[]; score: number; why: string[] }
+export type Resolution =
+	| { status: "resolved"; company: Candidate; candidates: Candidate[]; method: "ticker" | "name" | "detected"; reason: string }
+	| { status: "ambiguous"; candidates: Candidate[]; reason: string }
+	| { status: "not_found"; candidates: Candidate[]; reason: string }
+export type ReferencePreview =
+	| { kind: "sec"; entityName: string; ticker: string; cik: string; source: "committed" | "live"; fetchedAt: string; forms: string[]; reportingCurrency?: string; latest?: string; facts: number; concepts: number }
+	| { kind: "unavailable"; code: string; reason: string; needsReport?: boolean }
+export type ResolveView = { resolution: Resolution; reference?: ReferencePreview; companyIndex: { count: number; fetchedAt: string } }

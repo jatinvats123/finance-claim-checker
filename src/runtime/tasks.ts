@@ -3,7 +3,7 @@
  * that context (and the loop id Mozaik assigns) back to the task, so the runner can label provenance
  * and failures, and so loop completion can be detected from `model.answer`.
  */
-export type AgentRole = "extractor" | "extractor-fix" | "evidence" | "context" | "auditor"
+export type AgentRole = "reader" | "extractor" | "extractor-fix" | "evidence" | "context" | "auditor"
 
 export type Task = {
 	key: string

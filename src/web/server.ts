@@ -3,31 +3,64 @@
  * turns engine events into RunView snapshots (viewmodel.ts), streams them over Server-Sent Events,
  * and serves the existing Markdown/JSON reports.
  *
- *   GET  /api/meta                      product, company, snapshot date, example article (canonical), modes
- *   POST /api/runs                      { source: "example" } | { source: "custom", mode: "live"|"replay", title, text }
+ *   GET  /api/meta                      product, example article (canonical), sample articles, modes
+ *   POST /api/resolve                   { title, text, company?, mode } → company resolution + reference preview
+ *   GET  /api/companies?q=              search SEC filers by ticker or name
+ *   POST /api/runs                      { source: "example" } | { source: "custom", mode, title, text, company?: { cik | query | name }, report?: { url } | { file, statedSourceUrl } }
  *   GET  /api/runs/:id                  latest RunView
  *   GET  /api/runs/:id/events           SSE: "state" (RunView) … "end"
  *   GET  /api/runs/:id/report.md|json   existing report renderers
  */
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs"
+import { existsSync, readFileSync, statSync } from "node:fs"
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http"
 import { extname, join, normalize, resolve } from "node:path"
 import { readArticle } from "../article.js"
+import { currentCompanyIndex, searchCompanies, type CompanyIndex } from "../company/companies.js"
 import type { CheckerState } from "../domain/store.js"
 import { defaultCassettePaths, defaultModel, loadCassettes, parseReplaySource, providerConfigured } from "../llm/cassettes.js"
 import { CheckerRunner, DEFAULT_REPLAY_SPEED, type Cassette } from "../llm/runner.js"
 import { DISCLAIMER, renderMarkdown, toJson, type ReportMeta } from "../report/render.js"
-import { runChecker, type RunResult } from "../runtime/pipeline.js"
+import { runChecker, type PreparedReport, type RunResult } from "../runtime/pipeline.js"
+import { prepareReference, ReferenceError, secSnapshotFor } from "../runtime/reference.js"
 import { TaskTracker } from "../runtime/tasks.js"
-import { loadSnapshot, SNAPSHOT_DIR } from "../sec/edgar.js"
+import { loadSnapshot } from "../sec/edgar.js"
+import { EvidenceRegistry, periodLabel, type FiscalPeriod } from "../sec/evidence.js"
+import type { SecSnapshot } from "../sec/types.js"
 import type { InferenceRunner } from "@mozaik-ai/core"
 import type { MetaView, RunStatus, RunView } from "./types.js"
 import { ActivityLog, provenanceOf, runView } from "./viewmodel.js"
 import { LaneTracer, type Trace } from "../runtime/trace.js"
 
 export const EXAMPLE_ARTICLE = "data/articles/nvda-q2-fy2027.md"
+/** The optional NVIDIA example only. Custom articles resolve their own company; there is no fallback. */
 const EXAMPLE_TICKER = "NVDA"
 const MAX_TEXT = 50_000
+const MAX_BODY = 36 * 1024 * 1024 // a 25 MB PDF upload, base64-encoded
+export const SAMPLES_PATH = "data/samples.json"
+
+type Sample = { id: string; label: string; title: string; articlePath: string; company?: string; report?: { url: string }; note: string }
+const loadSamples = (): Sample[] => (existsSync(SAMPLES_PATH) ? (JSON.parse(readFileSync(SAMPLES_PATH, "utf8")).samples as Sample[]) : [])
+
+/** A short, human summary of an SEC reference (shown before a run starts). */
+export function secSummary(snapshot: SecSnapshot, source: "committed" | "live") {
+	const reg = new EvidenceRegistry(snapshot)
+	const latest = reg.latestReportedPeriod()
+	const forms = [...new Set(reg.calendar.map((c) => c.form.replace("/A", "")))]
+	const metrics = [...new Set(reg.all().map((f) => f.concept))]
+	return {
+		kind: "sec" as const,
+		entityName: snapshot.entityName,
+		ticker: snapshot.ticker,
+		cik: snapshot.cik,
+		source,
+		fetchedAt: snapshot.source.fetchedAt,
+		forms,
+		reportingCurrency: reg.info.reportingCurrency,
+		latest: latest ? `${periodLabel(latest.fy, latest.fp as FiscalPeriod)} (${latest.form}, period ended ${latest.periodEnd}, filed ${latest.filed})` : undefined,
+		facts: reg.all().length,
+		concepts: metrics.length,
+	}
+}
 
 class HttpError extends Error {
 	constructor(
@@ -75,7 +108,13 @@ export type AppOptions = {
 	maxLiveRuns?: number
 	/** Replay speed for recordings (recorded latency ÷ speed). Tests use a high value. */
 	replaySpeed?: number
+	/** Company list to resolve against (tests pass the committed copy); default: SEC's live list. */
+	companyIndex?: CompanyIndex
+	/** false = never call SEC for the company list (it still fetches company data when needed). */
+	liveSec?: boolean
 }
+
+const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim().slice(0, 2000) : undefined)
 
 /**
  * Fairness policy for a public deployment: no global lock. Each visitor's example run is independent,
@@ -93,22 +132,16 @@ export function createApp(opts: AppOptions = {}) {
 	const mozaikVersion = JSON.parse(readFileSync("node_modules/@mozaik-ai/core/package.json", "utf8")).version as string
 	const staticDir = resolve(opts.staticDir ?? "dist/web")
 
-	const companies = () =>
-		existsSync(SNAPSHOT_DIR)
-			? readdirSync(SNAPSHOT_DIR)
-					.filter((f) => f.endsWith(".json"))
-					.map((f) => {
-						const s = loadSnapshot(f.replace(/\.json$/, ""))
-						return { ticker: s.ticker, name: s.entityName }
-					})
-			: []
+	/** SEC's full list of filers (live, refreshed daily; the committed copy if SEC is unreachable). */
+	let index: CompanyIndex | undefined
+	const companies = async () => (index = opts.companyIndex ?? (await currentCompanyIndex({ allowLive: opts.liveSec !== false })))
 
 	function meta(): MetaView {
 		const snap = loadSnapshot(EXAMPLE_TICKER)
 		const example = readArticle(EXAMPLE_ARTICLE)
 		const sources = loadCassettes(opts.cassettePaths ?? defaultCassettePaths("all"))
 		const fixtures = sources.filter((s) => s.data.provenance === "fixture")
-		const recorded = sources.filter((s) => s.data.provenance === "recorded")
+		const recorded = sources.filter((s) => s.data.provenance === "recorded" && (opts.cassettePaths || exampleRecording(s.path)))
 		const rec0 = recorded[0]?.data
 		const replayOptions: MetaView["replayOptions"] = [
 			{
@@ -126,11 +159,16 @@ export function createApp(opts: AppOptions = {}) {
 		return {
 			product: {
 				name: "Finance Claim Checker",
-				tagline: "Concurrent AI agents check the revenue, profit and EPS figures in a finance article against the company's SEC 10-Q/10-K financial statements, with a receipt for each result.",
+				tagline: "Paste a finance article about any company: concurrent AI agents find its revenue, profit and EPS figures and check each one against the company's official financial statements, with a receipt for every result.",
 				disclaimer: DISCLAIMER,
 			},
 			company: { ticker: snap.ticker, name: snap.entityName, cik: snap.cik },
-			companies: companies(),
+			companies: [{ ticker: snap.ticker, name: snap.entityName }],
+			companyIndex: index ? { count: index.companies.length, fetchedAt: index.fetchedAt, source: index.source } : undefined,
+			samples: loadSamples().map((s) => {
+				const a = existsSync(s.articlePath) ? readArticle(s.articlePath) : { title: s.title, text: "" }
+				return { id: s.id, label: s.label, title: a.title, text: a.text, company: s.company, reportUrl: s.report?.url, note: s.note }
+			}),
 			snapshotFetchedAt: snap.source.fetchedAt,
 			example: { ...example, path: EXAMPLE_ARTICLE, label: `Synthetic example · ${modelLabel} · Real calculations` },
 			replaySources: sources.map((s) => ({ path: s.path.replace(/\\/g, "/"), provenance: s.data.provenance, description: s.data.description })),
@@ -172,15 +210,26 @@ export function createApp(opts: AppOptions = {}) {
 		if (!rec.flushTimer) rec.flushTimer = setTimeout(() => broadcast(rec), 120)
 	}
 
-	function startRun(body: any): RunRecord {
-		const source =body?.source === "custom" ? "custom" : body?.source === "example" ? "example" : undefined
+	/** Recordings of the included example (file names start with the example article's name). */
+	const exampleRecording = (p: string) => p.replace(/\\/g, "/").split("/").pop()!.startsWith(EXAMPLE_ARTICLE.split("/").pop()!.replace(/\.\w+$/, "") + ".")
+
+	let preparing = 0
+	async function startRun(body: any): Promise<RunRecord> {
+		const source = body?.source === "custom" ? "custom" : body?.source === "example" ? "example" : undefined
 		if (!source) throw new HttpError(400, 'source must be "example" or "custom"')
 
 		let article: { title: string; text: string; ticker: string }
 		let mode: "replay" | "live"
+		let snapshot: SecSnapshot | undefined
+		let report: PreparedReport | undefined
+		let cassettePaths: string[]
 		if (source === "example") {
 			article = { ...readArticle(EXAMPLE_ARTICLE), ticker: EXAMPLE_TICKER } // canonical parse, exactly as the CLI does
 			mode = "replay"
+			const replaySource = parseReplaySource(body?.replay ?? meta().defaultReplay)
+			cassettePaths = opts.cassettePaths ?? defaultCassettePaths(replaySource).filter((p) => replaySource === "fixtures" || p.endsWith(".fixtures.json") || exampleRecording(p))
+			if (mode === "replay" && active("replay") >= maxReplay) throw new HttpError(429, "The server is busy with other checks. Try again in a few seconds.", { code: "BUSY" })
+			snapshot = loadSnapshot(EXAMPLE_TICKER)
 		} else {
 			const title = typeof body.title === "string" ? body.title.trim() : ""
 			const text = typeof body.text === "string" ? body.text : ""
@@ -188,17 +237,30 @@ export function createApp(opts: AppOptions = {}) {
 			if (text.length > MAX_TEXT || title.length > 300) throw new HttpError(400, `Article is too long (limit ${MAX_TEXT} characters).`)
 			mode = body.mode === "live" ? "live" : "replay"
 			if (mode === "live" && !providerConfigured(env)) throw new HttpError(400, meta().live.hint, { code: "LIVE_NOT_CONFIGURED" })
-			article = { title: title || "Untitled article", text, ticker: EXAMPLE_TICKER }
+			if (mode === "live" && active("live") >= maxLive) throw new HttpError(429, "A live check is already running on this server; live checks run one at a time to bound provider spend. Try again shortly, or run the included example.", { code: "LIVE_BUSY" })
+			if (mode === "replay" && active("replay") >= maxReplay) throw new HttpError(429, "The server is busy with other checks. Try again in a few seconds.", { code: "BUSY" })
+			const company = body.company && typeof body.company === "object" ? { cik: str(body.company.cik), query: str(body.company.query), name: str(body.company.name) } : undefined
+			const r = body.report && typeof body.report === "object" ? body.report : undefined
+			const reportReq = r && (str(r.url) || r.file) ? { url: str(r.url), file: r.file && typeof r.file.base64 === "string" ? { name: String(r.file.name ?? "report.pdf").slice(0, 200), base64: r.file.base64 } : undefined, statedSourceUrl: str(r.statedSourceUrl) } : undefined
+			if (reportReq && preparing >= 2) throw new HttpError(429, "Two reports are being read already; try again in a few seconds.", { code: "BUSY" })
+			preparing++
+			try {
+				const ref = await prepareReference({ article: { title, text }, company, report: reportReq, preferCommitted: mode === "replay" }, await companies())
+				if (ref.kind === "sec") snapshot = ref.snapshot
+				else report = ref.report
+				article = { title: title || "Untitled article", text, ticker: ref.kind === "sec" ? ref.snapshot.ticker : (ref.report.company.ticker ?? "") }
+			} catch (e) {
+				if (e instanceof ReferenceError) throw new HttpError(e.status, e.message, { code: e.code, ...e.extra })
+				throw e
+			} finally {
+				preparing--
+			}
+			cassettePaths = opts.cassettePaths ?? defaultCassettePaths("all")
 		}
 
-		if (mode === "live" && active("live") >= maxLive) throw new HttpError(429, "A live check is already running on this server; live checks run one at a time to bound provider spend. Try again shortly, or run the included example.", { code: "LIVE_BUSY" })
-		if (mode === "replay" && active("replay") >= maxReplay) throw new HttpError(429, "The server is busy with other checks. Try again in a few seconds.", { code: "BUSY" })
-
-		const replaySource = parseReplaySource(body?.replay ?? meta().defaultReplay)
-		const snapshot = loadSnapshot(article.ticker)
 		const tasks = new TaskTracker()
-		const cassettes = mode === "replay" ? loadCassettes(opts.cassettePaths ?? defaultCassettePaths(replaySource)) : []
-		if (mode === "replay" && !cassettes.length) throw new HttpError(400, `No ${replaySource === "recorded" ? "recorded model run" : "replay data"} is available on this server.`, { code: "NO_REPLAY_DATA" })
+		const cassettes = mode === "replay" ? loadCassettes(cassettePaths) : []
+		if (mode === "replay" && !cassettes.length) throw new HttpError(400, "No replay data is available on this server.", { code: "NO_REPLAY_DATA" })
 		// Live checks from the browser always run under the default safety limits (call/turn caps, pacing, retries).
 		const runner = new CheckerRunner({ mode, tasks, cassettes: cassettes.map((c) => c.data), inner: mode === "live" ? opts.liveInner?.(tasks) : undefined, model: mode === "live" ? defaultModel(env) : undefined, replaySpeed: opts.replaySpeed })
 		const rec: RunRecord = {
@@ -224,6 +286,7 @@ export function createApp(opts: AppOptions = {}) {
 		runChecker({
 			article,
 			snapshot,
+			report,
 			runner,
 			tasks,
 			model: rec.model,
@@ -240,7 +303,7 @@ export function createApp(opts: AppOptions = {}) {
 				rec.result = result
 				rec.state = result.state
 				const err = result.state.extractionError
-				rec.status = result.timedOut ? "timed_out" : result.state.extraction === "failed" ? (err?.startsWith("CACHE_MISS") ? "cache_miss" : "failed") : "done"
+				rec.status = result.timedOut ? "timed_out" : result.state.extraction === "failed" ? (err?.startsWith("CACHE_MISS") ? "cache_miss" : err?.startsWith("REFERENCE_UNAVAILABLE") ? "reference_unavailable" : "failed") : "done"
 				if (rec.status !== "done") rec.error = result.timedOut ? "The run timed out before every claim settled." : err
 			})
 			.catch((err) => {
@@ -269,12 +332,12 @@ export function createApp(opts: AppOptions = {}) {
 		res.end(JSON.stringify(data))
 	}
 
-	async function readBody(req: IncomingMessage): Promise<any> {
+	async function readBody(req: IncomingMessage, limit = MAX_TEXT * 4): Promise<any> {
 		let size = 0
 		const chunks: Buffer[] = []
 		for await (const chunk of req) {
 			size += chunk.length
-			if (size > MAX_TEXT * 4) throw new HttpError(413, "Request too large.")
+			if (size > limit) throw new HttpError(413, "Request too large.")
 			chunks.push(chunk)
 		}
 		try {
@@ -302,10 +365,38 @@ export function createApp(opts: AppOptions = {}) {
 		const url = new URL(req.url ?? "/", "http://localhost")
 		const p = url.pathname
 		try {
-			if (p === "/api/meta" && req.method === "GET") return json(res, 200, meta())
+			if (p === "/api/meta" && req.method === "GET") {
+				await companies().catch(() => undefined)
+				return json(res, 200, meta())
+			}
 			if (p === "/api/runs" && req.method === "POST") {
-				const rec = startRun(await readBody(req))
+				const rec = await startRun(await readBody(req, MAX_BODY))
 				return json(res, 202, { id: rec.id })
+			}
+			if (p === "/api/companies" && req.method === "GET") {
+				const q = (url.searchParams.get("q") ?? "").slice(0, 100)
+				return json(res, 200, { candidates: searchCompanies(await companies(), q) })
+			}
+			if (p === "/api/resolve" && req.method === "POST") {
+				// identify the company (no run, no model call) and preview the reference it would be checked against
+				const body = await readBody(req)
+				const text = typeof body.text === "string" ? body.text.slice(0, MAX_TEXT) : ""
+				const title = typeof body.title === "string" ? body.title.slice(0, 300) : ""
+				const ix = await companies()
+				const cik = str(body.company?.cik)
+				const { companyByCik, resolveCompany } = await import("../company/companies.js")
+				const chosen = cik ? companyByCik(ix, cik) : undefined
+				const resolution = chosen ? { status: "resolved" as const, company: { ...chosen, score: 100, why: ["selected"] }, candidates: [], method: "name" as const, reason: `Selected ${chosen.name}` } : resolveCompany(ix, { query: str(body.company?.query), text, title })
+				let reference: unknown
+				if (resolution.status === "resolved") {
+					try {
+						const { snapshot, source } = await secSnapshotFor(resolution.company, body.mode !== "live")
+						reference = secSummary(snapshot, source)
+					} catch (e) {
+						reference = e instanceof ReferenceError ? { kind: "unavailable", code: e.code, reason: e.message, needsReport: !!e.extra.needsReport } : { kind: "unavailable", code: "ERROR", reason: (e as Error).message }
+					}
+				}
+				return json(res, 200, { resolution, reference, companyIndex: { count: ix.companies.length, fetchedAt: ix.fetchedAt } })
 			}
 			const ch = /^\/api\/runs\/([\w-]+)\/claims\/(c\d+)\/challenge$/.exec(p)
 			if (ch && req.method === "POST") {
