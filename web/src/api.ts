@@ -64,6 +64,7 @@ export function useRun() {
 	const [resumeError, setResumeError] = useState<string>()
 	const source = useRef<EventSource>()
 	const busy = useRef(false)
+	const selectionEpoch = useRef(0)
 
 	const attach = useCallback((id: string) => {
 		source.current?.close()
@@ -89,6 +90,7 @@ export function useRun() {
 	const start = useCallback(
 		async (body: StartBody) => {
 			if (busy.current) return
+			selectionEpoch.current++
 			busy.current = true
 			setStarting(true)
 			setError(undefined)
@@ -113,6 +115,7 @@ export function useRun() {
 	)
 
 	const reset = useCallback(() => {
+		selectionEpoch.current++
 		source.current?.close()
 		source.current = undefined
 		busy.current = false
@@ -156,9 +159,20 @@ export function useRun() {
 		}
 	}, [attach, resumePending, run])
 
+	const checkMention = useCallback(async (start: number) => {
+		if (!run) return
+		const epoch = selectionEpoch.current
+		const response = await api<{ run?: RunView; id?: string }>(`/api/runs/${run.id}/mentions`, { method: "POST", body: JSON.stringify({ start }) })
+		if (selectionEpoch.current !== epoch) return
+		if (response.run) setRun(current => current?.id === response.run?.id ? response.run : current)
+		else if (response.id) {
+			busy.current = true
+			attach(response.id)
+		}
+	}, [attach, run])
 	const resuming = resumePending || run?.recovering === true
 	const running = starting || resuming || run?.status === "running" || run?.recoveryPending === true
-	return { run, start, starting, error, reset, challenge, resume, resumeError, resuming, running }
+	return { run, start, starting, error, reset, challenge, resume, resumeError, resuming, running, checkMention }
 }
 
 export function useMedia(query: string): boolean {

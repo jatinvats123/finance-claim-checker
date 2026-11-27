@@ -8,7 +8,8 @@ import type { EvidenceFact } from "../sec/evidence.js"
 import { periodLabel } from "../sec/evidence.js"
 import type { CalcInput, Calculation, ClaimInterpretation, NumericVerdict, Scale } from "./types.js"
 
-export const SCALE: Record<Scale, number> = { units: 1, thousand: 1e3, lakh: 1e5, million: 1e6, crore: 1e7, billion: 1e9, trillion: 1e12, lakh_crore: 1e12 }
+import { SCALE } from "./scales.js"
+export { SCALE }
 const PER_SHARE_METRICS = new Set(["eps_diluted", "eps_basic"])
 const SCALE_WORD: Record<Scale, string> = { units: "", thousand: "thousand", lakh: "lakh", million: "million", crore: "crore", billion: "billion", trillion: "trillion", lakh_crore: "lakh crore" }
 

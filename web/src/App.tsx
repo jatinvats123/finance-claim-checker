@@ -7,7 +7,7 @@ import { ReferenceSummary } from "./components/Reference"
 import { Modal } from "./components/Dialog"
 import { IconAlert, IconChevron, IconDoc, IconDownload, IconPlay, IconSpinner } from "./components/icons"
 import { Inspector } from "./components/Inspector"
-import { ResultsPanel } from "./components/ResultsPanel"
+import { MentionCoverage, ResultsPanel } from "./components/ResultsPanel"
 import { priorityCorrection } from "./editorResults"
 
 type Tab = "article" | "results" | "evidence"
@@ -66,7 +66,7 @@ function RecoveryNotice({ recovery, resuming, error, resume }: {
 
 export default function App() {
 	const { meta, error: metaError } = useMeta()
-	const { run, start, running, error: runError, reset, challenge, resume, resumeError, resuming } = useRun()
+	const { run, start, running, error: runError, reset, challenge, resume, resumeError, resuming, checkMention } = useRun()
 	const [selection, setSelection] = useState<{ runId?: string; id?: string }>()
 	const [historyOpen, setHistoryOpen] = useState(false)
 	const [tab, setTab] = useState<Tab>("article")
@@ -191,6 +191,7 @@ export default function App() {
 			)}
 			{run?.status === "cache_miss" ? (
 				<div className="panel-body">
+					{run.reference.kind === "sec" && <MentionCoverage key={run.id} run={run} onCheckMention={checkMention} />}
 					<div className="notice notice-warn" role="alert">
 						<h3>No replay data for this article</h3>
 						<p>
@@ -238,7 +239,7 @@ export default function App() {
 							<p>{run.reference.report && run.reference.report.status === "reading" ? "Reader is reading the report's statement pages; code verifies each figure on its page…" : "Extractor is reading the article…"}</p>
 						</div>
 					) : (
-						<ResultsPanel key={run.id} run={run} recommended={recommended} selectedId={selectedId} onSelect={(id) => select(id)} onLocate={locate} />
+						<ResultsPanel key={run.id} run={run} recommended={recommended} selectedId={selectedId} onSelect={(id) => select(id)} onLocate={locate} onCheckMention={checkMention} />
 					)}
 				</>
 			) : (
@@ -329,7 +330,8 @@ export default function App() {
 
 			<div className="runbar">
 				<div className="runbar-actions">
-					{featured && <button className="btn btn-primary" onClick={runFeatured} disabled={running}>
+					{!running && <a className="btn btn-primary" href="/newsroom">Apple newsroom case &amp; 60-second demo</a>}
+					{featured && <button className="btn btn-secondary" onClick={runFeatured} disabled={running}>
 						<IconPlay size={14} /> Check the Wipro example · recorded
 					</button>}
 					<button className="btn btn-secondary" onClick={() => reset()} disabled={running || !run}>

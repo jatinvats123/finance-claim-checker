@@ -106,6 +106,10 @@ export type ProvenanceView = {
 
 export type RunStatus = "running" | "done" | "cache_miss" | "reference_unavailable" | "failed" | "timed_out"
 
+export type ManualReceipt =
+	| { status: "needs_review"; reason: string }
+	| { status: "compared"; matches: boolean; metric: string; period: string; stated: string; filed: string; source: CalcInput }
+
 export type RunView = {
 	id: string
 	status: RunStatus
@@ -119,6 +123,7 @@ export type RunView = {
 	reference: ReferenceView
 	extraction: { status: "running" | "done" | "failed"; error?: string }
 	claims: ClaimView[]
+	manualChecks?: Record<number, ManualReceipt>
 	agents: AgentView[]
 	timeline: TimelineEntry[]
 	provenance: ProvenanceView
@@ -143,7 +148,7 @@ export type MetaView = {
 	/** SEC's list of filers that custom articles are resolved against. */
 	companyIndex?: { count: number; fetchedAt: string; source: string }
 	/** Fresh articles about other companies, with genuine recorded runs where available. */
-	samples: { id: string; label: string; title: string; text: string; company?: string; reportUrl?: string; note: string }[]
+	samples: { id: string; label: string; title: string; text: string; company?: string; reportUrl?: string; preferredMode?: "replay"; note: string }[]
 	snapshotFetchedAt: string
 	example: { title: string; text: string; path: string; label: string }
 	replaySources: { path: string; provenance: string; description: string }[]

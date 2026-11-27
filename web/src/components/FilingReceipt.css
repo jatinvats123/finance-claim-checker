@@ -1,0 +1,14 @@
+.receipt-edit { margin-top: 0.8rem; }
+.receipt-edit h4, .filing-receipt h3 { margin-bottom: .4rem; }
+.receipt-preview { padding: .65rem .8rem; border-inline-start: 3px solid var(--primary); background: var(--primary-soft); border-radius: 3px; overflow-wrap: anywhere; }
+.receipt-preview mark { background: transparent; color: inherit; font-weight: 750; }
+.receipt-precision { display: flex; flex-wrap: wrap; gap: .3rem .9rem; border: 0; margin: 0 0 .65rem; padding: 0; min-width: 0; }
+.receipt-precision legend { color: var(--muted); font-size: .8rem; }
+.receipt-precision label { font-size: .9rem; display: inline-flex; align-items: center; gap: .3rem; }
+.receipt-precision input { margin: 0; }
+.receipt-fact { padding: .65rem .75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); overflow-wrap: anywhere; }
+.receipt-fact + .receipt-fact, .receipt-input + .receipt-input { margin-top: .45rem; }
+.receipt-fact-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .4rem; margin-bottom: .3rem; }
+.receipt-fact p { margin: .25rem 0 0; }
+.receipt-raw { font-size: .87rem; }
+.receipt-raw code { font-family: var(--mono); font-size: .9em; }

@@ -1,0 +1,86 @@
+{
+  "source": "per-arm offers where correctCorrection === true, smallest timeMs per arm",
+  "protocolDeadlineMs": 120000,
+  "exploratory": true,
+  "n": 12,
+  "pairsWithFirstOffer": 10,
+  "medianConcurrentMs": 31027.5,
+  "medianSerialMs": 46046,
+  "medianPairedGainMs": 14936.5,
+  "minPairedGainMs": 9741,
+  "maxPairedGainMs": 15636,
+  "results": [
+    {
+      "id": "aapl-annual-archive",
+      "concurrentMs": 30828,
+      "serialMs": 46464,
+      "pairedGainMs": 15636
+    },
+    {
+      "id": "wmt-spring-desk",
+      "concurrentMs": 31056,
+      "serialMs": 40797,
+      "pairedGainMs": 9741
+    },
+    {
+      "id": "wit-crore-tables",
+      "concurrentMs": 31307,
+      "serialMs": 46282,
+      "pairedGainMs": 14975
+    },
+    {
+      "id": "infy-usd-with-local-sidebar",
+      "concurrentMs": null,
+      "serialMs": null,
+      "pairedGainMs": null
+    },
+    {
+      "id": "nvda-annual-bottom-line",
+      "concurrentMs": 51658,
+      "serialMs": 65810,
+      "pairedGainMs": 14152
+    },
+    {
+      "id": "jpm-two-eps-bases",
+      "concurrentMs": 50992,
+      "serialMs": 61127,
+      "pairedGainMs": 10135
+    },
+    {
+      "id": "wmt-fy-annual-check",
+      "concurrentMs": null,
+      "serialMs": null,
+      "pairedGainMs": null
+    },
+    {
+      "id": "aapl-march-quarter-units",
+      "concurrentMs": 30999,
+      "serialMs": 45932,
+      "pairedGainMs": 14933
+    },
+    {
+      "id": "infy-annual-snapshot",
+      "concurrentMs": 30974,
+      "serialMs": 45914,
+      "pairedGainMs": 14940
+    },
+    {
+      "id": "wit-annual-profit-rows",
+      "concurrentMs": 30918,
+      "serialMs": 45988,
+      "pairedGainMs": 15070
+    },
+    {
+      "id": "jpm-quarter-results-box",
+      "concurrentMs": 30778,
+      "serialMs": 46104,
+      "pairedGainMs": 15326
+    },
+    {
+      "id": "nvda-october-quarter-brief",
+      "concurrentMs": 31358,
+      "serialMs": 45721,
+      "pairedGainMs": 14363
+    }
+  ]
+}

@@ -126,6 +126,7 @@ function receipt(claim: Claim, state: CheckerState): string {
 	const out: string[] = []
 	out.push(`### ${claim.id} — ${calc ? calc.verdict.replace(/_/g, " ") : "PENDING"}`)
 	out.push(`> “${i.quote}”`)
+	if (state.history.some(entry => entry.claimId === claim.id && entry.kind === "claim.editor_selected")) out.push("Selected by an editor after extraction. Reviewed through the same evidence and audit workflow.")
 	out.push("")
 	out.push(`**Numerical result** (revision r${claim.revision}${binding ? `.e${binding.evidenceRevision}` : ""}; audit: ${auditText(audit?.state)})`)
 	out.push("")

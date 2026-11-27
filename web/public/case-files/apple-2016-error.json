@@ -1,0 +1,237 @@
+{
+  "disclaimer": "Not financial advice. This tool checks whether numbers in a text match a company's official financial statements (SEC filings or the company's published report); it does not evaluate the company or recommend any action.",
+  "article": {
+    "title": "Apple June 2016 earnings desk check",
+    "path": "(article submitted in the web app)"
+  },
+  "company": {
+    "ticker": "AAPL",
+    "cik": "0000320193",
+    "name": "Apple Inc."
+  },
+  "reference": {
+    "kind": "sec",
+    "entityName": "Apple Inc.",
+    "ticker": "AAPL",
+    "cik": "0000320193",
+    "fetchedAt": "2026-11-27T13:24:47.607Z",
+    "label": "SEC EDGAR XBRL financial statements (10-Q, 10-K, 20-F, 40-F)",
+    "sources": [
+      {
+        "label": "SEC company facts (XBRL)",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json"
+      },
+      {
+        "label": "SEC filing index",
+        "url": "https://data.sec.gov/submissions/CIK0000320193.json"
+      }
+    ],
+    "reportingCurrency": "USD"
+  },
+  "secSource": {
+    "companyFactsUrl": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+    "submissionsUrl": "https://data.sec.gov/submissions/CIK0000320193.json",
+    "fetchedAt": "2026-11-27T13:24:47.607Z",
+    "note": "Trimmed copy of SEC EDGAR XBRL company facts (10-Q/10-K/20-F/40-F only) and recent filing index. Public data."
+  },
+  "run": {
+    "mode": "live",
+    "model": "gemini-3.1-flash-lite",
+    "mozaik": "6.0.0",
+    "timedOut": false,
+    "elapsedMs": 70719,
+    "modelCalls": [
+      {
+        "task": "extractor:article",
+        "turn": 0,
+        "key": "a3914bbaebdf57ed14eb001b",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor:article",
+        "turn": 1,
+        "key": "23245e58715ca63a2e03390e",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c1@r1",
+        "turn": 0,
+        "key": "4c8c4e8daf6da29f1b8607c4",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "turn": 0,
+        "key": "fe74191f59e2ac52b4de9fcd",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "turn": 1,
+        "key": "1f325b6f152adfbcbb2df65d",
+        "provenance": "live"
+      }
+    ],
+    "cassettes": [],
+    "usage": {
+      "model": "gemini-3.1-flash-lite",
+      "requests": 6,
+      "retries": 1,
+      "inputTokens": 7224,
+      "outputTokens": 176,
+      "reasoningTokens": 0,
+      "retryNotes": [
+        "auditor:c1@r1.e1: {\"error\":{\"code\":503,\"message\":\"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again l"
+      ],
+      "stalled": []
+    },
+    "trace": {
+      "timing": "live",
+      "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+      "lanes": [
+        {
+          "task": "extractor:article",
+          "role": "extractor",
+          "startMs": 119,
+          "endMs": 5722,
+          "failed": false
+        },
+        {
+          "task": "context:c1@r1",
+          "role": "context",
+          "claimId": "c1",
+          "claimRevision": 1,
+          "startMs": 1554,
+          "endMs": 13438,
+          "failed": false
+        },
+        {
+          "task": "auditor:c1@r1.e1",
+          "role": "auditor",
+          "claimId": "c1",
+          "claimRevision": 1,
+          "evidenceRevision": 1,
+          "startMs": 1561,
+          "endMs": 70719,
+          "failed": false
+        }
+      ],
+      "peakActive": 3,
+      "peakAtMs": 1561,
+      "totalMs": 132220
+    }
+  },
+  "claims": [
+    {
+      "id": "c1",
+      "revision": 1,
+      "interpretation": {
+        "quote": "Apple Inc. reported net income of $10.5 billion for its fiscal third quarter ended June 25, 2016.",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2016,
+        "fiscalPeriod": "Q3",
+        "statedNumber": "10.5",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "reason": "extracted",
+      "correctionsUsed": 0,
+      "evidence": {
+        "claimId": "c1",
+        "claimRevision": 1,
+        "currentFactId": "NetIncomeLoss/Q3-FY2016/16-017809",
+        "boundBy": "evidence (code: single statement figure)",
+        "evidenceRevision": 1
+      },
+      "numericalResult": {
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "verdict": "MISMATCH",
+        "formula": "actual = NetIncomeLoss/Q3-FY2016/16-017809",
+        "substituted": "actual = 7,796,000,000 USD",
+        "statedDisplay": "$10.5 billion",
+        "inputs": [
+          {
+            "evidenceId": "NetIncomeLoss/Q3-FY2016/16-017809",
+            "role": "current",
+            "concept": "us-gaap:NetIncomeLoss",
+            "value": 7796000000,
+            "unit": "USD",
+            "period": "Q3-FY2016",
+            "start": "2016-03-27",
+            "end": "2016-06-25",
+            "form": "10-Q",
+            "accn": "0001628280-16-017809",
+            "filed": "2016-07-27",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000162828016017809/a10-qq320166252016.htm",
+            "currency": "USD",
+            "consolidation": "consolidated"
+          }
+        ],
+        "notes": [],
+        "actual": 7796000000,
+        "actualDisplay": "$7.796B",
+        "toleranceRule": "rounding of stated digits: ±$50.000M",
+        "difference": "actual − stated = −$2.704B"
+      },
+      "contextWarnings": [
+        {
+          "claimId": "c1",
+          "claimRevision": 1,
+          "evidenceRevision": 1,
+          "source": "rule",
+          "code": "VALUE_MATCHES_OTHER_PERIOD",
+          "message": "The stated figure matches Q2-FY2016 (quarter, $10.516B, NetIncomeLoss/Q2-FY2016/16-559625) — possibly the wrong period (e.g. quarter vs. full year)."
+        }
+      ],
+      "audit": {
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "state": {
+          "status": "approved",
+          "note": "The interpretation faithfully represents the claim, which is factually incorrect according to the SEC filing (mismatch).",
+          "by": "auditor (LLM review)"
+        }
+      }
+    }
+  ],
+  "staleRejections": [],
+  "history": [
+    {
+      "at": 1553,
+      "claimId": "c1",
+      "kind": "claim.extracted",
+      "detail": "r1 Apple Inc. reported net income of $10.5 billion for its fiscal third quarter ended June 25, 2016."
+    },
+    {
+      "at": 1558,
+      "claimId": "c1",
+      "kind": "evidence.direct",
+      "detail": "NetIncomeLoss/Q3-FY2016/16-017809: the only consolidated USD NetIncomeLoss figure for Q3-FY2016 (same value in 4 filings)"
+    },
+    {
+      "at": 1558,
+      "claimId": "c1",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 NetIncomeLoss/Q3-FY2016/16-017809"
+    },
+    {
+      "at": 1560,
+      "claimId": "c1",
+      "kind": "calculation",
+      "detail": "r1.e1 MISMATCH (actual $7.796B vs stated $10.5 billion)"
+    },
+    {
+      "at": 13703,
+      "claimId": "c1",
+      "kind": "audit.approved",
+      "detail": "r1.e1 The interpretation faithfully represents the claim, which is factually incorrect according to the SEC filing (mismatch)."
+    }
+  ]
+}

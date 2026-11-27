@@ -36,11 +36,56 @@ const sentenceSegmenter = new Intl.Segmenter("en", { granularity: "sentence" })
 const normalizeWording = (text: string) => text.replace(/\s+/g, " ").trim().toLowerCase()
 const historicalWording = /\b(?:reported|posted|recorded|generated|recognized|earned|came in at|totaled|amounted to)\b/i
 const historicalEpsLevel = /\b(?:earnings per share|eps)\b[^.!?;\n]{0,60}\b(?:was|were)\s+(?:about\s+|around\s+|approximately\s+)?(?:[+-]\s*)?(?:(?:[A-Z]{1,3}\$|[\$₹€£¥]|Rs\.?|[A-Z]{3})\s*)?\d/i
-const conditionalWording = /\b(?:if|unless|assuming|assumptions?|provided that|so long as|hypothetical|scenarios?|(?:was|were) to)\b/i
+const conditionalWording = /\b(?:if|unless|assum(?:e[ds]?|ing|ptions?)|suppos(?:e[ds]?|ing)|provided that|so long as|hypothetical|scenarios?|(?:was|were) to)\b/i
 
 function hasForecastWording(text: string): boolean {
 	const wording = text.replace(/\bMay(?=\s+(?:\d|of\b))|\b(?:in|last|this|during|through)\s+May\b/gi, "")
-	return /\b(?:guidance|forecasts?|projects?|projected|projection|expects?|expected|anticipat\w*|estimat\w*|outlook|targets?|predict\w*|will|would|could|may|might|on track|aims?|plans?|sees|set to)\b/i.test(wording)
+	return /\b(?:guidance|guided|forecast(?:s|ed|ing)?|project(?:s|ed|ing|ions?)?|expects?|expected|anticipat\w*|estimat\w*|outlook|targets?|predict\w*|budgeted|will|would|could|may|might|on track|aims?|plans?|sees|set to)\b/i.test(wording)
+}
+
+const deskAttribution = /\b(?:draft|article|brief|memo|report|summary|filing|statement|table)\s+(?:also\s+)?(?:puts?|lists?|cites?|states?|shows?|quotes?|gives?)\b/i
+const clauseBoundary = /;|,\s*(?=(?:but|whereas|while|yet)\b)/i
+const sourceNumber = /[+−-]?(?:\d{1,3}(?:,\d{2,3})+|\d+)(?:\.\d+)?/g
+const asNumber = (text: string) => Number(text.replaceAll(",", "").replace("−", "-"))
+
+/** Decide only from the passage containing this amount. A filed period can also have been forecast. */
+function reportsHistoricalAmount(text: string, title: string, claim: ClaimInterpretation, end: string): boolean {
+	const quote = normalizeWording(claim.quote)
+	const amount = asNumber(claim.statedNumber)
+	if (!quote || !Number.isFinite(amount)) return false
+	const matching = [...sentenceSegmenter.segment(text)].map(({ segment }) => normalizeWording(segment)).filter(sentence => sentence.includes(quote))
+	if (!matching.length) return false
+	const ended = new Date(end + "T00:00:00Z").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }).toLowerCase()
+	const annualLabel = new RegExp(`\\b(?:fy\\s*|fiscal (?:year )?)${claim.fiscalYear}\\b`, "i")
+	const eps = claim.kind === "level" && (claim.metric === "eps_basic" || claim.metric === "eps_diluted")
+	return matching.every(sentence => {
+		// A condition can govern both halves of a sentence, even across a contrast.
+		if (conditionalWording.test(sentence)) return false
+		const clauses = sentence.split(clauseBoundary)
+		let offset = 0
+		const quoteStart = sentence.indexOf(quote)
+		if (sentence.indexOf(quote, quoteStart + 1) >= 0) return false
+		const located = clauses.filter(clause => {
+			offset = sentence.indexOf(clause, offset)
+			const start = offset
+			offset += clause.length
+			return [...clause.matchAll(sourceNumber)].some(match => asNumber(match[0]) === amount &&
+				start + match.index! >= quoteStart && start + match.index! + match[0].length <= quoteStart + quote.length)
+		})
+		if (located.length !== 1) return false
+		const clause = located[0]
+		if (hasForecastWording(clause)) return false
+		// An introductory forecast or assumption can govern a coordinated statement even if the quote omits it.
+		const before = sentence.slice(0, sentence.indexOf(clause))
+		if (hasForecastWording(before) && !before.trimEnd().endsWith(";")) return false
+		if (historicalWording.test(clause) || (eps && historicalEpsLevel.test(clause))) return true
+		if (hasForecastWording(title) || conditionalWording.test(title) || !deskAttribution.test(clause)) return false
+		if (clause.includes("ended " + ended) || clause.includes("ended " + end)) return true
+		// A specifically attributed, adjusted FY amount remains outside the statement basis.
+		// Dismissing an unsupported forecast warning leaves the numerical abstention intact.
+		return claim.kind === "level" && claim.accounting === "non_gaap" && claim.fiscalPeriod === "FY" &&
+			/\b(?:non[- ]gaap|adjusted)\b/i.test(clause) && annualLabel.test(clause)
+	})
 }
 
 export class CheckerState extends RuntimeState {
@@ -90,11 +135,11 @@ export class CheckerState extends RuntimeState {
 		return undefined
 	}
 
-	addClaim(interpretation: ClaimInterpretation): Claim {
-		const claim: Claim = { id: `c${this.nextClaim++}`, revision: 1, interpretation, reason: "extracted", correctionsUsed: 0 }
+	addClaim(interpretation: ClaimInterpretation, source: "extractor" | "editor" = "extractor"): Claim {
+		const claim: Claim = { id: `c${this.nextClaim++}`, revision: 1, interpretation, reason: source === "editor" ? "selected by editor" : "extracted", correctionsUsed: 0 }
 		this.claims.set(claim.id, claim)
 		this.extracted.set(claim.id, interpretation)
-		this.log("claim.extracted", `r1 ${interpretation.quote}`, claim.id)
+		this.log(source === "editor" ? "claim.editor_selected" : "claim.extracted", `r1 ${interpretation.quote}`, claim.id)
 		return claim
 	}
 
@@ -242,23 +287,18 @@ export class CheckerState extends RuntimeState {
 		if (w.source === "context-agent" && w.code === "FORWARD_LOOKING") {
 			const filed = this.registry?.filedPeriod(interpretation.fiscalYear, interpretation.fiscalPeriod)
 			// A previously issued forecast can still be quoted after filing. Check the actual words.
-			if (filed && !hasForecastWording(interpretation.quote)) {
+			if (filed) {
 				const reason = `Forecast warning conflicts with the reference. The period ended ${filed.end} and was reported in ${filed.form} on ${filed.filed}. Check the article wording.`
-				if (!archived && !conditionalWording.test(interpretation.quote)) {
-					const quote = normalizeWording(interpretation.quote)
-					const sentences = [...sentenceSegmenter.segment(this.article?.text ?? "")].filter(({ segment }) => normalizeWording(segment).includes(quote))
-					// Copular EPS wording needs a containing sentence to distinguish results from a conditional excerpt.
-					const epsLevel = interpretation.kind === "level" && (interpretation.metric === "eps_basic" || interpretation.metric === "eps_diluted")
-					const historical = historicalWording.test(interpretation.quote) || (epsLevel && sentences.length > 0 && historicalEpsLevel.test(interpretation.quote))
-					if (historical && sentences.every(({ segment }) => !hasForecastWording(segment) && !conditionalWording.test(segment))) {
-						const detail = reason + " The quoted wording explicitly reports historical results."
-						this.log("context.dismissed", detail + " Proposed warning: " + w.message, w.claimId)
-						return { ok: false, stale: false, reason: detail, dismissed: true }
-					}
+				if (!archived && this.article && reportsHistoricalAmount(this.article.text, this.article.title, interpretation, filed.end)) {
+					const detail = reason + " The wording for this amount describes the filed period."
+					this.log("context.dismissed", detail + " Proposed warning: " + w.message, w.claimId)
+					return { ok: false, stale: false, reason: detail, dismissed: true }
 				}
-				this.contextFailures.set(w.claimId, { claimRevision: w.claimRevision, reason })
-				this.log("context.disputed", reason + " Proposed warning: " + w.message, w.claimId)
-				return { ok: false, stale: false, reason, retainedForReview: true }
+				if (!hasForecastWording(interpretation.quote)) {
+					this.contextFailures.set(w.claimId, { claimRevision: w.claimRevision, reason })
+					this.log("context.disputed", reason + " Proposed warning: " + w.message, w.claimId)
+					return { ok: false, stale: false, reason, retainedForReview: true }
+				}
 			}
 		}
 		this.warnings.set(w.claimId, [...(this.warnings.get(w.claimId) ?? []), w])

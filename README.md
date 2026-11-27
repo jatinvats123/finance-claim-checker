@@ -2,7 +2,21 @@
 
 Finance Claim Checker helps a financial editor decide which figures in an earnings draft need a correction before publication. It compares quoted figures with the company's SEC filing or supplied results PDF, shows the calculation and lets the editor copy a sourced correction.
 
-[Open the keyless Wipro demo on Render](https://finance-claim-checker.onrender.com/) · [Read the 12-draft live benchmark](eval/editor-stress.md) · [See an Auditor intervention](#inspect-an-auditor-revision)
+[Open the Apple newsroom walkthrough](https://finance-claim-checker.onrender.com/newsroom) · [Watch the 60-second demo](https://finance-claim-checker.onrender.com/newsroom#watch) · [Check a draft](https://finance-claim-checker.onrender.com/) · [12-draft benchmark](eval/editor-stress.md)
+
+## Reproduce the published Apple error
+
+A syndicated market story gave Apple's June 2016 quarterly profit as $10.5 billion. Two fresh live checks of a reconstructed sentence found $7.796 billion in the 10-Q and accepted the corrected $7.8 billion at the article's precision. The walkthrough includes [the original number](https://archive.sltrib.com/article.php?id=10071604&itype=storyID), [the publisher's correction](https://www.latimes.com/business/la-fi-markets-20160727-snap-story.html), [the filing](https://www.sec.gov/Archives/edgar/data/320193/000162828016017809/a10-qq320166252016.htm) and both raw runs. Open `/newsroom` locally after starting the web app to inspect those saved results without model credentials.
+
+A separate [recorded Apple run](web/public/case-files/apple-2026-auditor.json) shows an Auditor rule blocking a false discrepancy on a year-earlier figure at 249.48 s. A second claim's gross-profit correction was approved at 260.90 s while the first claim was pending. A model-assisted revision and evidence rebind led to a match at 350.97 s. The trace comes from a synthetic FY2026 article and public filings.
+
+In the [12 archived live pairs](eval/editor-stress.md), the primary 120-second result was 16/18 correct edits in both modes. Looking back at the first correct copy-ready edit, concurrent led in all ten drafts that produced an edit, with medians of **31.0 s concurrent and 46.0 s serial**. Two drafts produced none. This exploratory result measures time inside the engine. [Timestamps for every pair](web/public/case-files/first-correction-comparison.json).
+
+## Editor controls
+
+Choose **Infosys missed figure · manual lookup**, click **Check article**, then **Check this number** beside **US$3.843 billion**. The keyless look-up uses the original benchmark draft and shows the FY2024 Form 20-F figure of **US$3.834 billion**. The unrecorded extraction stays labelled separately.
+
+Choose **Wipro results and forecast** and **Replay only** to check the mixed draft against the pinned filing. A fresh recorded run yielded one reviewed operating-income edit and one verified EPS match. The separate FY2027 forecast received no factual correction. For an uncovered amount, **Check this number** checks the selected span against the reference. Ambiguous wording stays in review. The inspector shows the source row when available and offers a wording-preserving edit at article or filing precision.
 
 ```sh
 npm ci

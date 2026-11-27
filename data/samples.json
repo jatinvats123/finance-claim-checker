@@ -1,6 +1,8 @@
 {
-	"note": "Fresh articles for the multi-company flow. Each is synthetic, uses the company's reported figures with deliberate errors, and was checked with a real model (recordings in data/replay/recordings/).",
+	"note": "Synthetic articles for multi-company checking. Sample notes identify the recorded workflows and manual lookup.",
 	"samples": [
+		{ "id": "wipro-mixed", "label": "Wipro results and forecast", "title": "", "articlePath": "data/articles/wipro-mixed-desk.md", "company": "Wipro", "note": "One historical correction, one EPS match and a separate FY2027 forecast. Select replay to reproduce the recorded live check without a key." },
+		{ "id": "infosys-manual", "label": "Infosys missed figure · manual lookup", "title": "", "articlePath": "data/articles/infosys-manual-lookup.md", "company": "INFY", "preferredMode": "replay", "note": "Choose Check article, then Check this number beside US$3.843 billion. This is the original draft from the published benchmark. The keyless lookup compares the selected figure with the 20-F." },
 		{ "id": "apple", "label": "Apple FY2026 (USD)", "title": "", "articlePath": "data/articles/apple-fy2026.md", "note": "Apple's September fiscal year, a derived Q4, two deliberate errors." },
 		{ "id": "walmart", "label": "Walmart Q2 FY2027", "title": "", "articlePath": "data/articles/walmart-q2-fy2027.md", "note": "January fiscal year, year-over-year changes, first-half totals, an adjusted figure." },
 		{ "id": "wipro", "label": "Wipro FY25 (₹ crore)", "title": "", "articlePath": "data/articles/wipro-fy2025-inr.md", "note": "Form 20-F in Indian rupees (IFRS): crore figures checked against INR statements, a USD convenience translation, a crore-vs-million units error." },

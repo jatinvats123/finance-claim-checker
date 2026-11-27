@@ -1,4 +1,4 @@
-import { correctionSources, correctionText } from "../correction"
+import { EditorCorrection, FilingReceipt } from "./FilingReceipt"
 import { notVerifiableReason } from "../editorResults"
 import { useEffect, useRef, useState } from "react"
 import { fmtDate, fmtNumber, fmtSeconds, type CalcInput, type ClaimView, type RunView } from "../api"
@@ -35,23 +35,6 @@ function conclusion(c: ClaimView): string {
 		default:
 			return "The agents are still working on this claim."
 	}
-}
-
-function CopyCorrection({ text }: { text: string }) {
-	const [status, setStatus] = useState<"idle" | "copied" | "manual">("idle")
-	async function copy() {
-		try {
-			await navigator.clipboard.writeText(text)
-			setStatus("copied")
-		} catch {
-			setStatus("manual")
-		}
-	}
-	return <>
-		<button className="btn btn-secondary" onClick={copy}>Copy correction with source</button>
-		{status === "copied" && <p role="status">Correction and source copied.</p>}
-		{status === "manual" && <label>Copy the correction manually<textarea readOnly value={text} onFocus={event => event.target.select()} /></label>}
-	</>
 }
 
 const ROLE_LABEL: Record<string, string> = { current: "Current period", base: "Comparison period", alternate: "Alternative basis (context only)" }
@@ -116,8 +99,6 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 
 	const i = c.interpretation
 	const inputs = c.calc?.inputs ?? []
-	const correction = correctionText(run, c)
-	const sources = correction ? correctionSources(inputs).filter(source => source.url) : []
 
 	return (
 		<div className="inspector">
@@ -144,17 +125,10 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 					<p className="conclusion-text">{conclusion(c)}</p>
 					<ReviewLine claim={c} />
 					<p className="muted small">{c.review.detail}</p>
-					{correction && <CopyCorrection key={correction} text={correction} />}
-					{sources.length > 0 && (
-						<ul className="plain correction-sources" aria-label="Correction sources">
-							{sources.map(source => (
-								<li key={source.detail}>
-									<a className="ext-link" href={source.url} target="_blank" rel="noreferrer noopener">{source.label} <IconExternal size={12} /></a>
-								</li>
-							))}
-						</ul>
-					)}
+					<EditorCorrection key={c.id + "-" + c.revision + "-" + c.calc?.evidenceRevision} run={run} claim={c} />
 				</section>
+
+				<FilingReceipt claim={c} />
 
 				<section>
 					<h3>Quotation</h3>
@@ -298,7 +272,7 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 				</section>
 
 				<section>
-					<h3>Audit and corrections</h3>
+					<h3>Audit and agent revisions</h3>
 					<Recheck run={run} claim={c} liveConfigured={liveConfigured} liveHint={liveHint} onChallenge={onChallenge} />
 					<dl className="facts">
 						<dt>Audit</dt>
@@ -320,7 +294,7 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 								<li key={n}>
 									<div className="correction-head">
 										<strong>
-											Correction {n + 1}: {k.target === "claim" ? "claim reading" : "evidence"}
+											Revision request {n + 1}: {k.target === "claim" ? "claim reading" : "evidence"}
 										</strong>
 										<span className="muted small num">
 											r{k.claimRevision}.e{k.evidenceRevision} · {fmtSeconds(k.at)}
@@ -333,7 +307,7 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 							))}
 						</ol>
 					) : (
-						<p className="muted small">No corrections were needed for this claim.</p>
+						<p className="muted small">No agent revisions were requested for this claim.</p>
 					)}
 					<details ref={historyRef} open={historyOpen} onToggle={(e) => onHistoryToggle((e.currentTarget as HTMLDetailsElement).open)}>
 						<summary>Revision history ({c.history.length} events)</summary>

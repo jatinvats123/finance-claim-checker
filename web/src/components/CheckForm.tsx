@@ -134,7 +134,7 @@ export function CheckForm({ meta, draft, setDraft, busy, onStart, onRunExample }
 							onClick={() => {
 								setError(undefined)
 								setSampleReportNote(/\bPDF\b/.test(s.note) && /upload|download/i.test(s.note) ? s.note : undefined)
-								setDraft({ ...draft, title: s.title, text: s.text, company: s.company ?? "", cik: undefined, reportUrl: s.reportUrl ?? "", reportFile: undefined, companyName: s.reportUrl ? (s.company ?? "") : "" })
+								setDraft({ ...draft, title: s.title, text: s.text, company: s.company ?? "", cik: undefined, reportUrl: s.reportUrl ?? "", reportFile: undefined, companyName: s.reportUrl ? (s.company ?? "") : "", mode: s.preferredMode ?? draft.mode })
 							}}
 						>
 							{s.label}
@@ -143,6 +143,7 @@ export function CheckForm({ meta, draft, setDraft, busy, onStart, onRunExample }
 				</div>
 			)}
 
+			{meta.samples.filter(s => s.preferredMode === draft.mode && s.text === draft.text).map(s => <p className="hint" key={s.id}>{s.note}</p>)}
 			<div className="field">
 				<label htmlFor="article-title">Title</label>
 				<input id="article-title" className="input" value={draft.title} onChange={(e) => set({ title: e.target.value })} maxLength={300} placeholder="Optional" />

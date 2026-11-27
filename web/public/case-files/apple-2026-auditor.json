@@ -1,0 +1,1562 @@
+{
+  "disclaimer": "Not financial advice. This tool checks whether numbers in a text match a company's official financial statements (SEC filings or the company's published report); it does not evaluate the company or recommend any action.",
+  "article": {
+    "title": "Apple closes fiscal 2026 with record sales as iPhone demand holds up",
+    "path": "data/articles/apple-fy2026.md"
+  },
+  "company": {
+    "ticker": "AAPL",
+    "cik": "0000320193",
+    "name": "Apple Inc."
+  },
+  "reference": {
+    "kind": "sec",
+    "entityName": "Apple Inc.",
+    "ticker": "AAPL",
+    "cik": "0000320193",
+    "fetchedAt": "2026-11-26T19:27:01.034Z",
+    "label": "SEC EDGAR XBRL financial statements (10-Q, 10-K, 20-F, 40-F)",
+    "sources": [
+      {
+        "label": "SEC company facts (XBRL)",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json"
+      },
+      {
+        "label": "SEC filing index",
+        "url": "https://data.sec.gov/submissions/CIK0000320193.json"
+      }
+    ],
+    "reportingCurrency": "USD"
+  },
+  "secSource": {
+    "companyFactsUrl": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+    "submissionsUrl": "https://data.sec.gov/submissions/CIK0000320193.json",
+    "fetchedAt": "2026-11-26T19:27:01.034Z",
+    "note": "Trimmed copy of SEC EDGAR XBRL company facts (10-Q/10-K/20-F/40-F only) and recent filing index. Public data."
+  },
+  "run": {
+    "mode": "record",
+    "model": "gemini-3.1-flash-lite",
+    "mozaik": "6.0.0",
+    "timedOut": false,
+    "elapsedMs": 379791,
+    "modelCalls": [
+      {
+        "task": "extractor:article",
+        "turn": 0,
+        "key": "d7acc39a2d00e12888bbd409",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c1@r1",
+        "turn": 0,
+        "key": "eb269d24f1685d672cea365b",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor:article",
+        "turn": 1,
+        "key": "c001c549f154ba5dcd86796f",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c1@r1#1",
+        "turn": 0,
+        "key": "94e979ba5b47a0afbd18c9ea",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c1@r1",
+        "turn": 1,
+        "key": "1e639430023b8336c94f8113",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c2@r1",
+        "turn": 0,
+        "key": "fc1ff6960614a551396820c1",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor:article",
+        "turn": 2,
+        "key": "ee951c24cbffa0746daebd25",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c2@r1#1",
+        "turn": 0,
+        "key": "15941e12c7660246d014b08b",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c1@r1#1",
+        "turn": 1,
+        "key": "84f04a5d532a43beae32a9f1",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c2@r1",
+        "turn": 1,
+        "key": "36ffafd57d558907fb0204b3",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor:article",
+        "turn": 3,
+        "key": "06cee221991a703f3415ef02",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r1#1",
+        "turn": 0,
+        "key": "9e9f5c332a9212a5d1e0b487",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c2@r1#1",
+        "turn": 1,
+        "key": "92058a9081b05baef6719fc7",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c1@r1#1",
+        "turn": 2,
+        "key": "617ef06503860824f311ed2a",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "turn": 0,
+        "key": "af1014df72cc90dc5a66f265",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c4@r1",
+        "turn": 0,
+        "key": "44e5e422c1e92c9bffaaf4ed",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor:article",
+        "turn": 4,
+        "key": "53c646e7fd698750c7a42fcf",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c4@r1#1",
+        "turn": 0,
+        "key": "37ce75383213517bc4ba560a",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c3@r1",
+        "turn": 0,
+        "key": "0db0451b851afe9bbc24ada7",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c2@r1#1",
+        "turn": 2,
+        "key": "a3ac38ebd8af3432153bfc93",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "turn": 1,
+        "key": "6080ecb1fe648a1475beb234",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c4@r1",
+        "turn": 1,
+        "key": "a39c26de62d18d4fa98727b7",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor:article",
+        "turn": 5,
+        "key": "5ba3555b00646b10814bcb2f",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c5@r1",
+        "turn": 0,
+        "key": "a72b8e0f482e7932e043175f",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c5@r1#1",
+        "turn": 0,
+        "key": "9449bb4c806a95e94c906f99",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c2@r1#1",
+        "turn": 3,
+        "key": "7b70176c1439ce6e2cff08c1",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c3@r1",
+        "turn": 1,
+        "key": "b6d66a73383d8d7569d4ec1c",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c4@r1#1",
+        "turn": 1,
+        "key": "d612550b05175470c7265e4b",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "turn": 0,
+        "key": "18ed924f4b9d3a82d6a23e17",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c6@r1",
+        "turn": 0,
+        "key": "4837bc702f83beb77dabbce9",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor:article",
+        "turn": 6,
+        "key": "13078fbfd6e79b5e702de042",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c5@r1#1",
+        "turn": 1,
+        "key": "075d9f29111328eb7c4857c0",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c6@r1#1",
+        "turn": 0,
+        "key": "4899177a5a695deb0340c940",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c4@r1#1",
+        "turn": 2,
+        "key": "06b0b459227a58842d143923",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "turn": 1,
+        "key": "d769acc3bb47874bd6a9c929",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c4@r1.e1",
+        "turn": 0,
+        "key": "8e18148b9d118fbf28465c15",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c6@r1",
+        "turn": 1,
+        "key": "f831db09d436ef16d5f48038",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c7@r1",
+        "turn": 0,
+        "key": "213dbd098d63f9d9205b3b29",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c7@r1#1",
+        "turn": 0,
+        "key": "b84108b5a601dd78655da29f",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c5@r1#1",
+        "turn": 2,
+        "key": "3c5b65aa8d98fe08d6f47a07",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r1#1",
+        "turn": 1,
+        "key": "84b1447063810d3fb1ae64b1",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c5@r1.e1",
+        "turn": 0,
+        "key": "d28af6a1e729457d1c88cb2f",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c4@r1.e1",
+        "turn": 1,
+        "key": "19fc0334389eca6c6de83e8b",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c7@r1",
+        "turn": 1,
+        "key": "e88babcf725aa100da2011e4",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c7@r1#1",
+        "turn": 1,
+        "key": "c55adb7d9b22b5f200bc2a13",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor:article",
+        "turn": 7,
+        "key": "323f49771f0224a2fd936fac",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r1#1",
+        "turn": 2,
+        "key": "31e9e46343718edbb7f9ee5f",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c7@r1#1",
+        "turn": 2,
+        "key": "a53769dcf4b358adff9bf832",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c5@r1.e1",
+        "turn": 1,
+        "key": "f4c2723702899d0f5ccc8872",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c7@r1.e1",
+        "turn": 0,
+        "key": "0c30e9ec4f6914c96af11c7d",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor-fix:c3@r1",
+        "turn": 0,
+        "key": "aadb70699f0b93c71cf11abb",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r1#1",
+        "turn": 3,
+        "key": "f5670e75b7f2409870efdf82",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c7@r1.e1",
+        "turn": 1,
+        "key": "3b0673670b12c33ab804b29b",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c3@r2",
+        "turn": 0,
+        "key": "b6fa27a28e4255afeffcb74d",
+        "provenance": "live"
+      },
+      {
+        "task": "context:c3@r2",
+        "turn": 1,
+        "key": "b37d619672891cb770509af0",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r2#1",
+        "turn": 0,
+        "key": "6d8bad74acf3ece6fee7ba97",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r2#1",
+        "turn": 1,
+        "key": "75ecaa6d97f07285a9c2714c",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r2#1",
+        "turn": 2,
+        "key": "1b2029142405c8cf03d66880",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c6@r1#1",
+        "turn": 1,
+        "key": "c171d72024d2c2ab22327e00",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r2#1",
+        "turn": 3,
+        "key": "52370cc0c247940febe55053",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r2#2",
+        "turn": 0,
+        "key": "2f915cb41d63d5d97f0412d3",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c6@r1#1",
+        "turn": 2,
+        "key": "06c1d729e1cfe83e613f3ec1",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c6@r1.e1",
+        "turn": 0,
+        "key": "dfaba0dffea19a20b38f3150",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c6@r1.e1",
+        "turn": 1,
+        "key": "1be9aff79efcc949c05f1865",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r2#2",
+        "turn": 1,
+        "key": "fa048329768607dc8d62a82a",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r2#2",
+        "turn": 2,
+        "key": "46c78df30047b86329bb634f",
+        "provenance": "live"
+      },
+      {
+        "task": "evidence:c3@r2#2",
+        "turn": 3,
+        "key": "473b36080b2176182afaea3a",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c3@r2.e3",
+        "turn": 0,
+        "key": "356dd24b3caebb9346a18a64",
+        "provenance": "live"
+      },
+      {
+        "task": "auditor:c3@r2.e3",
+        "turn": 1,
+        "key": "3b8029b652f0b6cd66f8e10e",
+        "provenance": "live"
+      },
+      {
+        "task": "extractor-fix:c3@r1",
+        "turn": 1,
+        "key": "78fea0a0c8d335ab846314c6",
+        "provenance": "live"
+      }
+    ],
+    "cassettes": [],
+    "usage": {
+      "model": "gemini-3.1-flash-lite",
+      "requests": 73,
+      "retries": 3,
+      "inputTokens": 86464,
+      "outputTokens": 2782,
+      "reasoningTokens": 0,
+      "retryNotes": [
+        "context:c3@r1: {\"error\":{\"code\":503,\"message\":\"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again l",
+        "extractor:article: {\"error\":{\"code\":503,\"message\":\"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again l",
+        "evidence:c3@r2#1: {\"error\":{\"code\":503,\"message\":\"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again l"
+      ],
+      "stalled": []
+    },
+    "trace": {
+      "timing": "live",
+      "timingNote": "Measured wall-clock times of live provider calls (including pacing and retries).",
+      "lanes": [
+        {
+          "task": "extractor:article",
+          "role": "extractor",
+          "startMs": 50,
+          "endMs": 241684,
+          "failed": false
+        },
+        {
+          "task": "context:c1@r1",
+          "role": "context",
+          "claimId": "c1",
+          "claimRevision": 1,
+          "startMs": 1751,
+          "endMs": 20923,
+          "failed": false
+        },
+        {
+          "task": "evidence:c1@r1#1",
+          "role": "evidence",
+          "claimId": "c1",
+          "claimRevision": 1,
+          "evidenceRevision": 0,
+          "startMs": 1752,
+          "endMs": 71148,
+          "failed": false
+        },
+        {
+          "task": "context:c2@r1",
+          "role": "context",
+          "claimId": "c2",
+          "claimRevision": 1,
+          "startMs": 11269,
+          "endMs": 45740,
+          "failed": false
+        },
+        {
+          "task": "evidence:c2@r1#1",
+          "role": "evidence",
+          "claimId": "c2",
+          "claimRevision": 1,
+          "evidenceRevision": 0,
+          "startMs": 11270,
+          "endMs": 145778,
+          "failed": false
+        },
+        {
+          "task": "context:c3@r1",
+          "role": "context",
+          "claimId": "c3",
+          "claimRevision": 1,
+          "startMs": 31282,
+          "endMs": 146509,
+          "failed": false
+        },
+        {
+          "task": "evidence:c3@r1#1",
+          "role": "evidence",
+          "claimId": "c3",
+          "claimRevision": 1,
+          "evidenceRevision": 0,
+          "startMs": 31282,
+          "endMs": 271625,
+          "failed": false
+        },
+        {
+          "task": "auditor:c1@r1.e1",
+          "role": "auditor",
+          "claimId": "c1",
+          "claimRevision": 1,
+          "evidenceRevision": 1,
+          "startMs": 41045,
+          "endMs": 110778,
+          "failed": false
+        },
+        {
+          "task": "context:c4@r1",
+          "role": "context",
+          "claimId": "c4",
+          "claimRevision": 1,
+          "startMs": 58288,
+          "endMs": 116174,
+          "failed": false
+        },
+        {
+          "task": "evidence:c4@r1#1",
+          "role": "evidence",
+          "claimId": "c4",
+          "claimRevision": 1,
+          "evidenceRevision": 0,
+          "startMs": 58289,
+          "endMs": 185482,
+          "failed": false
+        },
+        {
+          "task": "context:c5@r1",
+          "role": "context",
+          "claimId": "c5",
+          "claimRevision": 1,
+          "startMs": 87041,
+          "endMs": 126440,
+          "failed": false
+        },
+        {
+          "task": "evidence:c5@r1#1",
+          "role": "evidence",
+          "claimId": "c5",
+          "claimRevision": 1,
+          "evidenceRevision": 0,
+          "startMs": 87042,
+          "endMs": 210998,
+          "failed": false
+        },
+        {
+          "task": "auditor:c2@r1.e1",
+          "role": "auditor",
+          "claimId": "c2",
+          "claimRevision": 1,
+          "evidenceRevision": 1,
+          "startMs": 106373,
+          "endMs": 185759,
+          "failed": false
+        },
+        {
+          "task": "context:c6@r1",
+          "role": "context",
+          "claimId": "c6",
+          "claimRevision": 1,
+          "startMs": 126303,
+          "endMs": 190776,
+          "failed": false
+        },
+        {
+          "task": "evidence:c6@r1#1",
+          "role": "evidence",
+          "claimId": "c6",
+          "claimRevision": 1,
+          "evidenceRevision": 0,
+          "startMs": 126304,
+          "endMs": 326519,
+          "failed": false
+        },
+        {
+          "task": "auditor:c4@r1.e1",
+          "role": "auditor",
+          "claimId": "c4",
+          "claimRevision": 1,
+          "evidenceRevision": 1,
+          "startMs": 151337,
+          "endMs": 230766,
+          "failed": false
+        },
+        {
+          "task": "context:c7@r1",
+          "role": "context",
+          "claimId": "c7",
+          "claimRevision": 1,
+          "startMs": 161434,
+          "endMs": 232453,
+          "failed": false
+        },
+        {
+          "task": "evidence:c7@r1#1",
+          "role": "evidence",
+          "claimId": "c7",
+          "claimRevision": 1,
+          "evidenceRevision": 0,
+          "startMs": 161434,
+          "endMs": 256030,
+          "failed": false
+        },
+        {
+          "task": "auditor:c5@r1.e1",
+          "role": "auditor",
+          "claimId": "c5",
+          "claimRevision": 1,
+          "evidenceRevision": 1,
+          "startMs": 170682,
+          "endMs": 256892,
+          "failed": false
+        },
+        {
+          "task": "auditor:c7@r1.e1",
+          "role": "auditor",
+          "claimId": "c7",
+          "claimRevision": 1,
+          "evidenceRevision": 1,
+          "startMs": 239941,
+          "endMs": 275981,
+          "failed": false
+        },
+        {
+          "task": "extractor-fix:c3@r1",
+          "role": "extractor-fix",
+          "claimId": "c3",
+          "claimRevision": 1,
+          "startMs": 249477,
+          "endMs": 379791,
+          "failed": false
+        },
+        {
+          "task": "context:c3@r2",
+          "role": "context",
+          "claimId": "c3",
+          "claimRevision": 2,
+          "startMs": 271479,
+          "endMs": 295864,
+          "failed": false
+        },
+        {
+          "task": "evidence:c3@r2#1",
+          "role": "evidence",
+          "claimId": "c3",
+          "claimRevision": 2,
+          "evidenceRevision": 0,
+          "startMs": 271479,
+          "endMs": 317893,
+          "failed": false
+        },
+        {
+          "task": "evidence:c3@r2#2",
+          "role": "evidence",
+          "claimId": "c3",
+          "claimRevision": 2,
+          "evidenceRevision": 2,
+          "startMs": 311444,
+          "endMs": 356230,
+          "failed": false
+        },
+        {
+          "task": "auditor:c6@r1.e1",
+          "role": "auditor",
+          "claimId": "c6",
+          "claimRevision": 1,
+          "evidenceRevision": 1,
+          "startMs": 315992,
+          "endMs": 341250,
+          "failed": false
+        },
+        {
+          "task": "auditor:c3@r2.e3",
+          "role": "auditor",
+          "claimId": "c3",
+          "claimRevision": 2,
+          "evidenceRevision": 3,
+          "startMs": 350971,
+          "endMs": 369409,
+          "failed": false
+        }
+      ],
+      "peakActive": 11,
+      "peakAtMs": 170682,
+      "totalMs": 379792
+    }
+  },
+  "claims": [
+    {
+      "id": "c1",
+      "revision": 1,
+      "interpretation": {
+        "quote": "Apple reported revenue of $478.8 billion for fiscal 2026",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "478.8",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "reason": "extracted",
+      "correctionsUsed": 0,
+      "evidence": {
+        "claimId": "c1",
+        "claimRevision": 1,
+        "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+        "boundBy": "evidence-agent",
+        "evidenceRevision": 1
+      },
+      "numericalResult": {
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "verdict": "MATCH",
+        "formula": "actual = RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+        "substituted": "actual = 478,834,000,000 USD",
+        "statedDisplay": "$478.8 billion",
+        "inputs": [
+          {
+            "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+            "role": "current",
+            "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+            "value": 478834000000,
+            "unit": "USD",
+            "period": "FY-FY2026",
+            "start": "2025-09-28",
+            "end": "2026-09-26",
+            "form": "10-K",
+            "accn": "0000320193-26-000026",
+            "filed": "2026-11-03",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+            "currency": "USD",
+            "consolidation": "consolidated"
+          }
+        ],
+        "notes": [],
+        "actual": 478834000000,
+        "actualDisplay": "$478.834B",
+        "toleranceRule": "rounding of stated digits: ±$50.000M"
+      },
+      "contextWarnings": [
+        {
+          "claimId": "c1",
+          "claimRevision": 1,
+          "source": "context-agent",
+          "code": "RECORD_OR_SUPERLATIVE",
+          "message": "The claim does not substantiate the superlative claim of record sales made in the title."
+        }
+      ],
+      "audit": {
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "state": {
+          "status": "approved",
+          "note": "The interpretation accurately reflects the stated revenue and fiscal period mentioned in the text.",
+          "by": "auditor (LLM review)"
+        }
+      }
+    },
+    {
+      "id": "c2",
+      "revision": 1,
+      "interpretation": {
+        "quote": "up 15% from $416.2 billion a year earlier",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "change",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "15",
+        "statedUnit": "percent",
+        "scale": "units",
+        "qualifier": "exact",
+        "comparison": "yoy",
+        "direction": "increase",
+        "consolidation": "unspecified"
+      },
+      "reason": "extracted",
+      "correctionsUsed": 0,
+      "evidence": {
+        "claimId": "c2",
+        "claimRevision": 1,
+        "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+        "baseFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026",
+        "boundBy": "evidence-agent",
+        "evidenceRevision": 1
+      },
+      "numericalResult": {
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "verdict": "MATCH",
+        "formula": "change% = (RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026 − RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026) / abs(RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026) × 100",
+        "substituted": "(478,834,000,000 − 416,161,000,000) / 416,161,000,000 × 100 = 15.06%",
+        "statedDisplay": "+15%",
+        "inputs": [
+          {
+            "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026",
+            "role": "current",
+            "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+            "value": 478834000000,
+            "unit": "USD",
+            "period": "FY-FY2026",
+            "start": "2025-09-28",
+            "end": "2026-09-26",
+            "form": "10-K",
+            "accn": "0000320193-26-000026",
+            "filed": "2026-11-03",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+            "currency": "USD",
+            "consolidation": "consolidated"
+          },
+          {
+            "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026",
+            "role": "base",
+            "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+            "value": 416161000000,
+            "unit": "USD",
+            "period": "FY-FY2025",
+            "start": "2024-09-29",
+            "end": "2025-09-27",
+            "form": "10-K",
+            "accn": "0000320193-26-000026",
+            "filed": "2026-11-03",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+            "currency": "USD",
+            "consolidation": "consolidated"
+          }
+        ],
+        "notes": [],
+        "actual": 15.05979656911628,
+        "actualDisplay": "+15.06%",
+        "toleranceRule": "rounding of stated digits: ±0.5 pp"
+      },
+      "contextWarnings": [
+        {
+          "claimId": "c2",
+          "claimRevision": 1,
+          "source": "context-agent",
+          "code": "RECORD_OR_SUPERLATIVE",
+          "message": "The paragraph frames the 15% increase as part of a record-setting performance, but the superlative claim in the title is not explicitly supported by the revenue figures provided in the text."
+        }
+      ],
+      "audit": {
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "state": {
+          "status": "approved",
+          "note": "The interpretation accurately reflects the text and the calculated change of ~15.06% supports the stated 15%.",
+          "by": "auditor (LLM review)"
+        }
+      }
+    },
+    {
+      "id": "c3",
+      "revision": 2,
+      "interpretation": {
+        "quote": "up 15% from $416.2 billion a year earlier",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2025,
+        "fiscalPeriod": "FY",
+        "statedNumber": "416.2",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "reason": "auditor correction: The year-earlier figure corresponds to fiscal year 2025.",
+      "correctionsUsed": 2,
+      "evidence": {
+        "claimId": "c3",
+        "claimRevision": 2,
+        "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/25-000079",
+        "baseFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2024/25-000079",
+        "boundBy": "evidence-agent",
+        "evidenceRevision": 3
+      },
+      "numericalResult": {
+        "claimId": "c3",
+        "claimRevision": 2,
+        "evidenceRevision": 3,
+        "verdict": "MATCH",
+        "formula": "actual = RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/25-000079",
+        "substituted": "actual = 416,161,000,000 USD",
+        "statedDisplay": "$416.2 billion",
+        "inputs": [
+          {
+            "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/25-000079",
+            "role": "current",
+            "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+            "value": 416161000000,
+            "unit": "USD",
+            "period": "FY-FY2025",
+            "start": "2024-09-29",
+            "end": "2025-09-27",
+            "form": "10-K",
+            "accn": "0000320193-25-000079",
+            "filed": "2025-10-31",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019325000079/aapl-20250927.htm",
+            "currency": "USD",
+            "consolidation": "consolidated"
+          }
+        ],
+        "notes": [],
+        "actual": 416161000000,
+        "actualDisplay": "$416.161B",
+        "toleranceRule": "rounding of stated digits: ±$50.000M"
+      },
+      "contextWarnings": [
+        {
+          "claimId": "c3",
+          "claimRevision": 2,
+          "source": "context-agent",
+          "code": "RECORD_OR_SUPERLATIVE",
+          "message": "The article title characterizes the revenue as a record, but the paragraph itself does not substantiate this claim with historical context."
+        }
+      ],
+      "audit": {
+        "claimRevision": 2,
+        "evidenceRevision": 3,
+        "state": {
+          "status": "approved",
+          "note": "The interpretation faithfully represents the quote and fiscal period, and the rounding is within acceptable limits.",
+          "by": "auditor (LLM review)"
+        }
+      }
+    },
+    {
+      "id": "c4",
+      "revision": 1,
+      "interpretation": {
+        "quote": "Net income rose to $132.2 billion for the year",
+        "metric": "net_income",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "132.2",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "reason": "extracted",
+      "correctionsUsed": 0,
+      "evidence": {
+        "claimId": "c4",
+        "claimRevision": 1,
+        "currentFactId": "NetIncomeLoss/FY-FY2026/26-000026",
+        "boundBy": "evidence-agent",
+        "evidenceRevision": 1
+      },
+      "numericalResult": {
+        "claimId": "c4",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "verdict": "MATCH",
+        "formula": "actual = NetIncomeLoss/FY-FY2026/26-000026",
+        "substituted": "actual = 132,175,000,000 USD",
+        "statedDisplay": "$132.2 billion",
+        "inputs": [
+          {
+            "evidenceId": "NetIncomeLoss/FY-FY2026/26-000026",
+            "role": "current",
+            "concept": "us-gaap:NetIncomeLoss",
+            "value": 132175000000,
+            "unit": "USD",
+            "period": "FY-FY2026",
+            "start": "2025-09-28",
+            "end": "2026-09-26",
+            "form": "10-K",
+            "accn": "0000320193-26-000026",
+            "filed": "2026-11-03",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+            "currency": "USD",
+            "consolidation": "consolidated"
+          }
+        ],
+        "notes": [],
+        "actual": 132175000000,
+        "actualDisplay": "$132.175B",
+        "toleranceRule": "rounding of stated digits: ±$50.000M"
+      },
+      "contextWarnings": [
+        {
+          "claimId": "c4",
+          "claimRevision": 1,
+          "source": "context-agent",
+          "code": "RECORD_OR_SUPERLATIVE",
+          "message": "The article title characterizes the annual performance as a record, which frames this net income figure as part of a superlative performance without direct comparison in the text."
+        }
+      ],
+      "audit": {
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "state": {
+          "status": "approved",
+          "note": "The interpretation is faithful to the quote and accurately reflects the fiscal year period and the scale of the net income figure reported in the filing.",
+          "by": "auditor (LLM review)"
+        }
+      }
+    },
+    {
+      "id": "c5",
+      "revision": 1,
+      "interpretation": {
+        "quote": "diluted earnings per share came in at $8.89",
+        "metric": "eps_diluted",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "8.89",
+        "statedUnit": "per_share",
+        "scale": "units",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "reason": "extracted",
+      "correctionsUsed": 0,
+      "evidence": {
+        "claimId": "c5",
+        "claimRevision": 1,
+        "currentFactId": "EarningsPerShareDiluted/FY-FY2026/26-000026",
+        "boundBy": "evidence-agent",
+        "evidenceRevision": 1
+      },
+      "numericalResult": {
+        "claimId": "c5",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "verdict": "MISMATCH",
+        "formula": "actual = EarningsPerShareDiluted/FY-FY2026/26-000026",
+        "substituted": "actual = 8.98 USD/shares",
+        "statedDisplay": "$8.89 per share",
+        "inputs": [
+          {
+            "evidenceId": "EarningsPerShareDiluted/FY-FY2026/26-000026",
+            "role": "current",
+            "concept": "us-gaap:EarningsPerShareDiluted",
+            "value": 8.98,
+            "unit": "USD/shares",
+            "period": "FY-FY2026",
+            "start": "2025-09-28",
+            "end": "2026-09-26",
+            "form": "10-K",
+            "accn": "0000320193-26-000026",
+            "filed": "2026-11-03",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+            "currency": "USD",
+            "consolidation": "consolidated"
+          }
+        ],
+        "notes": [],
+        "actual": 8.98,
+        "actualDisplay": "$8.98 per share",
+        "toleranceRule": "rounding of stated digits: ±0.0050",
+        "difference": "actual − stated = 0.0900"
+      },
+      "contextWarnings": [],
+      "audit": {
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "state": {
+          "status": "approved",
+          "note": "The interpretation is a faithful representation of the quoted text; the discrepancy between the stated number and the filing is a factual error in the article, not an interpretation error.",
+          "by": "auditor (LLM review)"
+        }
+      }
+    },
+    {
+      "id": "c6",
+      "revision": 1,
+      "interpretation": {
+        "quote": "For the fourth quarter alone, revenue was $114.5 billion.",
+        "metric": "revenue",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "Q4",
+        "statedNumber": "114.5",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "reason": "extracted",
+      "correctionsUsed": 0,
+      "evidence": {
+        "claimId": "c6",
+        "claimRevision": 1,
+        "currentFactId": "RevenueFromContractWithCustomerExcludingAssessedTax/Q4-FY2026/derived",
+        "boundBy": "evidence-agent",
+        "evidenceRevision": 1
+      },
+      "numericalResult": {
+        "claimId": "c6",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "verdict": "MATCH",
+        "formula": "actual = RevenueFromContractWithCustomerExcludingAssessedTax/Q4-FY2026/derived",
+        "substituted": "actual = 114,477,000,000 USD",
+        "statedDisplay": "$114.5 billion",
+        "inputs": [
+          {
+            "evidenceId": "RevenueFromContractWithCustomerExcludingAssessedTax/Q4-FY2026/derived",
+            "role": "current",
+            "concept": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+            "value": 114477000000,
+            "unit": "USD",
+            "period": "Q4-FY2026",
+            "start": "2026-06-28",
+            "end": "2026-09-26",
+            "form": "10-K",
+            "accn": "0000320193-26-000026",
+            "filed": "2026-11-03",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+            "derivation": "RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026 − RevenueFromContractWithCustomerExcludingAssessedTax/9M-FY2026/26-000020",
+            "currency": "USD",
+            "consolidation": "consolidated"
+          }
+        ],
+        "notes": [],
+        "actual": 114477000000,
+        "actualDisplay": "$114.477B",
+        "toleranceRule": "rounding of stated digits: ±$50.000M"
+      },
+      "contextWarnings": [
+        {
+          "claimId": "c6",
+          "claimRevision": 1,
+          "source": "context-agent",
+          "code": "RECORD_OR_SUPERLATIVE",
+          "message": "The paragraph omits the context that the record sales mentioned in the article title are not explicitly tied to the revenue or profit figures provided."
+        },
+        {
+          "claimId": "c6",
+          "claimRevision": 1,
+          "evidenceRevision": 1,
+          "source": "rule",
+          "code": "DERIVED_Q4",
+          "message": "RevenueFromContractWithCustomerExcludingAssessedTax/Q4-FY2026/derived is not reported on its own; it is derived as RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026 − RevenueFromContractWithCustomerExcludingAssessedTax/9M-FY2026/26-000020."
+        }
+      ],
+      "audit": {
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "state": {
+          "status": "approved",
+          "note": "The claim accurately reflects the revenue stated in the quote for the fourth quarter.",
+          "by": "auditor (LLM review)"
+        }
+      }
+    },
+    {
+      "id": "c7",
+      "revision": 1,
+      "interpretation": {
+        "quote": "Gross profit for the full year was $223.6 billion",
+        "metric": "gross_profit",
+        "accounting": "gaap",
+        "kind": "level",
+        "fiscalYear": 2026,
+        "fiscalPeriod": "FY",
+        "statedNumber": "223.6",
+        "statedUnit": "money",
+        "scale": "billion",
+        "qualifier": "exact",
+        "currency": "USD",
+        "consolidation": "unspecified"
+      },
+      "reason": "extracted",
+      "correctionsUsed": 0,
+      "evidence": {
+        "claimId": "c7",
+        "claimRevision": 1,
+        "currentFactId": "GrossProfit/FY-FY2026/26-000026",
+        "boundBy": "evidence-agent",
+        "evidenceRevision": 1
+      },
+      "numericalResult": {
+        "claimId": "c7",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "verdict": "MISMATCH",
+        "formula": "actual = GrossProfit/FY-FY2026/26-000026",
+        "substituted": "actual = 233,602,000,000 USD",
+        "statedDisplay": "$223.6 billion",
+        "inputs": [
+          {
+            "evidenceId": "GrossProfit/FY-FY2026/26-000026",
+            "role": "current",
+            "concept": "us-gaap:GrossProfit",
+            "value": 233602000000,
+            "unit": "USD",
+            "period": "FY-FY2026",
+            "start": "2025-09-28",
+            "end": "2026-09-26",
+            "form": "10-K",
+            "accn": "0000320193-26-000026",
+            "filed": "2026-11-03",
+            "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm",
+            "currency": "USD",
+            "consolidation": "consolidated"
+          }
+        ],
+        "notes": [],
+        "actual": 233602000000,
+        "actualDisplay": "$233.602B",
+        "toleranceRule": "rounding of stated digits: ±$50.000M",
+        "difference": "actual − stated = $10.002B"
+      },
+      "contextWarnings": [
+        {
+          "claimId": "c7",
+          "claimRevision": 1,
+          "source": "context-agent",
+          "code": "MISLEADING_FRAMING",
+          "message": "Presenting a full-year figure alongside a fourth-quarter figure without explicit clarification can misleadingly imply the full-year figure is also specific to the fourth quarter."
+        }
+      ],
+      "audit": {
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "state": {
+          "status": "approved",
+          "note": "The interpretation accurately reflects the stated value in the text, and the mismatch is correctly identified by the formula calculation against the financial filing.",
+          "by": "auditor (LLM review)"
+        }
+      }
+    }
+  ],
+  "staleRejections": [
+    {
+      "at": 271626,
+      "claimId": "c3",
+      "kind": "stale:failure",
+      "detail": "failure for c3@r1 rejected: claim is now at r2"
+    }
+  ],
+  "history": [
+    {
+      "at": 1750,
+      "claimId": "c1",
+      "kind": "claim.extracted",
+      "detail": "r1 Apple reported revenue of $478.8 billion for fiscal 2026"
+    },
+    {
+      "at": 6264,
+      "claimId": "c1",
+      "kind": "context.warning",
+      "detail": "r1 [RECORD_OR_SUPERLATIVE] The claim does not substantiate the superlative claim of record sales made in the title."
+    },
+    {
+      "at": 11268,
+      "claimId": "c2",
+      "kind": "claim.extracted",
+      "detail": "r1 up 15% from $416.2 billion a year earlier"
+    },
+    {
+      "at": 26052,
+      "claimId": "c2",
+      "kind": "context.warning",
+      "detail": "r1 [RECORD_OR_SUPERLATIVE] The paragraph frames the 15% increase as part of a record-setting performance, but the superlative claim in the title is not explicitly supported by the revenue figures provided in the text."
+    },
+    {
+      "at": 31281,
+      "claimId": "c3",
+      "kind": "claim.extracted",
+      "detail": "r1 up 15% from $416.2 billion a year earlier"
+    },
+    {
+      "at": 41037,
+      "claimId": "c1",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026"
+    },
+    {
+      "at": 41043,
+      "claimId": "c1",
+      "kind": "calculation",
+      "detail": "r1.e1 MATCH (actual $478.834B vs stated $478.8 billion)"
+    },
+    {
+      "at": 58287,
+      "claimId": "c4",
+      "kind": "claim.extracted",
+      "detail": "r1 Net income rose to $132.2 billion for the year"
+    },
+    {
+      "at": 76006,
+      "claimId": "c1",
+      "kind": "audit.approved",
+      "detail": "r1.e1 The interpretation accurately reflects the stated revenue and fiscal period mentioned in the text."
+    },
+    {
+      "at": 81082,
+      "claimId": "c4",
+      "kind": "context.warning",
+      "detail": "r1 [RECORD_OR_SUPERLATIVE] The article title characterizes the annual performance as a record, which frames this net income figure as part of a superlative performance without direct comparison in the text."
+    },
+    {
+      "at": 87041,
+      "claimId": "c5",
+      "kind": "claim.extracted",
+      "detail": "r1 diluted earnings per share came in at $8.89"
+    },
+    {
+      "at": 102453,
+      "claimId": "c3",
+      "kind": "context.warning",
+      "detail": "r1 [RECORD_OR_SUPERLATIVE] The claim is framed within the context of 'record sales', which is not explicitly supported by the provided text or the claim data."
+    },
+    {
+      "at": 106370,
+      "claimId": "c2",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026 vs RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026"
+    },
+    {
+      "at": 106371,
+      "claimId": "c2",
+      "kind": "calculation",
+      "detail": "r1.e1 MATCH (actual +15.06% vs stated +15%)"
+    },
+    {
+      "at": 126301,
+      "claimId": "c6",
+      "kind": "claim.extracted",
+      "detail": "r1 For the fourth quarter alone, revenue was $114.5 billion."
+    },
+    {
+      "at": 151336,
+      "claimId": "c4",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 NetIncomeLoss/FY-FY2026/26-000026"
+    },
+    {
+      "at": 151337,
+      "claimId": "c4",
+      "kind": "calculation",
+      "detail": "r1.e1 MATCH (actual $132.175B vs stated $132.2 billion)"
+    },
+    {
+      "at": 155309,
+      "claimId": "c2",
+      "kind": "audit.approved",
+      "detail": "r1.e1 The interpretation accurately reflects the text and the calculated change of ~15.06% supports the stated 15%."
+    },
+    {
+      "at": 155910,
+      "claimId": "c6",
+      "kind": "context.warning",
+      "detail": "r1 [RECORD_OR_SUPERLATIVE] The paragraph omits the context that the record sales mentioned in the article title are not explicitly tied to the revenue or profit figures provided."
+    },
+    {
+      "at": 161433,
+      "claimId": "c7",
+      "kind": "claim.extracted",
+      "detail": "r1 Gross profit for the full year was $223.6 billion"
+    },
+    {
+      "at": 170680,
+      "claimId": "c5",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 EarningsPerShareDiluted/FY-FY2026/26-000026"
+    },
+    {
+      "at": 170681,
+      "claimId": "c5",
+      "kind": "calculation",
+      "detail": "r1.e1 MISMATCH (actual $8.98 per share vs stated $8.89 per share)"
+    },
+    {
+      "at": 187205,
+      "claimId": "c4",
+      "kind": "audit.approved",
+      "detail": "r1.e1 The interpretation is faithful to the quote and accurately reflects the fiscal year period and the scale of the net income figure reported in the filing."
+    },
+    {
+      "at": 195896,
+      "claimId": "c7",
+      "kind": "context.warning",
+      "detail": "r1 [MISLEADING_FRAMING] Presenting a full-year figure alongside a fourth-quarter figure without explicit clarification can misleadingly imply the full-year figure is also specific to the fourth quarter."
+    },
+    {
+      "at": 215935,
+      "claimId": "c5",
+      "kind": "audit.approved",
+      "detail": "r1.e1 The interpretation is a faithful representation of the quoted text; the discrepancy between the stated number and the filing is a factual error in the article, not an interpretation error."
+    },
+    {
+      "at": 239939,
+      "claimId": "c7",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 GrossProfit/FY-FY2026/26-000026"
+    },
+    {
+      "at": 239940,
+      "claimId": "c7",
+      "kind": "calculation",
+      "detail": "r1.e1 MISMATCH (actual $233.602B vs stated $223.6 billion)"
+    },
+    {
+      "at": 249475,
+      "claimId": "c3",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026 vs RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026"
+    },
+    {
+      "at": 249476,
+      "claimId": "c3",
+      "kind": "calculation",
+      "detail": "r1.e1 MISMATCH (actual $478.834B vs stated $416.2 billion)"
+    },
+    {
+      "at": 249477,
+      "claimId": "c3",
+      "kind": "audit.investigating",
+      "detail": "r1.e1 claim: The quote attaches 416.2 to a year earlier, and it matches FY-FY2025 (RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/25-000079) exactly; the claim is labelled FY-FY2026. Set fiscalYear to 2025 if the sentence means the year-earlier figure."
+    },
+    {
+      "at": 260895,
+      "claimId": "c7",
+      "kind": "audit.approved",
+      "detail": "r1.e1 The interpretation accurately reflects the stated value in the text, and the mismatch is correctly identified by the formula calculation against the financial filing."
+    },
+    {
+      "at": 271478,
+      "claimId": "c3",
+      "kind": "claim.revised",
+      "detail": "r1 → r2: auditor correction: The year-earlier figure corresponds to fiscal year 2025. (evidence, calculation, audit and context for r1 invalidated)"
+    },
+    {
+      "at": 271626,
+      "claimId": "c3",
+      "kind": "stale:failure",
+      "detail": "failure for c3@r1 rejected: claim is now at r2"
+    },
+    {
+      "at": 286040,
+      "claimId": "c3",
+      "kind": "context.warning",
+      "detail": "r2 [RECORD_OR_SUPERLATIVE] The article title characterizes the revenue as a record, but the paragraph itself does not substantiate this claim with historical context."
+    },
+    {
+      "at": 311442,
+      "claimId": "c3",
+      "kind": "evidence.bound",
+      "detail": "r2.e2 RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026 vs RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/26-000026"
+    },
+    {
+      "at": 311443,
+      "claimId": "c3",
+      "kind": "calculation",
+      "detail": "r2.e2 MISMATCH (actual $478.834B vs stated $416.2 billion)"
+    },
+    {
+      "at": 311443,
+      "claimId": "c3",
+      "kind": "audit.investigating",
+      "detail": "r2.e2 evidence: RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2026/26-000026 covers FY-FY2026, but the claim is about FY-FY2025"
+    },
+    {
+      "at": 315991,
+      "claimId": "c6",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 RevenueFromContractWithCustomerExcludingAssessedTax/Q4-FY2026/derived"
+    },
+    {
+      "at": 315991,
+      "claimId": "c6",
+      "kind": "calculation",
+      "detail": "r1.e1 MATCH (actual $114.477B vs stated $114.5 billion)"
+    },
+    {
+      "at": 331019,
+      "claimId": "c6",
+      "kind": "audit.approved",
+      "detail": "r1.e1 The claim accurately reflects the revenue stated in the quote for the fourth quarter."
+    },
+    {
+      "at": 350968,
+      "claimId": "c3",
+      "kind": "evidence.bound",
+      "detail": "r2.e3 RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2025/25-000079 vs RevenueFromContractWithCustomerExcludingAssessedTax/FY-FY2024/25-000079 (replaces e2)"
+    },
+    {
+      "at": 350969,
+      "claimId": "c3",
+      "kind": "calculation",
+      "detail": "r2.e3 MATCH (actual $416.161B vs stated $416.2 billion)"
+    },
+    {
+      "at": 368831,
+      "claimId": "c3",
+      "kind": "audit.approved",
+      "detail": "r2.e3 The interpretation faithfully represents the quote and fiscal period, and the rounding is within acceptable limits."
+    }
+  ]
+}

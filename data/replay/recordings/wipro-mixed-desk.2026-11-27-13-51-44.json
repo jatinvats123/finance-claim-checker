@@ -1,0 +1,166 @@
+{
+ "provenance": "recorded",
+ "description": "Genuine responses from gemini-3.5-flash-lite, recorded by --mode record",
+ "createdAt": "2026-11-27T13:51:44.457Z",
+ "keyVersion": 2,
+ "model": "gemini-3.5-flash-lite",
+ "entries": {
+  "a15b19a7366d54f05a12ad91": {
+   "task": "extractor:article",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "submit_claim",
+     "args": {
+      "accounting": "unspecified",
+      "kind": "level",
+      "scale": "crore",
+      "comparison": "unspecified",
+      "fiscalPeriod": "FY",
+      "quote": "Wipro Limited reported consolidated operating income of ₹15,172.1 crore for the year ended March 31, 2025.",
+      "qualifier": "exact",
+      "direction": "increase",
+      "metric": "operating_income",
+      "fiscalYear": 2025,
+      "statedUnit": "money",
+      "statedNumber": "15172.1"
+     }
+    }
+   ],
+   "model": "gemini-3.5-flash-lite",
+   "recordedAt": "2026-11-27T13:51:45.684Z",
+   "latencyMs": 1216
+  },
+  "7519e80b071be2302156c9a5": {
+   "task": "extractor:article",
+   "turn": 1,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "submit_claim",
+     "args": {
+      "statedUnit": "per_share",
+      "kind": "level",
+      "fiscalYear": 2025,
+      "metric": "eps_diluted",
+      "comparison": "unspecified",
+      "scale": "units",
+      "accounting": "unspecified",
+      "direction": "increase",
+      "qualifier": "exact",
+      "quote": "Wipro reported diluted earnings per share of ₹12.52 for the same year.",
+      "fiscalPeriod": "FY",
+      "statedNumber": "12.52"
+     }
+    }
+   ],
+   "model": "gemini-3.5-flash-lite",
+   "recordedAt": "2026-11-27T13:51:46.744Z",
+   "latencyMs": 1056
+  },
+  "1a12f2d7cfbb9fbf73e78456": {
+   "task": "auditor:c1@r1.e1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "evidenceRevision": 1,
+      "claimRevision": 1,
+      "claimId": "c1",
+      "note": "The interpretation faithfully represents the quoted sentence and the MISMATCH verdict correctly captures the difference between the article's stated figure and the actual filing number."
+     }
+    }
+   ],
+   "model": "gemini-3.5-flash-lite",
+   "recordedAt": "2026-11-27T13:51:46.761Z",
+   "latencyMs": 1054
+  },
+  "55f77b70caa0ff1f84dd994c": {
+   "task": "context:c1@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "message",
+     "text": "no context issues"
+    }
+   ],
+   "model": "gemini-3.5-flash-lite",
+   "recordedAt": "2026-11-27T13:51:46.767Z",
+   "latencyMs": 1080
+  },
+  "3f99b6d77110d142281ae9a4": {
+   "task": "extractor:article",
+   "turn": 2,
+   "items": [
+    {
+     "type": "message",
+     "text": "All claims submitted."
+    }
+   ],
+   "model": "gemini-3.5-flash-lite",
+   "recordedAt": "2026-11-27T13:51:47.472Z",
+   "latencyMs": 725
+  },
+  "8b5f4e5950ee0d4bf32cd6f0": {
+   "task": "context:c2@r1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "message",
+     "text": "no context issues"
+    }
+   ],
+   "model": "gemini-3.5-flash-lite",
+   "recordedAt": "2026-11-27T13:51:47.476Z",
+   "latencyMs": 730
+  },
+  "e6949639ebc70987ae0ca752": {
+   "task": "auditor:c2@r1.e1",
+   "turn": 0,
+   "items": [
+    {
+     "type": "function_call",
+     "name": "approve",
+     "args": {
+      "claimRevision": 1,
+      "note": "The interpretation faithfully represents the quoted sentence and correctly matches the reported diluted earnings per share.",
+      "claimId": "c2",
+      "evidenceRevision": 1
+     }
+    }
+   ],
+   "model": "gemini-3.5-flash-lite",
+   "recordedAt": "2026-11-27T13:51:47.477Z",
+   "latencyMs": 723
+  },
+  "100d0d5bec16063a5165f999": {
+   "task": "auditor:c1@r1.e1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.5-flash-lite",
+   "recordedAt": "2026-11-27T13:51:47.679Z",
+   "latencyMs": 916
+  },
+  "0353577f534983bf3d4e331a": {
+   "task": "auditor:c2@r1.e1",
+   "turn": 1,
+   "items": [
+    {
+     "type": "message",
+     "text": "done"
+    }
+   ],
+   "model": "gemini-3.5-flash-lite",
+   "recordedAt": "2026-11-27T13:51:48.149Z",
+   "latencyMs": 671
+  }
+ }
+}

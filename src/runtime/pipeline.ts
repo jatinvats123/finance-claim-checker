@@ -18,6 +18,7 @@ import type { ReportIssuer } from "../docs/issuer.js"
 import type { ReportDoc } from "../docs/pdf.js"
 import { documentBasis, documentCurrency, documentFiscalYearEnd } from "../docs/verify.js"
 import { CheckerState } from "../domain/store.js"
+import type { ClaimInterpretation } from "../domain/types.js"
 import type { InferenceRunner, SemanticEvent } from "@mozaik-ai/core"
 import { EvidenceRegistry, type ReferenceInfo } from "../sec/evidence.js"
 import type { SecSnapshot } from "../sec/types.js"
@@ -66,6 +67,7 @@ export type RunResult = {
 	elapsedMs: number
 	/** Reviewer challenge of one settled claim (re-runs only that claim; never sets a verdict). */
 	challenge: (claimId: string, reason: string, timeoutMs?: number, model?: string) => Promise<{ timedOut: boolean }>
+	reviewMention: (interpretation: ClaimInterpretation, timeoutMs?: number) => Promise<{ timedOut: boolean }>
 	/** Any old agent work must drain before recovery can start. */
 	readonly recoveryPending: boolean
 	recoveryWork: () => RecoveryWork
@@ -325,6 +327,21 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 		}
 	}
 
-	const result: RunResult = { state, tasks: opts.tasks, timedOut, names, elapsedMs: Date.now() - t0, get recoveryPending() { return busy() }, recoveryWork, recover, challenge }
+	// An editor supplies the anchor. Evidence, context, calculation and audit use their usual event handlers.
+	async function reviewMention(interpretation: ClaimInterpretation, timeoutMs = 5 * 60_000) {
+		if (busy() || state.extraction !== "done") throw new Error("Wait for this run to finish before selecting a number.")
+		editing = true
+		try {
+			const claim = state.addClaim(interpretation, "editor")
+			const wait = waitSettled(timeoutMs)
+			ctx.emit(EV.CLAIM_REVISED, desk.getId(), { claimId: claim.id, claimRevision: claim.revision })
+			result.timedOut = await wait
+			return { timedOut: result.timedOut }
+		} finally {
+			editing = false
+		}
+	}
+
+	const result: RunResult = { state, tasks: opts.tasks, timedOut, names, elapsedMs: Date.now() - t0, get recoveryPending() { return busy() }, recoveryWork, recover, challenge, reviewMention }
 	return result
 }

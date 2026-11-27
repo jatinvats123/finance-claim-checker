@@ -12,7 +12,7 @@
  *   GET  /api/runs/:id/events           SSE: "state" (RunView) … "end"
  *   GET  /api/runs/:id/report.md|json   existing report renderers
  */
-import { existsSync, readFileSync, statSync } from "node:fs"
+import { createReadStream, existsSync, readFileSync, statSync } from "node:fs"
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http"
 import { extname, join, normalize, resolve } from "node:path"
 import { readArticle } from "../article.js"
@@ -29,7 +29,9 @@ import { loadSnapshot } from "../sec/edgar.js"
 import { EvidenceRegistry, periodLabel, type FiscalPeriod } from "../sec/evidence.js"
 import type { SecSnapshot } from "../sec/types.js"
 import type { InferenceRunner } from "@mozaik-ai/core"
-import type { MetaView, RunStatus, RunView } from "./types.js"
+import type { ManualReceipt, MetaView, RunStatus, RunView } from "./types.js"
+import { compareMention } from "./manual-check.js"
+import { unmatchedFinancialMentions } from "./mentions.js"
 import { ActivityLog, provenanceOf, runView } from "./viewmodel.js"
 import { LaneTracer, type Trace } from "../runtime/trace.js"
 
@@ -40,7 +42,7 @@ const MAX_TEXT = 50_000
 const MAX_BODY = 36 * 1024 * 1024 // a 25 MB PDF upload, base64-encoded
 export const SAMPLES_PATH = "data/samples.json"
 
-type Sample = { id: string; label: string; title: string; articlePath: string; company?: string; report?: { url: string }; note: string }
+type Sample = { id: string; label: string; title: string; articlePath: string; company?: string; report?: { url: string }; preferredMode?: "replay"; note: string }
 const loadSamples = (): Sample[] => (existsSync(SAMPLES_PATH) ? (JSON.parse(readFileSync(SAMPLES_PATH, "utf8")).samples as Sample[]) : [])
 
 /** A short, human summary of an SEC reference (shown before a run starts). */
@@ -97,6 +99,7 @@ type RunRecord = {
 	/** claim id while a reviewer recheck (live model calls) is in progress */
 	challenging?: string
 	recovering?: boolean
+	manualChecks?: Record<number, ManualReceipt>
 	flushTimer?: NodeJS.Timeout
 }
 
@@ -179,7 +182,7 @@ export function createApp(opts: AppOptions = {}) {
 			companyIndex: index ? { count: index.companies.length, fetchedAt: index.fetchedAt, source: index.source } : undefined,
 			samples: loadSamples().map((s) => {
 				const a = existsSync(s.articlePath) ? readArticle(s.articlePath) : { title: s.title, text: "" }
-				return { id: s.id, label: s.label, title: a.title, text: a.text, company: s.company, reportUrl: s.report?.url, note: s.note }
+				return { id: s.id, label: s.label, title: a.title, text: a.text, company: s.company, reportUrl: s.report?.url, preferredMode: s.preferredMode, note: s.note }
 			}),
 			snapshotFetchedAt: snap.source.fetchedAt,
 			example: { ...example, path: EXAMPLE_ARTICLE, label: `Synthetic example · ${modelLabel} · Real calculations` },
@@ -208,7 +211,7 @@ export function createApp(opts: AppOptions = {}) {
 	function view(rec: RunRecord): RunView | undefined {
 		if (!rec.state) return undefined
 		const current = runView({ id: rec.id, source: rec.source, mode: rec.mode, startedAt: rec.startedAt, status: rec.status, state: rec.state, tasks: rec.tasks, calls: rec.runner.calls, activity: rec.activity, error: rec.error, trace: traceOf(rec) })
-		return { ...current, elapsedMs: elapsed(rec), recovery: recoveryWork(rec), recovering: rec.recovering, recoveryPending: draining(rec) || undefined }
+		return { ...current, manualChecks: rec.manualChecks, elapsedMs: elapsed(rec), recovery: recoveryWork(rec), recovering: rec.recovering, recoveryPending: draining(rec) || undefined }
 	}
 
 	function recordOutcome(rec: RunRecord, timedOut: boolean, timeoutMessage: string) {
@@ -410,6 +413,32 @@ export function createApp(opts: AppOptions = {}) {
 		const url = new URL(req.url ?? "/", "http://localhost")
 		const p = url.pathname
 		try {
+			if (p === "/newsroom-demo.mp4" && (req.method === "GET" || req.method === "HEAD")) {
+				const file = join(staticDir, "newsroom-demo.mp4")
+				if (!existsSync(file)) throw new HttpError(404, "Walkthrough unavailable.")
+				const size = statSync(file).size
+				let start = 0
+				let end = size - 1
+				const range = req.headers.range
+				if (range) {
+					const match = /^bytes=(\d*)-(\d*)$/.exec(range)
+					if (match && (match[1] || match[2])) {
+						start = match[1] ? Number(match[1]) : Math.max(0, size - Number(match[2]))
+						end = match[1] && match[2] ? Math.min(end, Number(match[2])) : end
+					}
+					if (!match || !(match[1] || match[2]) || start > end || start >= size || !Number.isSafeInteger(start)) {
+						res.writeHead(416, { "Content-Range": `bytes */${size}` })
+						return res.end()
+					}
+				}
+				res.writeHead(range ? 206 : 200, { "Content-Type": "video/mp4", "Accept-Ranges": "bytes",
+					"Content-Length": end - start + 1, ...(range ? { "Content-Range": `bytes ${start}-${end}/${size}` } : {}) })
+				if (req.method === "HEAD") return res.end()
+				const stream = createReadStream(file, { start, end })
+				res.once("close", () => stream.destroy())
+				stream.on("error", () => res.destroy())
+				return stream.pipe(res)
+			}
 			if (p === "/api/meta" && req.method === "GET") {
 				return json(res, 200, meta())
 			}
@@ -441,6 +470,38 @@ export function createApp(opts: AppOptions = {}) {
 					}
 				}
 				return json(res, 200, { resolution, reference, companyIndex: { count: ix.companies.length, fetchedAt: ix.fetchedAt } })
+			}
+			const manual = /^\/api\/runs\/([\w-]+)\/mentions$/.exec(p)
+			if (manual && req.method === "POST") {
+				const rec = runs.get(manual[1])
+				if (!rec) throw new HttpError(404, "Unknown run.")
+				const body = await readBody(req, 1024)
+				if (!Number.isSafeInteger(body?.start) || body.start < 0) throw new HttpError(400, "Select a number in the original article.")
+				const result = rec.result
+				const current = view(rec)
+				const replayLookup = rec.mode === "replay" && rec.status === "cache_miss" && current?.reference.kind === "sec"
+				if (!current || !result || !(result.state.extraction === "done" || replayLookup) || !result.state.registry || rec.status === "running" || result.recoveryPending) {
+					throw new HttpError(409, "A settled run with a usable financial reference is required for a manual lookup.")
+				}
+				if (rec.manualChecks?.[body.start]) return json(res, 200, { run: current })
+				const mention = unmatchedFinancialMentions(current).find(candidate => candidate.start === body.start)
+				if (!mention) throw new HttpError(409, "This number is already covered or is no longer an unchecked mention.")
+				const checked = compareMention(current.article.text, mention, result.state.registry)
+				const sendToAgents = rec.mode === "live" && checked.interpretation
+				if (sendToAgents && active("live") >= maxLive) throw new HttpError(429, "Another live check is running. Try again shortly.")
+				if (sendToAgents && rec.runner.usage.requests >= rec.runner.limits.maxCalls) throw new HttpError(409, "This run has used its model request budget. Start a fresh check to send this number for review.")
+				rec.manualChecks ??= {}
+				rec.manualChecks[body.start] = checked.receipt
+				if (sendToAgents) {
+					rec.status = "running"
+					rec.activeSince = Date.now()
+					result.reviewMention(sendToAgents, opts.timeoutMs ?? 5 * 60_000)
+						.then(({ timedOut }) => recordOutcome(rec, timedOut, "The selected number's review reached the time limit."))
+						.catch((err) => { rec.status = "failed"; rec.error = (err as Error).message })
+						.finally(() => finishOperation(rec))
+					return json(res, 202, { id: rec.id })
+				}
+				return json(res, 200, { run: view(rec) })
 			}
 			const resume = /^\/api\/runs\/([\w-]+)\/resume$/.exec(p)
 			if (resume && req.method === "POST") {
