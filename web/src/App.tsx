@@ -9,8 +9,35 @@ import { IconAlert, IconChevron, IconDoc, IconDownload, IconPlay, IconSpinner } 
 import { Inspector } from "./components/Inspector"
 import { MentionCoverage, ResultsPanel } from "./components/ResultsPanel"
 import { priorityCorrection } from "./editorResults"
+import { readSession, saveSession } from "./session"
 
 type Tab = "article" | "results" | "evidence"
+type Workspace = {
+	draft?: Draft
+	runId?: string
+	selection?: { runId?: string; id?: string }
+	tab: Tab
+	historyOpen: boolean
+	timelineOpen: boolean
+	replayChoice?: "recorded" | "fixtures"
+}
+
+function isWorkspace(value: unknown): value is Workspace {
+	if (!value || typeof value !== "object") return false
+	const saved = value as Workspace
+	const draft = saved.draft
+	return ["article", "results", "evidence"].includes(saved.tab)
+		&& typeof saved.historyOpen === "boolean" && typeof saved.timelineOpen === "boolean"
+		&& (saved.runId === undefined || typeof saved.runId === "string")
+		&& (saved.replayChoice === undefined || saved.replayChoice === "recorded" || saved.replayChoice === "fixtures")
+		&& (saved.selection === undefined || (!!saved.selection && typeof saved.selection === "object"
+			&& (saved.selection.runId === undefined || typeof saved.selection.runId === "string")
+			&& (saved.selection.id === undefined || typeof saved.selection.id === "string")))
+		&& (draft === undefined || (!!draft && typeof draft === "object"
+			&& [draft.title, draft.text, draft.company, draft.reportUrl, draft.companyName].every(v => typeof v === "string")
+			&& (draft.cik === undefined || typeof draft.cik === "string")
+			&& (draft.mode === "live" || draft.mode === "replay")))
+}
 
 function progressText(run: RunView): string {
 	const p = run.progress
@@ -66,13 +93,14 @@ function RecoveryNotice({ recovery, resuming, error, resume }: {
 
 export default function App() {
 	const { meta, error: metaError } = useMeta()
-	const { run, start, running, error: runError, reset, challenge, resume, resumeError, resuming, checkMention } = useRun()
-	const [selection, setSelection] = useState<{ runId?: string; id?: string }>()
-	const [historyOpen, setHistoryOpen] = useState(false)
-	const [tab, setTab] = useState<Tab>("article")
-	const [timelineOpen, setTimelineOpen] = useState(false)
-	const [draft, setDraft] = useState<Draft>()
-	const [replayChoice, setReplayChoice] = useState<"recorded" | "fixtures">()
+	const { run, start, running, restoring, error: runError, reset, challenge, resume, resumeError, resuming, checkMention } = useRun()
+	const [saved] = useState(() => readSession("workspace", isWorkspace))
+	const [selection, setSelection] = useState(saved?.selection)
+	const [historyOpen, setHistoryOpen] = useState(saved?.historyOpen ?? false)
+	const [tab, setTab] = useState<Tab>(saved?.tab ?? "article")
+	const [timelineOpen, setTimelineOpen] = useState(saved?.timelineOpen ?? false)
+	const [draft, setDraft] = useState<Draft | undefined>(saved?.draft)
+	const [replayChoice, setReplayChoice] = useState(saved?.replayChoice)
 	const article = useRef<ArticleHandle>(null)
 	const inspectorHeading = useRef<HTMLHeadingElement>(null)
 	const openAuditorTimeline = useRef(false)
@@ -80,13 +108,27 @@ export default function App() {
 	const desktop = useMedia("(min-width: 960px)")
 	const layout = wide ? "wide" : desktop ? "desktop" : "mobile"
 	const runId = run?.id
+	const previousRunId = useRef(saved?.runId)
+
+	useEffect(() => {
+		if (restoring) return
+		// PDF uploads can exceed browser storage limits. Keep their existing in-memory handling.
+		const storedDraft = draft ? { ...draft, reportFile: undefined } : undefined
+		saveSession("workspace", { draft: storedDraft, runId, selection, tab, historyOpen, timelineOpen, replayChoice } satisfies Workspace)
+	}, [draft, runId, selection, tab, historyOpen, timelineOpen, replayChoice, restoring])
 
 	// A new run starts with a clean selection.
 	useEffect(() => {
+		if (restoring || previousRunId.current === runId) return
+		previousRunId.current = runId
 		setHistoryOpen(false)
 		setTimelineOpen(!!runId && openAuditorTimeline.current)
 		if (runId) openAuditorTimeline.current = false
-	}, [runId])
+	}, [runId, restoring])
+
+	useEffect(() => {
+		if (!restoring && !run && runError) setTab("article")
+	}, [restoring, run, runError])
 
 	const recommended = useMemo(() => run ? priorityCorrection(run) : undefined, [run])
 	const autoSelect = wide && (!running || resuming) ? recommended?.id : undefined
@@ -135,7 +177,7 @@ export default function App() {
 	}, [meta, draft])
 
 	if (metaError) return <div className="fatal">Could not reach the checker server: {metaError}</div>
-	if (!meta || !draft) return <div className="loading" aria-busy="true">Loading…</div>
+	if (!meta || !draft || restoring) return <div className="loading" aria-busy="true">{restoring ? "Restoring your check…" : "Loading…"}</div>
 
 	const featured = meta.samples.find(sample => sample.id === "wipro")
 	const runFeatured = () => {

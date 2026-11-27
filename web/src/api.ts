@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import type { MetaView, ResolveView, RunView } from "../../src/web/types"
+import { readSession, saveSession } from "./session"
 
 export type { MetaView, RunView, ResolveView }
 export type { ClaimView, AgentView, TimelineEntry, CalcInput, ContextWarning, HistoryEntry, ReviewStatus, VerdictCode, Candidate, ReferenceView, ReferencePreview } from "../../src/web/types"
@@ -57,17 +58,20 @@ export function resolveArticle(body: { title: string; text: string; company?: { 
  * A second click while a run is active attaches to the running check instead of starting another.
  */
 export function useRun() {
+	const [savedRunId] = useState(() => readSession("active-run", (value): value is string => typeof value === "string" && /^run-[\w-]+$/.test(value)))
+	const [restoring, setRestoring] = useState(!!savedRunId)
 	const [run, setRun] = useState<RunView>()
 	const [starting, setStarting] = useState(false)
 	const [error, setError] = useState<string>()
 	const [resumePending, setResumePending] = useState(false)
 	const [resumeError, setResumeError] = useState<string>()
 	const source = useRef<EventSource>()
-	const busy = useRef(false)
+	const busy = useRef(!!savedRunId)
 	const selectionEpoch = useRef(0)
 
 	const attach = useCallback((id: string) => {
 		source.current?.close()
+		saveSession("active-run", id)
 		const es = new EventSource(`/api/runs/${id}/events`)
 		source.current = es
 		es.addEventListener("state", (e) => {
@@ -86,6 +90,28 @@ export function useRun() {
 			// The browser retries automatically; the server re-sends the latest state on reconnect.
 		}
 	}, [])
+
+	// Fetch and reconnect to an existing run. Refresh never starts another check or model call.
+	useEffect(() => {
+		if (!savedRunId) return
+		const controller = new AbortController()
+		api<RunView>(`/api/runs/${savedRunId}`, { signal: controller.signal })
+			.then((existing) => {
+				if (controller.signal.aborted) return
+				if (existing.article) setRun(existing)
+				attach(savedRunId)
+			})
+			.catch((e) => {
+				if (controller.signal.aborted) return
+				busy.current = false
+				if (e instanceof ApiError && e.status === 404) {
+					saveSession("active-run", undefined)
+					setError("The previous check is no longer available on the server. You can check your saved article again.")
+				} else setError(`Could not restore the previous check: ${(e as Error).message}. Refresh to retry.`)
+			})
+			.finally(() => { if (!controller.signal.aborted) setRestoring(false) })
+		return () => controller.abort()
+	}, [attach, savedRunId])
 
 	const start = useCallback(
 		async (body: StartBody) => {
@@ -116,6 +142,7 @@ export function useRun() {
 
 	const reset = useCallback(() => {
 		selectionEpoch.current++
+		saveSession("active-run", undefined)
 		source.current?.close()
 		source.current = undefined
 		busy.current = false
@@ -171,8 +198,8 @@ export function useRun() {
 		}
 	}, [attach, run])
 	const resuming = resumePending || run?.recovering === true
-	const running = starting || resuming || run?.status === "running" || run?.recoveryPending === true
-	return { run, start, starting, error, reset, challenge, resume, resumeError, resuming, running, checkMention }
+	const running = restoring || starting || resuming || run?.status === "running" || run?.recoveryPending === true
+	return { run, start, starting, restoring, error, reset, challenge, resume, resumeError, resuming, running, checkMention }
 }
 
 export function useMedia(query: string): boolean {
