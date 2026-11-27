@@ -1,0 +1,57 @@
+{
+	"deadlineMs": 60000,
+	"snapshotHashes": {
+		"AAPL": "bfa3e1d298398b30859158621820b203ea8697c44055a3969d92a10bb7591656",
+		"WIT": "351612a481c775be7637f3f68bf9203a73558d238312f8c685f947cf6b318417",
+		"WMT": "8e5cd730bbfe4493dd332269f7f66bc1dab490b6bd5a2e2b9bf9a48ff19e609d",
+		"INFY": "8d3ec8f90bf1442dbad2dff0df9c19f98fc8af9b279dc3a803de03441efd4e41"
+	},
+	"cases": [
+		{
+			"id": "apple-prior-year-quarter",
+			"article": {"ticker":"AAPL","title":"Apple's September quarter in the year-end recap","text":"Apple recorded $102.466 billion in net sales in the fourth quarter of FY2026, the three months ended September 26, 2026. That figure covers only the September quarter."},
+			"expected": [
+				{"anchor":"$102.466 billion","metric":"revenue","year":2026,"period":"Q4","outcome":"MISMATCH","value":114477000000,"currency":"USD","accessions":["0000320193-26-000026","0000320193-26-000020"],"truth":"The draft carries over FY2025 Q4. FY2026 Q4 is $478.834B full-year net sales minus $364.357B in the first nine months."}
+			]
+		},
+		{
+			"id": "wipro-profit-unit",
+			"article": {"ticker":"WIT","title":"Wipro's FY2025 profit attributable to shareholders","text":"Wipro Limited's profit attributable to its shareholders for FY2025, the year ended March 31, 2025, was ₹131,354 crore. Diluted earnings per share for the same fiscal year were ₹12.52."},
+			"expected": [
+				{"anchor":"₹131,354 crore","metric":"net_income","year":2025,"period":"FY","outcome":"MISMATCH","value":131354000000,"currency":"INR","accessions":["0000950170-25-076303"],"truth":"The 20-F prints ₹131,354 million attributable to owners. That is ₹13,135.4 crore."},
+				{"anchor":"₹12.52","metric":"eps_diluted","year":2025,"period":"FY","outcome":"MATCH","value":12.52,"currency":"INR","accessions":["0000950170-25-076303"],"truth":"Diluted EPS is ₹12.52 for the year."}
+			]
+		},
+		{
+			"id": "walmart-quarter-in-half",
+			"article": {"ticker":"WMT","title":"Walmart's first-half sales tracker","text":"Walmart Inc. booked total revenues of $187.937 billion in the first half of FY2027, the six months ended July 31, 2026. The total was for the six-month period."},
+			"expected": [
+				{"anchor":"$187.937 billion","metric":"revenue","year":2027,"period":"H1","outcome":"MISMATCH","value":365688000000,"currency":"USD","accessions":["0000104169-26-000154"],"truth":"The draft copied the three-month figure. The same 10-Q reports $365.688B total revenues for the six months."}
+			]
+		},
+		{
+			"id": "infosys-reported-and-forecast",
+			"article": {"ticker":"INFY","title":"Infosys annual EPS and the next sales outlook","text":"Infosys Limited's diluted earnings per share for FY2025 were US$0.76. Analysts forecast that Infosys will report US$25 billion in revenue for FY2027."},
+			"expected": [
+				{"anchor":"US$0.76","metric":"eps_diluted","year":2025,"period":"FY","outcome":"MATCH","value":0.76,"currency":"USD","accessions":["0000950170-25-091925"],"truth":"The annual 20-F reports diluted EPS of US$0.76."},
+				{"anchor":"US$25 billion","outcome":"SKIP","truth":"This is an analyst forecast, outside the historical statement check."}
+			]
+		},
+		{
+			"id": "walmart-alternate-eps-basis",
+			"article": {"ticker":"WMT","title":"Walmart Q2 earnings on two bases","text":"Walmart's adjusted, non-GAAP diluted earnings per share in the second quarter of FY2027 were $0.68. Walmart's reported GAAP diluted earnings per share for Q2 FY2027 were $0.80."},
+			"expected": [
+				{"anchor":"$0.68","outcome":"ABSTAIN","truth":"The adjusted EPS claim is on a non-GAAP basis. The GAAP EPS in the filing cannot justify a correction to it."},
+				{"anchor":"$0.80","metric":"eps_diluted","year":2027,"period":"Q2","outcome":"MATCH","value":0.8,"currency":"USD","accessions":["0000104169-26-000154"],"truth":"The consolidated 10-Q reports US GAAP diluted EPS of $0.80."}
+			]
+		},
+		{
+			"id": "apple-two-independent-edits",
+			"article": {"ticker":"AAPL","title":"Two figures for Apple's annual brief","text":"Apple Inc. reported gross profit of $228.2 billion in FY2026, the fiscal year ended September 26, 2026. For FY2026, Apple Inc. reported diluted earnings per share of $8.68."},
+			"expected": [
+				{"anchor":"$228.2 billion","metric":"gross_profit","year":2026,"period":"FY","outcome":"MISMATCH","value":233602000000,"currency":"USD","accessions":["0000320193-26-000026"],"truth":"FY2026 gross profit was $233.602B."},
+				{"anchor":"$8.68","metric":"eps_diluted","year":2026,"period":"FY","outcome":"MISMATCH","value":8.98,"currency":"USD","accessions":["0000320193-26-000026"],"truth":"FY2026 diluted EPS was $8.98."}
+			]
+		}
+	]
+}

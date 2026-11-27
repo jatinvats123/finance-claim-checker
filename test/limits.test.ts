@@ -29,6 +29,25 @@ describe("live safety limits", () => {
 		expect(u.costUsd).toBeCloseTo(0.2 + 0.05, 6) // $1/M in, $5/M out
 	})
 
+	it("shares request spacing across live runs and replay rechecks", async () => {
+		const pacer = new Pacer(4, 600)
+		const starts: number[] = []
+		const inner = fakeProvider(async () => {
+			starts.push(Date.now())
+			return answer()
+		})
+		const liveTasks = new TaskTracker()
+		const replayTasks = new TaskTracker()
+		const live = new CheckerRunner({ mode: "live", tasks: liveTasks, pacer, inner })
+		const replay = new CheckerRunner({ mode: "replay", tasks: replayTasks, pacer, inner })
+		replay.enableLiveFallback("claude-haiku-4-5")
+		await Promise.all([live.run(input(liveTasks)), replay.run(input(replayTasks))])
+		expect(starts).toHaveLength(2)
+		expect(starts[1] - starts[0]).toBeGreaterThanOrEqual(90)
+		expect(live.usage.summary().requests).toBe(1)
+		expect(replay.usage.summary().requests).toBe(1)
+	})
+
 	it("counts Gemini thinking tokens as billed output", () => {
 		const m = new UsageMeter("gemini-3.5-flash", { input: 1, output: 10 })
 		m.add(answer(usage(1_000_000, 100_000, 50_000)))

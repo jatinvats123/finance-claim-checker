@@ -1,0 +1,397 @@
+{
+  "mode": "scripted fixture replay",
+  "trace": {
+    "timing": "replay-fixture",
+    "timingNote": "Replay of hand-written fixtures with simulated delays. Not model latency.",
+    "lanes": [
+      {
+        "task": "extractor:article",
+        "role": "extractor",
+        "startMs": 31,
+        "endMs": 1411,
+        "failed": false
+      },
+      {
+        "task": "context:c1@r1",
+        "role": "context",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "startMs": 155,
+        "endMs": 291,
+        "failed": false
+      },
+      {
+        "task": "auditor:c1@r1.e1",
+        "role": "auditor",
+        "claimId": "c1",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 162,
+        "endMs": 416,
+        "failed": false
+      },
+      {
+        "task": "context:c2@r1",
+        "role": "context",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "startMs": 293,
+        "endMs": 414,
+        "failed": false
+      },
+      {
+        "task": "evidence:c2@r1#1",
+        "role": "evidence",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 0,
+        "startMs": 296,
+        "endMs": 792,
+        "failed": false
+      },
+      {
+        "task": "context:c3@r1",
+        "role": "context",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "startMs": 415,
+        "endMs": 664,
+        "failed": false
+      },
+      {
+        "task": "evidence:c3@r1#1",
+        "role": "evidence",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 0,
+        "startMs": 419,
+        "endMs": 915,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r1",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 540,
+        "endMs": 3168,
+        "failed": false
+      },
+      {
+        "task": "evidence:c4@r1#1",
+        "role": "evidence",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "evidenceRevision": 0,
+        "startMs": 542,
+        "endMs": 1162,
+        "failed": false
+      },
+      {
+        "task": "context:c5@r1",
+        "role": "context",
+        "claimId": "c5",
+        "claimRevision": 1,
+        "startMs": 666,
+        "endMs": 790,
+        "failed": false
+      },
+      {
+        "task": "auditor:c2@r1.e1",
+        "role": "auditor",
+        "claimId": "c2",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 672,
+        "endMs": 915,
+        "failed": false
+      },
+      {
+        "task": "auditor:c5@r1.e1",
+        "role": "auditor",
+        "claimId": "c5",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 673,
+        "endMs": 915,
+        "failed": false
+      },
+      {
+        "task": "context:c6@r1",
+        "role": "context",
+        "claimId": "c6",
+        "claimRevision": 1,
+        "startMs": 791,
+        "endMs": 913,
+        "failed": false
+      },
+      {
+        "task": "evidence:c3@r1#2",
+        "role": "evidence",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 794,
+        "endMs": 1162,
+        "failed": false
+      },
+      {
+        "task": "auditor:c6@r1.e1",
+        "role": "auditor",
+        "claimId": "c6",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 795,
+        "endMs": 1040,
+        "failed": false
+      },
+      {
+        "task": "context:c7@r1",
+        "role": "context",
+        "claimId": "c7",
+        "claimRevision": 1,
+        "startMs": 914,
+        "endMs": 1161,
+        "failed": false
+      },
+      {
+        "task": "context:c8@r1",
+        "role": "context",
+        "claimId": "c8",
+        "claimRevision": 1,
+        "startMs": 1040,
+        "endMs": 1161,
+        "failed": false
+      },
+      {
+        "task": "auditor:c4@r1.e1",
+        "role": "auditor",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1043,
+        "endMs": 1292,
+        "failed": false
+      },
+      {
+        "task": "auditor:c3@r1.e2",
+        "role": "auditor",
+        "claimId": "c3",
+        "claimRevision": 1,
+        "evidenceRevision": 2,
+        "startMs": 1044,
+        "endMs": 1292,
+        "failed": false
+      },
+      {
+        "task": "auditor:c8@r1.e1",
+        "role": "auditor",
+        "claimId": "c8",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1046,
+        "endMs": 1302,
+        "failed": false
+      },
+      {
+        "task": "context:c9@r1",
+        "role": "context",
+        "claimId": "c9",
+        "claimRevision": 1,
+        "startMs": 1162,
+        "endMs": 1286,
+        "failed": false
+      },
+      {
+        "task": "extractor-fix:c4@r1",
+        "role": "extractor-fix",
+        "claimId": "c4",
+        "claimRevision": 1,
+        "startMs": 1164,
+        "endMs": 1412,
+        "failed": false
+      },
+      {
+        "task": "auditor:c9@r1.e1",
+        "role": "auditor",
+        "claimId": "c9",
+        "claimRevision": 1,
+        "evidenceRevision": 1,
+        "startMs": 1165,
+        "endMs": 1427,
+        "failed": false
+      },
+      {
+        "task": "context:c10@r1",
+        "role": "context",
+        "claimId": "c10",
+        "claimRevision": 1,
+        "startMs": 1289,
+        "endMs": 1535,
+        "failed": false
+      },
+      {
+        "task": "context:c4@r2",
+        "role": "context",
+        "claimId": "c4",
+        "claimRevision": 2,
+        "startMs": 1291,
+        "endMs": 1535,
+        "failed": false
+      },
+      {
+        "task": "evidence:c4@r2#1",
+        "role": "evidence",
+        "claimId": "c4",
+        "claimRevision": 2,
+        "evidenceRevision": 0,
+        "startMs": 1295,
+        "endMs": 1922,
+        "failed": false
+      },
+      {
+        "task": "auditor:c4@r2.e2",
+        "role": "auditor",
+        "claimId": "c4",
+        "claimRevision": 2,
+        "evidenceRevision": 2,
+        "startMs": 1806,
+        "endMs": 2063,
+        "failed": false
+      }
+    ],
+    "peakActive": 9,
+    "peakAtMs": 795,
+    "totalMs": 3169
+  },
+  "events": [
+    {
+      "at": 415,
+      "claimId": "c3",
+      "kind": "claim.extracted",
+      "detail": "r1 Revenue more than doubled from a year earlier, rising 126%"
+    },
+    {
+      "at": 539,
+      "claimId": "c3",
+      "kind": "context.warning",
+      "detail": "r1 [MISLEADING_FRAMING] The headline-style growth rate is attached to revenue, but \"126%\" is the kind of figure that is easily transposed from another line of an earnings table."
+    },
+    {
+      "at": 539,
+      "claimId": "c4",
+      "kind": "claim.extracted",
+      "detail": "r1 Net income climbed 18% to $59.7 billion"
+    },
+    {
+      "at": 792,
+      "claimId": "c3",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 Revenues/Q2-FY2027/26-000075 vs Revenues/Q1-FY2027/26-000052"
+    },
+    {
+      "at": 793,
+      "claimId": "c3",
+      "kind": "calculation",
+      "detail": "r1.e1 MISMATCH (actual +17.90% vs stated +126%)"
+    },
+    {
+      "at": 793,
+      "claimId": "c3",
+      "kind": "audit.investigating",
+      "detail": "r1.e1 evidence: YOY base must be Q2-FY2026, got Q1-FY2027 (Revenues/Q1-FY2027/26-000052)"
+    },
+    {
+      "at": 1040,
+      "claimId": "c4",
+      "kind": "evidence.bound",
+      "detail": "r1.e1 NetIncomeLoss/Q2-FY2027/26-000075 vs NetIncomeLoss/Q2-FY2026/26-000075"
+    },
+    {
+      "at": 1040,
+      "claimId": "c3",
+      "kind": "evidence.bound",
+      "detail": "r1.e2 Revenues/Q2-FY2027/26-000075 vs Revenues/Q2-FY2026/26-000075 (replaces e1)"
+    },
+    {
+      "at": 1041,
+      "claimId": "c4",
+      "kind": "calculation",
+      "detail": "r1.e1 MISMATCH (actual +125.90% vs stated +18%)"
+    },
+    {
+      "at": 1042,
+      "claimId": "c3",
+      "kind": "calculation",
+      "detail": "r1.e2 MISMATCH (actual +105.85% vs stated +126%)"
+    },
+    {
+      "at": 1163,
+      "claimId": "c4",
+      "kind": "audit.investigating",
+      "detail": "r1.e1 claim: The sentence \"Net income climbed 18% to $59.7 billion\" does not say whether this is GAAP or adjusted net income. accounting must be \"unspecified\", not \"gaap\"."
+    },
+    {
+      "at": 1165,
+      "claimId": "c3",
+      "kind": "audit.approved",
+      "detail": "r1.e2 Interpretation faithful (year-over-year, 126%); the article's figure does not match the filings."
+    },
+    {
+      "at": 1290,
+      "claimId": "c4",
+      "kind": "claim.revised",
+      "detail": "r1 → r2: auditor correction: the sentence does not say GAAP or adjusted (evidence, calculation, audit and context for r1 invalidated)"
+    },
+    {
+      "at": 1411,
+      "claimId": "c4",
+      "kind": "context.warning",
+      "detail": "r2 [MISLEADING_FRAMING] The growth rate is placed next to the dollar figure without saying what it is measured against, so readers will assume a year-over-year comparison."
+    },
+    {
+      "at": 1798,
+      "claimId": "c4",
+      "kind": "evidence.bound",
+      "detail": "r2.e2 NetIncomeLoss/Q2-FY2027/26-000075 vs NetIncomeLoss/Q2-FY2026/26-000075"
+    },
+    {
+      "at": 1799,
+      "claimId": "c4",
+      "kind": "calculation",
+      "detail": "r2.e2 MISMATCH (actual +125.90% vs stated +18%)"
+    },
+    {
+      "at": 1938,
+      "claimId": "c4",
+      "kind": "audit.approved",
+      "detail": "r2.e2 Accounting basis now correctly unspecified; checked against GAAP net income, year-over-year by convention, with the quarter-over-quarter figure shown as context."
+    },
+    {
+      "at": 3043,
+      "claimId": "c4",
+      "kind": "stale:context warning",
+      "detail": "context warning for c4@r1 rejected: claim is now at r2"
+    },
+    {
+      "at": 3168,
+      "claimId": "c4",
+      "kind": "stale:context review",
+      "detail": "context review for c4@r1 rejected: claim is now at r2"
+    }
+  ],
+  "staleRejections": [
+    {
+      "at": 3043,
+      "claimId": "c4",
+      "kind": "stale:context warning",
+      "detail": "context warning for c4@r1 rejected: claim is now at r2"
+    },
+    {
+      "at": 3168,
+      "claimId": "c4",
+      "kind": "stale:context review",
+      "detail": "context review for c4@r1 rejected: claim is now at r2"
+    }
+  ]
+}

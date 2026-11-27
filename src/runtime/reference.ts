@@ -7,6 +7,7 @@
  *   3. A company without usable SEC data and without a report is reported as unavailable.
  */
 import { companyByCik, resolveCompany, type Candidate, type CompanyEntry, type CompanyIndex, type Resolution } from "../company/companies.js"
+import { checkReportIssuer, sameIssuer } from "../docs/issuer.js"
 import { loadReport, ReportUnavailable } from "../docs/pdf.js"
 import { cachedLiveSnapshot, hasSnapshot, loadSnapshot, SecDataMissing, SecDataUnavailable } from "../sec/edgar.js"
 import type { SecSnapshot } from "../sec/types.js"
@@ -24,7 +25,7 @@ export type PreparedReference =
 	| { kind: "sec"; snapshot: SecSnapshot; company: CompanyEntry; resolution?: Resolution; snapshotSource: "committed" | "live" }
 	| { kind: "report"; report: PreparedReport; company?: CompanyEntry; resolution?: Resolution }
 
-export type ReferenceErrorCode = "COMPANY_AMBIGUOUS" | "COMPANY_NOT_FOUND" | "COMPANY_NAME_REQUIRED" | "SEC_DATA_UNAVAILABLE" | "SEC_UNREACHABLE" | ReportUnavailable["code"]
+export type ReferenceErrorCode = "COMPANY_AMBIGUOUS" | "COMPANY_NOT_FOUND" | "COMPANY_NAME_REQUIRED" | "SEC_DATA_UNAVAILABLE" | "SEC_UNREACHABLE" | "REPORT_ISSUER_MISMATCH" | "REPORT_ISSUER_UNVERIFIED" | ReportUnavailable["code"]
 export class ReferenceError extends Error {
 	constructor(
 		readonly status: number,
@@ -65,13 +66,17 @@ export async function prepareReference(req: ReferenceRequest, index: CompanyInde
 		else if (resolution.status === "not_found" && !req.report) throw new ReferenceError(404, "COMPANY_NOT_FOUND", resolution.reason, { needsReport: true })
 	}
 
-	// 2. an explicit official report wins (e.g. an Indian company's results in ₹ crore)
+	// 2. A supplied report takes precedence once its printed issuer matches the selection.
 	if (req.report && (req.report.url || req.report.file)) {
-		const name = req.company?.name?.trim() || company?.name || req.company?.query?.trim()
+		const enteredName = req.company?.name?.trim()
+		const selected = company && (req.company?.cik || !enteredName || sameIssuer(enteredName, company.name) || company.tickers.includes(enteredName.toUpperCase())) ? company : undefined
+		const name = selected?.name || enteredName || req.company?.query?.trim()
 		if (!name) throw new ReferenceError(400, "COMPANY_NAME_REQUIRED", "Enter the company's name for the report.")
 		try {
 			const doc = await loadReport(req.report)
-			return { kind: "report", report: { doc, company: { name, ticker: company?.tickers[0] } }, company, resolution }
+			const identity = checkReportIssuer(doc, name)
+			if (!identity.ok) throw new ReferenceError(422, identity.code, identity.message, { needsReport: true, company: selected })
+			return { kind: "report", report: { doc, company: { name, ticker: selected?.tickers[0] }, issuer: identity.issuer }, company: selected, resolution }
 		} catch (e) {
 			if (e instanceof ReportUnavailable) throw new ReferenceError(e.code === "REPORT_FETCH_FAILED" ? 502 : 422, e.code, e.message, { needsReport: true })
 			throw e

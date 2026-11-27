@@ -54,6 +54,12 @@ export function createReader(ctx: Ctx): Agent {
 			const rejected: { i: number; reason: string }[] = []
 			let accepted = 0
 			list.forEach((p, i) => {
+				if (!r.pages.some(page => page.n === p?.page)) {
+					const reason = "This page is outside the selected statement pages with a matched issuer."
+					rejected.push({ i, reason })
+					r.rejected.push({ proposed: p, reason })
+					return
+				}
 				const v = verifyProposed(r.doc, p, { basis: r.basis, docCurrency: r.docCurrency })
 				if (!v.ok) {
 					rejected.push({ i, reason: v.reason })

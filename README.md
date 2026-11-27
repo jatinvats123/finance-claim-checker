@@ -2,14 +2,25 @@
 
 Finance Claim Checker helps a financial editor decide which figures in an earnings draft need a correction before publication. It compares quoted figures with the company's SEC filing or supplied results PDF, shows the calculation and lets the editor copy a sourced correction.
 
+[Open the keyless Wipro demo on Render](https://finance-claim-checker.onrender.com/) · [Compare concurrent and serial runs](#what-concurrency-changed) · [Watch the Auditor revise a claim](#inspect-an-auditor-revision)
+
+```sh
+npm ci
+npm run web
+```
+
 ## Try the Wipro case
 
 1. From a fresh checkout with Node.js 22.13 or later, run `npm ci` and `npm run web`. Open [the local app](http://localhost:4317).
 2. Select **Check the Wipro example · recorded**. The example uses a synthetic draft, an included SEC snapshot and genuine recorded model responses. It runs without an API key or external data fetch after installation.
-3. In **Results**, choose **Mismatches** and open **Operating income**. The draft put ₹1,51,271 crore in print. Wipro reported ₹151,271 million, equivalent to **₹15,127.1 crore**. Select **Copy correction with source** to get the corrected sentence and filing. [Wipro FY2025 Form 20-F](https://www.sec.gov/Archives/edgar/data/1123799/000095017025076303/wit-20250331.htm)
-4. Open **Timeline** to see the agents work on different claims while the extractor is still reading. The calculator binds each result to a version of its inputs. A claim revision invalidates the old calculation and audit.
+3. In **Results**, open the largest discrepancy or choose **Ready to fix** and select **Operating income**. The draft put ₹1,51,271 crore in print. Wipro reported ₹151,271 million, equivalent to **₹15,127.1 crore**. Select **Copy correction with source** to get the corrected sentence and filing. [Wipro FY2025 Form 20-F](https://www.sec.gov/Archives/edgar/data/1123799/000095017025076303/wit-20250331.htm)
+4. **Ready to fix** updates as individual claims finish review. Open **Timeline** to see the agents work on different claims while the extractor is still reading. The calculator binds each result to a version of its inputs. A claim revision invalidates the old calculation and audit.
 
 ![The Wipro draft, its reviewed discrepancy and the editor's correction action](docs/wipro-receipt.png)
+
+### Inspect an Auditor revision
+
+Select **See scripted auditor correction** in **Results**. The NVIDIA fixture opens **Timeline** and shows work on other claims continuing while the Auditor's objection sends a claim back for review. For claim `c3`, the Evidence agent replaces a prior-quarter comparison with the prior-year quarter, and the Auditor approves the resulting year-over-year correction. For claim `c4`, the Extractor revises the interpretation and the app discards stale results from the previous revision. The fixture uses scripted responses and runs without a key. [Fixture trace](eval/editor-auditor-fixture.json)
 
 ### What concurrency changed
 
@@ -43,7 +54,7 @@ Readers act on these numbers. This project reads an article and **identifies the
 
 It then extracts the claims about six supported metrics (revenue, net income, gross profit, operating income, diluted and basic EPS), and checks each against that company's statements:
 - **SEC filers:** quarterly 10-Q (unaudited), annual 10-K (audited), and 20-F/40-F annual reports for foreign issuers, in US GAAP or IFRS and in the filing's own currency.
-- **Companies without usable SEC data:** the official results PDF you provide. Every figure read from the PDF is verified by code against its page.
+- **Companies without usable SEC data:** supply the issuer's results PDF. The checker requires an issuer match before using statement pages and verifies each accepted number against its page. A matching issuer heading establishes consistency with the selected company. Uploaded files still need independent provenance verification.
 
 Every check comes with the document, the line item (or page, row and column), the dates, the input values and the formula. Missing or unverifiable data is reported as such. No other company's data is ever substituted, and no value is invented.
 
@@ -494,7 +505,7 @@ The server has no global lock:
 - At most two report PDFs are fetched and parsed at once. Report URLs must be public: no localhost or private networks, and every redirect is re-checked.
 - SEC data fetched live is cached per company for 6 hours. The company list is refreshed daily, and the committed copy is used if SEC is unreachable.
 
-On a host, bind `HOST=0.0.0.0` and the platform's `PORT`. Never set a provider key on a public deployment: without one, live mode and rechecks are disabled and explain why. Company resolution, the SEC reference preview and sample replays still work.
+On a host, bind `HOST=0.0.0.0` and use the platform's `PORT`. Company resolution, the SEC reference preview and sample replays work without a provider key. If live runs are enabled, set `CHECKER_WEB_RPM` to the provider quota available to the app. Live runs and claim rechecks share that pacing limit. Each run still has its own call and turn caps.
 
 ### Deploy
 
@@ -505,14 +516,7 @@ docker build -t finance-claim-checker .
 docker run --rm -p 8080:8080 finance-claim-checker    # http://localhost:8080
 ```
 
-**Live instance:** https://finance-claim-checker.onrender.com runs this Dockerfile on Render (Singapore, 0.5 CPU / 512 MB, `HOST=0.0.0.0`, health check `/api/meta`, no provider key). It redeploys on every push to `main`. Checked against the public URL on 26 Nov 2026, before the multi-company update:
-- the page and bundle load;
-- `/api/meta` reports live mode as not configured;
-- two example runs started at the same time (recorded and fixtures) both finished with 10/10 claims reviewed (4 match, 4 mismatch, 1 not verifiable, 1 reference unavailable), streamed over SSE and labelled their sources (75 recorded calls; 86 fixture calls);
-- traces show peaks of 9 and 12 agent loops at once;
-- `report.md`, `report.json` and `trace.json` download as attachments;
-- a live custom run and a recheck are both refused with `LIVE_NOT_CONFIGURED`;
-- new text in replay mode ends as an explicit `cache_miss`.
+The [hosted app](https://finance-claim-checker.onrender.com/) runs on Render and redeploys from `main`. It serves `/api/meta` as a health check and reports the currently available model modes to the browser. Start with the Wipro recording for a reproducible demo. Each completed run provides Markdown and JSON reports and a downloadable trace.
 
 **Render (free plan):** Dashboard → **New → Blueprint** → select this repository. `render.yaml` creates a free Docker web service with `/api/meta` as the health check, and the URL is `https://<service-name>.onrender.com`. Free instances sleep after about 15 idle minutes, so the first request after that takes up to a minute. Any host that runs a long-lived container with Server-Sent Events works (Render, Railway, Fly.io); serverless-only platforms don't.
 
@@ -530,7 +534,7 @@ A real `docker build` has not been run here.
 - Report PDFs: text-based PDFs with results tables only. No OCR, no HTML or XLSX reports. Column and label alignment is heuristic: a layout the checks cannot read leads to rejected figures (reported), never to a guessed value.
 - Foreign issuers' quarterly results (6-K) are not in SEC XBRL, so their quarters need the report PDF.
 - Company detection is a heuristic over names and tickers. Close calls are returned to the user rather than decided.
-- The public deployment has no provider key: it can resolve any company and show its reference, but new article text needs a key (run locally).
+- New article text requires live mode and a configured provider. The featured Wipro and NVIDIA replays work without a key.
 - Fiscal periods in the article are mapped by the extractor model, using the fiscal calendar it is given. The auditor's LLM review is the check on that mapping.
 - Tolerance choices are deliberate policies: rounding of stated digits, "about" = 1%, multiples ±5%.
 - Non-GAAP figures can't be verified against financial statements by design.

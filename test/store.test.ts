@@ -111,6 +111,26 @@ describe("versioned claims and evidence", () => {
 		expect(state.contextFailures.has(excerpt.id)).toBe(true)
 	})
 
+	it("keeps a reported EPS level separate from nearby or conditional forecasts", () => {
+		const state = new CheckerState()
+		state.registry = new EvidenceRegistry(loadSnapshot("INFY"))
+		const quote = "Infosys Limited's diluted earnings per share for FY2025 were US$0.76."
+		const claim = (text: string) => state.addClaim(interp({ quote: text, fiscalYear: 2025, fiscalPeriod: "FY", metric: "eps_diluted", statedNumber: "0.76" }))
+		const warning = (id: string, archived = false) => state.addWarning({ claimId: id, claimRevision: 1, source: "context-agent", code: "FORWARD_LOOKING", message: "Management expects FY2027 diluted EPS of US$1.10." }, archived)
+		const historical = claim(quote)
+		state.article = { title: "Infosys results", ticker: "INFY", text: `${quote} Management expects FY2027 diluted EPS of US$1.10.` }
+		expect(warning(historical.id)).toMatchObject({ ok: false, dismissed: true })
+		expect(state.contextFailures.has(historical.id)).toBe(false)
+		expect(warning(claim(quote).id, true)).toMatchObject({ ok: false, retainedForReview: true })
+
+		const conditional = claim(quote.slice(0, -1))
+		state.article.text = `If ${quote.slice(0, -1)}, the bridge reconciles.`
+		expect(warning(conditional.id)).toMatchObject({ ok: false, retainedForReview: true })
+		expect(state.contextFailures.has(conditional.id)).toBe(true)
+		const explicit = claim("Management expects diluted EPS of US$0.76.")
+		expect(warning(explicit.id).ok).toBe(true)
+	})
+
 	it("rejects evidence ids that do not exist (no model-invented references)", () => {
 		const s = fresh()
 		const a = s.addClaim(interp())

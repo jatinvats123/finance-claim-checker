@@ -18,6 +18,7 @@ import { readArticle } from "../article.js"
 import { currentCompanyIndex, loadCompanyIndex, searchCompanies, type CompanyIndex } from "../company/companies.js"
 import type { CheckerState } from "../domain/store.js"
 import { defaultCassettePaths, defaultModel, loadCassettes, parseReplaySource, providerConfigured } from "../llm/cassettes.js"
+import { DEFAULT_LIMITS, Pacer } from "../llm/limits.js"
 import { CheckerRunner, DEFAULT_REPLAY_SPEED, type Cassette } from "../llm/runner.js"
 import { DISCLAIMER, renderMarkdown, toJson, type ReportMeta } from "../report/render.js"
 import { runChecker, type PreparedReport, type RunResult } from "../runtime/pipeline.js"
@@ -124,6 +125,10 @@ const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim().slice(
  */
 export function createApp(opts: AppOptions = {}) {
 	const env = opts.env ?? process.env
+	const configuredRpm = env.CHECKER_WEB_RPM?.trim()
+	const rpm = configuredRpm ? Number(configuredRpm) : undefined
+	if (rpm !== undefined && (!Number.isSafeInteger(rpm) || rpm < 1)) throw new Error("CHECKER_WEB_RPM must be a positive whole number of requests per minute.")
+	const livePacer = new Pacer(DEFAULT_LIMITS.maxConcurrent, rpm)
 	const runs = new Map<string, RunRecord>()
 	const maxReplay = opts.maxReplayRuns ?? 8
 	const maxLive = opts.maxLiveRuns ?? 1
@@ -263,8 +268,13 @@ export function createApp(opts: AppOptions = {}) {
 		const tasks = new TaskTracker()
 		const cassettes = mode === "replay" ? loadCassettes(cassettePaths) : []
 		if (mode === "replay" && !cassettes.length) throw new HttpError(400, "No replay data is available on this server.", { code: "NO_REPLAY_DATA" })
-		// Live checks from the browser always run under the default safety limits (call/turn caps, pacing, retries).
-		const runner = new CheckerRunner({ mode, tasks, cassettes: cassettes.map((c) => c.data), inner: mode === "live" ? opts.liveInner?.(tasks) : undefined, model: mode === "live" ? defaultModel(env) : undefined, replaySpeed: opts.replaySpeed ?? (featured ? 100 : DEFAULT_REPLAY_SPEED) })
+		const runner = new CheckerRunner({
+			mode, tasks, cassettes: cassettes.map((c) => c.data),
+			inner: mode === "live" ? opts.liveInner?.(tasks) : undefined,
+			model: mode === "live" ? defaultModel(env) : undefined,
+			pacer: livePacer,
+			replaySpeed: opts.replaySpeed ?? (featured ? 100 : DEFAULT_REPLAY_SPEED),
+		})
 		const rec: RunRecord = {
 			id: `run-${++counter}-${Date.now().toString(36)}`,
 			source,

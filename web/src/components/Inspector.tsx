@@ -1,4 +1,5 @@
-import { correctionText } from "../correction"
+import { correctionSources, correctionText } from "../correction"
+import { notVerifiableReason } from "../editorResults"
 import { useEffect, useRef, useState } from "react"
 import { fmtDate, fmtNumber, fmtSeconds, type CalcInput, type ClaimView, type RunView } from "../api"
 import { IconChevron, IconClose, IconExternal, IconLocate } from "./icons"
@@ -28,7 +29,7 @@ function conclusion(c: ClaimView): string {
 		case "NOT_COMPUTABLE":
 			return c.calc?.notes[0] ?? "The calculation could not be performed with the bound evidence."
 		case "NOT_VERIFIABLE":
-			return "This figure is not a line item of the financial statements, so it cannot be checked against them."
+			return notVerifiableReason(c)
 		case "REFERENCE_NOT_YET_FILED":
 			return "No financial statement covering this period is in the reference used for this run."
 		default:
@@ -116,6 +117,7 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 	const i = c.interpretation
 	const inputs = c.calc?.inputs ?? []
 	const correction = correctionText(run, c)
+	const sources = correction ? correctionSources(inputs).filter(source => source.url) : []
 
 	return (
 		<div className="inspector">
@@ -143,6 +145,15 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 					<ReviewLine claim={c} />
 					<p className="muted small">{c.review.detail}</p>
 					{correction && <CopyCorrection key={correction} text={correction} />}
+					{sources.length > 0 && (
+						<ul className="plain correction-sources" aria-label="Correction sources">
+							{sources.map(source => (
+								<li key={source.detail}>
+									<a className="ext-link" href={source.url} target="_blank" rel="noreferrer noopener">{source.label} <IconExternal size={12} /></a>
+								</li>
+							))}
+						</ul>
+					)}
 				</section>
 
 				<section>
@@ -378,16 +389,17 @@ function Recheck({ run, claim: c, liveConfigured, liveHint, onChallenge }: { run
 	const [error, setError] = useState<string>()
 	const [busy, setBusy] = useState(false)
 	const settled = run.status !== "running" && (c.review.status === "complete" || c.review.status === "unresolved" || c.review.status === "incomplete")
+	const incomplete = c.review.status === "incomplete"
 	const rechecking = run.status === "running" && c.corrections.some((k) => k.by === "reviewer (human)") && c.review.status !== "complete"
 	if (rechecking) return <p className="note">Recheck in progress: the extractor is reconsidering this claim; other claims are unchanged.</p>
 	if (!open)
 		return (
 			<div className="recheck">
 				<button className="btn btn-sm btn-secondary" onClick={() => setOpen(true)} disabled={!settled || !liveConfigured} aria-describedby={`recheck-help-${c.id}`}>
-					Challenge interpretation
+					{incomplete ? "Recheck this claim" : "Challenge interpretation"}
 				</button>
 				<p className="muted small" id={`recheck-help-${c.id}`}>
-					{!liveConfigured ? `Recheck asks the extractor and auditor again, so it needs a live model. ${liveHint}` : !settled ? "Available once this claim's review has settled." : "Ask the extractor to reconsider how this sentence was read. A validated change creates a new revision and re-checks only this claim; the verdict always comes from the calculator."}
+					{!liveConfigured ? `Recheck asks the extractor and auditor again, so it needs a live model. ${liveHint}` : !settled ? "Available once this claim's review has settled." : incomplete ? "Ask the extractor to revisit this claim. If its interpretation changes, the checker runs the evidence, context, and audit steps again for this claim." : "Ask the extractor to reconsider how this sentence was read. A validated change creates a new revision and re-checks only this claim; the verdict always comes from the calculator."}
 				</p>
 			</div>
 		)
@@ -410,7 +422,7 @@ function Recheck({ run, claim: c, liveConfigured, liveHint, onChallenge }: { run
 			}}
 		>
 			<label htmlFor={`recheck-${c.id}`} className="label">
-				What looks wrong about how “{c.quote}” was read?
+				{incomplete ? "What should the extractor reconsider about this claim?" : `What looks wrong about how “${c.quote}” was read?`}
 			</label>
 			<textarea id={`recheck-${c.id}`} className="input textarea" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} maxLength={600} required placeholder="e.g. The sentence does not say whether this is GAAP or adjusted profit." />
 			{error && (

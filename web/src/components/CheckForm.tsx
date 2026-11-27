@@ -207,7 +207,7 @@ export function CheckForm({ meta, draft, setDraft, busy, onStart, onRunExample }
 
 			<details className="report-box" open={reportOpen} onToggle={(e) => setReportOpen((e.target as HTMLDetailsElement).open)}>
 				<summary>Official report (PDF){needsReport ? " — needed for this company" : " — optional"}</summary>
-				<p className="hint">For a company without usable SEC data (for example an Indian company reporting in ₹ crore), give its official results PDF. Figures are read from the statement pages and verified by code against the page; anything that cannot be verified is reported, never filled in.</p>
+				<p className="hint">For a company without usable SEC data, supply its results PDF. The selected company must match the issuer shown on the financial statement pages. The checker verifies accepted figures against those pages.</p>
 				{sampleReportNote && <p className="hint hint-warn">{sampleReportNote}</p>}
 				<div className="field">
 					<label htmlFor="report-url">PDF URL</label>

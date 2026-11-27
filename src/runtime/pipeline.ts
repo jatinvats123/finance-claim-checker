@@ -14,8 +14,9 @@ import { createContextAgent } from "../agents/context-agent.js"
 import { createEvidenceAgent } from "../agents/evidence-agent.js"
 import { createExtractor } from "../agents/extractor.js"
 import { createReader } from "../agents/reader.js"
+import type { ReportIssuer } from "../docs/issuer.js"
 import type { ReportDoc } from "../docs/pdf.js"
-import { documentBasis, documentCurrency, documentFiscalYearEnd, selectStatementPages } from "../docs/verify.js"
+import { documentBasis, documentCurrency, documentFiscalYearEnd } from "../docs/verify.js"
 import { CheckerState } from "../domain/store.js"
 import type { InferenceRunner, SemanticEvent } from "@mozaik-ai/core"
 import { EvidenceRegistry, type ReferenceInfo } from "../sec/evidence.js"
@@ -24,8 +25,8 @@ import { AnyEvent, EV, handler, makeCtx } from "./context.js"
 import { CheckerRunner } from "../llm/runner.js"
 import { TaskTracker, type Task } from "./tasks.js"
 
-/** An official report (PDF) to check against, for a company without usable SEC data. */
-export type PreparedReport = { doc: ReportDoc; company: { name: string; ticker?: string } }
+/** A supplied report (PDF) with printed issuer evidence for its usable statement pages. */
+export type PreparedReport = { doc: ReportDoc; company: { name: string; ticker?: string }; issuer: ReportIssuer }
 
 export function reportInfo(r: PreparedReport): ReferenceInfo {
 	const where = r.doc.url ?? (r.doc.fileName ? `uploaded file "${r.doc.fileName}"` : "uploaded PDF")
@@ -34,9 +35,9 @@ export function reportInfo(r: PreparedReport): ReferenceInfo {
 		entityName: r.company.name,
 		ticker: r.company.ticker,
 		fetchedAt: r.doc.fetchedAt,
-		label: `Official report (PDF): ${where}`,
+		label: `Supplied report PDF: ${where}`,
 		sources: [{ label: r.doc.url ? "Report PDF" : `Uploaded PDF (sha256 ${r.doc.sha256.slice(0, 12)}…)${r.doc.statedSourceUrl ? `, stated source ${r.doc.statedSourceUrl} (not fetched)` : ""}`, url: r.doc.url ?? r.doc.statedSourceUrl ?? "" }],
-		note: `${r.doc.pageCount} pages, ${(r.doc.bytes / 1e6).toFixed(2)} MB, sha256 ${r.doc.sha256}`,
+		note: `Issuer name matched "${r.issuer.printedName}" on page ${r.issuer.page}. Source authenticity remains unverified. ${r.doc.pageCount} pages, ${(r.doc.bytes / 1e6).toFixed(2)} MB, sha256 ${r.doc.sha256}`,
 	}
 }
 
@@ -74,7 +75,7 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 	} else if (opts.report) {
 		const doc = opts.report.doc
 		state.referenceInfo = reportInfo(opts.report)
-		state.report = { doc, info: state.referenceInfo, pages: selectStatementPages(doc), basis: documentBasis(doc), docCurrency: documentCurrency(doc), accepted: [], rejected: [], status: "reading" }
+		state.report = { doc, info: state.referenceInfo, pages: opts.report.issuer.pages, basis: documentBasis(doc), docCurrency: documentCurrency(doc), accepted: [], rejected: [], status: "reading" }
 	} else throw new Error("runChecker needs a reference: snapshot (SEC) or report")
 	state.article = opts.article
 	rt.initializeRuntime({ state, inferenceRunnerConfig: { runner: opts.runner } })

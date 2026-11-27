@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { fmtDate, fmtSeconds, useMedia, useMeta, useRun, type RunView } from "./api"
 import { AgentStrip, CorrectionsBar, Lanes, Timeline } from "./components/Activity"
 import { ArticlePanel, type ArticleHandle } from "./components/ArticlePanel"
@@ -8,6 +8,7 @@ import { Modal } from "./components/Dialog"
 import { IconAlert, IconChevron, IconDoc, IconDownload, IconPlay, IconSpinner } from "./components/icons"
 import { Inspector } from "./components/Inspector"
 import { ResultsPanel } from "./components/ResultsPanel"
+import { priorityCorrection } from "./editorResults"
 
 type Tab = "article" | "results" | "evidence"
 
@@ -33,7 +34,7 @@ function progressText(run: RunView): string {
 export default function App() {
 	const { meta, error: metaError } = useMeta()
 	const { run, start, running, error: runError, reset, challenge } = useRun()
-	const [selectedId, setSelectedId] = useState<string>()
+	const [selection, setSelection] = useState<{ runId?: string; id?: string }>()
 	const [historyOpen, setHistoryOpen] = useState(false)
 	const [tab, setTab] = useState<Tab>("article")
 	const [timelineOpen, setTimelineOpen] = useState(false)
@@ -41,6 +42,7 @@ export default function App() {
 	const [replayChoice, setReplayChoice] = useState<"recorded" | "fixtures">()
 	const article = useRef<ArticleHandle>(null)
 	const inspectorHeading = useRef<HTMLHeadingElement>(null)
+	const openAuditorTimeline = useRef(false)
 	const wide = useMedia("(min-width: 1400px)")
 	const desktop = useMedia("(min-width: 960px)")
 	const layout = wide ? "wide" : desktop ? "desktop" : "mobile"
@@ -48,37 +50,51 @@ export default function App() {
 
 	// A new run starts with a clean selection.
 	useEffect(() => {
-		setSelectedId(undefined)
 		setHistoryOpen(false)
-		setTimelineOpen(false)
+		setTimelineOpen(!!runId && openAuditorTimeline.current)
+		if (runId) openAuditorTimeline.current = false
 	}, [runId])
 
+	const recommended = useMemo(() => run ? priorityCorrection(run) : undefined, [run])
+	const autoSelect = wide && !running ? recommended?.id : undefined
+	const selectedId = selection?.runId === runId ? selection?.id : autoSelect
 	const selected = run?.claims.find((c) => c.id === selectedId)
+
+	const closeInspector = useCallback(() => {
+		setSelection({ runId })
+		if (layout === "mobile") setTab("results")
+	}, [layout, runId])
 
 	const select = useCallback(
 		(id: string, openHistory = false) => {
-			setSelectedId(id)
+			setSelection({ runId, id })
 			setHistoryOpen(openHistory)
 			if (layout === "mobile") setTab("evidence")
 		},
-		[layout],
+		[layout, runId],
 	)
 
 	const locate = useCallback(
 		(id: string) => {
-			setSelectedId(id)
+			setSelection({ runId, id })
 			if (layout === "mobile") {
 				setTab("article")
 				setTimeout(() => article.current?.locate(id), 60)
 			} else article.current?.locate(id)
 		},
-		[layout],
+		[layout, runId],
 	)
 
 	const replay = replayChoice ?? meta?.defaultReplay ?? "fixtures"
-	const runExample = () => {
+	const runNvidia = (replaySource: typeof replay, showTimeline = false) => {
+		openAuditorTimeline.current = showTimeline
 		setTab("results")
-		start({ source: "example", replay }).catch(() => undefined)
+		start({ source: "example", replay: replaySource }).catch(() => undefined)
+	}
+	const runExample = () => runNvidia(replay)
+	const runAuditorDemo = () => {
+		setReplayChoice("fixtures")
+		runNvidia("fixtures", true)
 	}
 
 	useEffect(() => {
@@ -91,6 +107,7 @@ export default function App() {
 	const featured = meta.samples.find(sample => sample.id === "wipro")
 	const runFeatured = () => {
 		if (!featured) return
+		openAuditorTimeline.current = false
 		setTab("results")
 		start({ source: "example", sample: "wipro", replay: "recorded" }).catch(() => undefined)
 	}
@@ -102,6 +119,7 @@ export default function App() {
 	const drawer = layout === "desktop" && selected
 
 	const startCustom = async (b: Parameters<typeof start>[0]) => {
+		openAuditorTimeline.current = false
 		await start(b)
 		setTab("results")
 	}
@@ -184,7 +202,7 @@ export default function App() {
 							<p>{run.reference.report && run.reference.report.status === "reading" ? "Reader is reading the report's statement pages; code verifies each figure on its page…" : "Extractor is reading the article…"}</p>
 						</div>
 					) : (
-						<ResultsPanel run={run} selectedId={selectedId} onSelect={(id) => select(id)} onLocate={locate} />
+						<ResultsPanel key={run.id} run={run} recommended={recommended} selectedId={selectedId} onSelect={(id) => select(id)} onLocate={locate} />
 					)}
 				</>
 			) : (
@@ -199,7 +217,7 @@ export default function App() {
 							<strong>Company.</strong> Identified from the article (or what you type) against SEC's full list of filers. If the text fits several companies, you choose.
 						</li>
 						<li>
-							<strong>Reference.</strong> The company's SEC financial statements (10-Q, 10-K, 20-F, 40-F), or its official report PDF. Never an earnings release, and never another company's data.
+							<strong>Reference.</strong> SEC financial statements (10-Q, 10-K, 20-F, 40-F), or statement pages from a supplied PDF whose issuer heading matches the company.
 						</li>
 						<li>
 							<strong>Concurrent agents.</strong> Extractor, Evidence, Context and Auditor agents (plus a Reader for reports) work on every claim at once; a deterministic calculator computes each verdict from evidence ids.
@@ -209,9 +227,16 @@ export default function App() {
 						</li>
 					</ol>
 					<p className="small muted">Or watch it on the included NVIDIA example. Model responses: {replayOption?.label}. No API key is needed.</p>
-					<button className="btn btn-secondary" onClick={runExample} disabled={running}>
-						<IconPlay size={14} /> Run included example
-					</button>
+					<div className="demo-actions">
+						<button className="btn btn-secondary" onClick={runExample} disabled={running}>
+							<IconPlay size={14} /> Run included example
+						</button>
+						{meta.replayOptions.some(option => option.id === "fixtures" && option.available) && (
+							<button className="btn btn-secondary" onClick={runAuditorDemo} disabled={running}>
+								<IconPlay size={14} /> See scripted auditor correction
+							</button>
+						)}
+					</div>
 				</div>
 			)}
 		</section>
@@ -221,10 +246,7 @@ export default function App() {
 		<Inspector
 			run={run}
 			claim={selected}
-			onClose={() => {
-				setSelectedId(undefined)
-				if (layout === "mobile") setTab("results")
-			}}
+			onClose={closeInspector}
 			onSelect={(id) => select(id)}
 			onLocate={locate}
 			historyOpen={historyOpen}
@@ -232,7 +254,10 @@ export default function App() {
 			headingRef={inspectorHeading}
 			liveConfigured={meta.live.configured}
 			liveHint={meta.live.hint}
-			onChallenge={challenge}
+			onChallenge={(id, reason) => {
+				setSelection({ runId, id })
+				return challenge(id, reason)
+			}}
 		/>
 	)
 
@@ -381,7 +406,7 @@ export default function App() {
 			</main>
 
 			{drawer && (
-				<Modal labelledBy="inspector-title" variant="drawer" onClose={() => setSelectedId(undefined)} initialFocus={inspectorHeading}>
+				<Modal labelledBy="inspector-title" variant="drawer" onClose={closeInspector} initialFocus={inspectorHeading}>
 					{inspector}
 				</Modal>
 			)}

@@ -14,6 +14,7 @@ import type { Claim, ClaimInterpretation } from "../src/domain/types.js"
 import { CheckerRunner, type AuthorScript, type ScriptTurn } from "../src/llm/runner.js"
 import { runChecker } from "../src/runtime/pipeline.js"
 import { prepareReference, ReferenceError } from "../src/runtime/reference.js"
+import { checkReportIssuer } from "../src/docs/issuer.js"
 import { TaskTracker } from "../src/runtime/tasks.js"
 import { loadSnapshot } from "../src/sec/edgar.js"
 import { EvidenceRegistry } from "../src/sec/evidence.js"
@@ -185,6 +186,8 @@ describe("official report: every figure verified on its page", () => {
 
 	it("runs the full pipeline against a report: Reader → verified facts → claims checked with page receipts", async () => {
 		const doc = await testReport()
+		const match = checkReportIssuer(doc, "TestCo Limited")
+		if (!match.ok) throw new Error(match.message)
 		const call = (name: string, args: Record<string, unknown>): ScriptTurn => ({ call: { name, args } })
 		const fact = (o: Partial<ProposedFact>): ProposedFact => ({ metric: "revenue", consolidation: "consolidated", page: 1, row: "Revenue from operations", column: "Quarter ended 30.09.2025", periodType: "quarter", periodEnd: "2025-09-30", value: "12,345.67", ...o })
 		const text = "TestCo reported consolidated revenue from operations of Rs 12,345.67 crore for the September quarter. Standalone net profit was Rs 1,600 crore. Revenue grew 17.6% from a year earlier."
@@ -202,6 +205,7 @@ describe("official report: every figure verified on its page", () => {
 							fact({ value: "45,000.00", periodType: "year", periodEnd: "2025-03-31", column: "Year ended 31.03.2025" }),
 							fact({ page: 2, consolidation: "standalone", metric: "net_income", row: "Net profit for the period", value: "1,500.00" }),
 							fact({ value: "11,000.00" }), // wrong column: rejected by code
+							fact({ page: 3 }), // outside issuer-matched statement pages
 						],
 					}),
 					{ say: "done" },
@@ -220,12 +224,13 @@ describe("official report: every figure verified on its page", () => {
 		}
 		const tasks = new TaskTracker()
 		const runner = new CheckerRunner({ mode: "author", tasks, script })
-		const res = await runChecker({ article: { title: "TestCo Q2", text, ticker: "" }, report: { doc, company: { name: "TestCo Limited" } }, runner, tasks, model: "test", timeoutMs: 20_000 })
+		const res = await runChecker({ article: { title: "TestCo Q2", text, ticker: "" }, report: { doc, company: { name: "TestCo Limited" }, issuer: match.issuer }, runner, tasks, model: "test", timeoutMs: 20_000 })
 		const s = res.state
 		expect(res.timedOut).toBe(false)
 		expect(s.report).toMatchObject({ status: "ready" })
 		expect(s.report!.accepted).toHaveLength(4)
 		expect(s.report!.rejected[0].reason).toMatch(/column dated 2025-06-30/)
+		expect(s.report!.rejected[1].reason).toMatch(/outside the selected statement pages/)
 		expect(s.referenceInfo).toMatchObject({ kind: "report", entityName: "TestCo Limited" })
 		expect(s.claims.get("c1")!.interpretation).toMatchObject({ currency: "INR", consolidation: "consolidated" })
 		expect(s.calcs.get("c1")).toMatchObject({ verdict: "MATCH", actualDisplay: "₹12,345.67 crore" })
@@ -235,15 +240,45 @@ describe("official report: every figure verified on its page", () => {
 		expect([...s.claims.keys()].every((id) => s.isSettled(id))).toBe(true)
 	}, 40_000)
 
-	it("stops with an explicit reason when no statement page can be found", async () => {
+	it("stops before inference when a supplied PDF does not identify the expected issuer", async () => {
 		const bytes = makePdf([Array.from({ length: 8 }, (_, i) => ({ x: 40, y: 700 - i * 16, text: `Sustainability highlight ${i + 1}: our people, our planet and our communities.` }))])
-		const pages = await parsePdf(bytes)
-		const doc = { url: "https://example.com/esg.pdf", sha256: "ff", bytes: bytes.length, pageCount: pages.length, pages, fetchedAt: "2026-11-27T00:00:00.000Z" }
-		const tasks = new TaskTracker()
-		const res = await runChecker({ article: { title: "x", text: "TestCo revenue was Rs 5 crore.", ticker: "" }, report: { doc, company: { name: "TestCo" } }, runner: new CheckerRunner({ mode: "author", tasks, script: { description: "", tasks: {} } }), tasks, model: "test", timeoutMs: 5_000 })
-		expect(res.state.extraction).toBe("failed")
-		expect(res.state.extractionError).toMatch(/^REFERENCE_UNAVAILABLE: no financial-statement page/)
-		expect(res.state.claims.size).toBe(0)
+		await expect(prepareReference({
+			article: { title: "TestCo results", text: "TestCo revenue was Rs 5 crore." },
+			company: { name: "TestCo" },
+			report: { file: { name: "TestCo.pdf", base64: Buffer.from(bytes).toString("base64") } },
+			preferCommitted: true,
+		}, loadCompanyIndex())).rejects.toMatchObject({ code: "REPORT_ISSUER_UNVERIFIED", status: 422 })
+	})
+
+	it("blocks the wrong printed issuer and accepts a normalized issuer alias on the TCS statement layout", async () => {
+		const bytes = makePdf([interimPage().map(row => ({
+			...row, text: row.text.replace("TESTCO SERVICES LIMITED", "TATA CONSULTANCY SERVICES LIMITED"),
+		}))])
+		const report = { file: { name: "Example-Alpha.pdf", base64: Buffer.from(bytes).toString("base64") } }
+		const article = { title: "Interim results", text: "Revenue was Rs 73,188 crore for the September quarter." }
+		const companyIndex = loadCompanyIndex()
+		await expect(prepareReference({ article, company: { name: "Example Alpha Ltd." }, report, preferCommitted: true }, companyIndex))
+			.rejects.toMatchObject({ code: "REPORT_ISSUER_MISMATCH", message: expect.stringContaining("TATA CONSULTANCY SERVICES LIMITED") })
+		await expect(prepareReference({ article, company: { name: "TCS" }, report, preferCommitted: true }, companyIndex))
+			.resolves.toMatchObject({ kind: "report", report: { issuer: { printedName: "TATA CONSULTANCY SERVICES LIMITED", page: 1, pages: [{ n: 1 }] } } })
+	})
+
+	it("does not let a matching cover or body mention authorize another company's statement page", async () => {
+		const cover = [{ x: 40, y: 756, text: "Example Alpha Limited financial statements" }]
+		const unknown = interimPage().map(row => ({
+			...row, text: row.text.replace("TESTCO SERVICES LIMITED", "Draft 1").replace("Other income", "Example Alpha Limited lease income"),
+		}))
+		const conflicting = interimPage().map(row => ({
+			...row, text: row.text.replace("TESTCO SERVICES LIMITED", "Example Beta Limited").replace("Other income", "Example Alpha Limited lease income"),
+		}))
+		const prepare = (statement: typeof unknown) => prepareReference({
+			article: { title: "Example Alpha results", text: "Example Alpha revenue was Rs 5 crore." },
+			company: { name: "Example Alpha Ltd" },
+			report: { file: { name: "Example-Alpha.pdf", base64: Buffer.from(makePdf([cover, statement])).toString("base64") } },
+			preferCommitted: true,
+		}, loadCompanyIndex())
+		await expect(prepare(unknown)).rejects.toMatchObject({ code: "REPORT_ISSUER_UNVERIFIED" })
+		await expect(prepare(conflicting)).rejects.toMatchObject({ code: "REPORT_ISSUER_MISMATCH" })
 	})
 
 	it("reads a real-world interim layout: stacked headers, indented attributable profit, fiscal year from the text", async () => {

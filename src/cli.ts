@@ -122,7 +122,7 @@ async function main() {
 			} else {
 				report = ref.report
 				ticker = ref.report.company.ticker ?? ""
-				console.log(`Company: ${ref.report.company.name} · official report: ${ref.report.doc.url ?? ref.report.doc.fileName} (${ref.report.doc.pageCount} pages)`)
+				console.log(`Company: ${ref.report.company.name} · supplied report PDF: ${ref.report.doc.url ?? ref.report.doc.fileName} (${ref.report.doc.pageCount} pages)`)
 			}
 		} catch (e) {
 			if (e instanceof ReferenceError) {
@@ -158,7 +158,7 @@ async function main() {
 	const mozaikVersion = JSON.parse(readFileSync("node_modules/@mozaik-ai/core/package.json", "utf8")).version
 
 	console.log(`Finance Claim Checker · ${snapshot ? `${snapshot.entityName} (${snapshot.ticker})` : report!.company.name} · mode ${mode}${mode === "replay" ? ` (${cassettes.map((c) => `${c.data.provenance}: ${c.path}`).join("; ") || "no cassettes"})` : ` · model ${model}`}`)
-	console.log(snapshot ? `Reference: SEC statements (10-Q/10-K/20-F/40-F), data fetched ${snapshot.source.fetchedAt}` : `Reference: official report ${report!.doc.url ?? report!.doc.fileName}, fetched ${report!.doc.fetchedAt} (sha256 ${report!.doc.sha256.slice(0, 12)}…)`)
+	console.log(snapshot ? `Reference: SEC statements (10-Q/10-K/20-F/40-F), data fetched ${snapshot.source.fetchedAt}` : `Reference: supplied report PDF ${report!.doc.url ?? report!.doc.fileName}, fetched ${report!.doc.fetchedAt} (sha256 ${report!.doc.sha256.slice(0, 12)}…)`)
 	console.log(DISCLAIMER + "\n")
 
 	const t0 = Date.now()

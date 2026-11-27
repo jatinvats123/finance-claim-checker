@@ -168,6 +168,8 @@ export class CheckerRunner implements InferenceRunner {
 			/** live/record: model id, used for pricing the measured token usage */
 			model?: string
 			limits?: Partial<LiveLimits>
+			/** Shared by web runs using the same provider quota. Per-run budgets stay separate. */
+			pacer?: Pacer
 			/** replay: recorded latency ÷ replaySpeed (default 10). Fixtures use their own simulated delays. */
 			replaySpeed?: number
 		},
@@ -177,7 +179,7 @@ export class CheckerRunner implements InferenceRunner {
 		if (this.limits.budgetUsd !== undefined && !this.usage.price && (opts.mode === "live" || opts.mode === "record")) {
 			throw new Error(`No price known for model "${opts.model}", so a USD budget cannot be enforced. Pass --price <input>,<output> (USD per 1M tokens), or drop --budget-usd and rely on --max-calls.`)
 		}
-		this.pacer = new Pacer(this.limits.maxConcurrent, this.limits.rpm)
+		this.pacer = opts.pacer ?? new Pacer(this.limits.maxConcurrent, this.limits.rpm)
 		this.inner = opts.inner ?? mozaikDefaultRunner()
 		if (opts.mode === "author") this.sealed = { provenance: "fixture", description: opts.script?.description ?? "", createdAt: new Date().toISOString(), keyVersion: REPLAY_KEY_VERSION, entries: {} }
 		if (opts.mode === "record")

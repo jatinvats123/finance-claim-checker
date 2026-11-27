@@ -35,6 +35,8 @@ export const MAX_CORRECTIONS = 2
 const sentenceSegmenter = new Intl.Segmenter("en", { granularity: "sentence" })
 const normalizeWording = (text: string) => text.replace(/\s+/g, " ").trim().toLowerCase()
 const historicalWording = /\b(?:reported|posted|recorded|generated|recognized|earned|came in at|totaled|amounted to)\b/i
+const historicalEpsLevel = /\b(?:earnings per share|eps)\b[^.!?;\n]{0,60}\b(?:was|were)\s+(?:about\s+|around\s+|approximately\s+)?(?:[+-]\s*)?(?:(?:[A-Z]{1,3}\$|[\$₹€£¥]|Rs\.?|[A-Z]{3})\s*)?\d/i
+const conditionalWording = /\b(?:if|unless|assuming|assumptions?|provided that|so long as|hypothetical|scenarios?|(?:was|were) to)\b/i
 
 function hasForecastWording(text: string): boolean {
 	const wording = text.replace(/\bMay(?=\s+(?:\d|of\b))|\b(?:in|last|this|during|through)\s+May\b/gi, "")
@@ -229,10 +231,13 @@ export class CheckerState extends RuntimeState {
 			// A previously issued forecast can still be quoted after filing. Check the actual words.
 			if (filed && !hasForecastWording(interpretation.quote)) {
 				const reason = `Forecast warning conflicts with the reference. The period ended ${filed.end} and was reported in ${filed.form} on ${filed.filed}. Check the article wording.`
-				if (!archived && historicalWording.test(interpretation.quote)) {
+				if (!archived && !conditionalWording.test(interpretation.quote)) {
 					const quote = normalizeWording(interpretation.quote)
 					const sentences = [...sentenceSegmenter.segment(this.article?.text ?? "")].filter(({ segment }) => normalizeWording(segment).includes(quote))
-					if (sentences.every(({ segment }) => !hasForecastWording(segment))) {
+					// Copular EPS wording needs a containing sentence to distinguish results from a conditional excerpt.
+					const epsLevel = interpretation.kind === "level" && (interpretation.metric === "eps_basic" || interpretation.metric === "eps_diluted")
+					const historical = historicalWording.test(interpretation.quote) || (epsLevel && sentences.length > 0 && historicalEpsLevel.test(interpretation.quote))
+					if (historical && sentences.every(({ segment }) => !hasForecastWording(segment) && !conditionalWording.test(segment))) {
 						const detail = reason + " The quoted wording explicitly reports historical results."
 						this.log("context.dismissed", detail + " Proposed warning: " + w.message, w.claimId)
 						return { ok: false, stale: false, reason: detail, dismissed: true }
