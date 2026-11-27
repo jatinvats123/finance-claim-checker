@@ -1,3 +1,4 @@
+import { correctionText } from "../correction"
 import { useEffect, useRef, useState } from "react"
 import { fmtDate, fmtNumber, fmtSeconds, type CalcInput, type ClaimView, type RunView } from "../api"
 import { IconChevron, IconClose, IconExternal, IconLocate } from "./icons"
@@ -33,6 +34,23 @@ function conclusion(c: ClaimView): string {
 		default:
 			return "The agents are still working on this claim."
 	}
+}
+
+function CopyCorrection({ text }: { text: string }) {
+	const [status, setStatus] = useState<"idle" | "copied" | "manual">("idle")
+	async function copy() {
+		try {
+			await navigator.clipboard.writeText(text)
+			setStatus("copied")
+		} catch {
+			setStatus("manual")
+		}
+	}
+	return <>
+		<button className="btn btn-secondary" onClick={copy}>Copy correction with source</button>
+		{status === "copied" && <p role="status">Correction and source copied.</p>}
+		{status === "manual" && <label>Copy the correction manually<textarea readOnly value={text} onFocus={event => event.target.select()} /></label>}
+	</>
 }
 
 const ROLE_LABEL: Record<string, string> = { current: "Current period", base: "Comparison period", alternate: "Alternative basis (context only)" }
@@ -97,6 +115,7 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 
 	const i = c.interpretation
 	const inputs = c.calc?.inputs ?? []
+	const correction = correctionText(run, c)
 
 	return (
 		<div className="inspector">
@@ -123,6 +142,7 @@ export function Inspector({ run, claim: c, onClose, onSelect, onLocate, historyO
 					<p className="conclusion-text">{conclusion(c)}</p>
 					<ReviewLine claim={c} />
 					<p className="muted small">{c.review.detail}</p>
+					{correction && <CopyCorrection key={correction} text={correction} />}
 				</section>
 
 				<section>

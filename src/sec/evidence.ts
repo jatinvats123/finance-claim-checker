@@ -187,6 +187,11 @@ export class EvidenceRegistry {
 		return this.all().some((f) => f.fiscalYear === fiscalYear && f.fiscalPeriod === fiscalPeriod)
 	}
 
+	/** Earliest statement in this reference that reports the requested fiscal period. */
+	filedPeriod(fy: number, fp: FiscalPeriod) {
+		return this.all().filter(f => f.fiscalYear === fy && f.fiscalPeriod === fp && f.source === "sec-xbrl" && f.filed <= this.info.fetchedAt.slice(0, 10)).sort((a, b) => a.filed.localeCompare(b.filed))[0]
+	}
+
 	latestReportedPeriod(): CalendarEntry | undefined {
 		return [...this.calendar].sort((a, b) => b.periodEnd.localeCompare(a.periodEnd))[0]
 	}

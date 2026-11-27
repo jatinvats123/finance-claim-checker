@@ -25,7 +25,7 @@ export type ReportState = {
 }
 
 export type Accepted<T> = { ok: true; value: T }
-export type Rejected = { ok: false; stale: boolean; reason: string }
+export type Rejected = { ok: false; stale: boolean; reason: string; retainedForReview?: boolean }
 export type WriteResult<T> = Accepted<T> | Rejected
 
 export type HistoryEntry = { at: number; claimId?: string; kind: string; detail: string }
@@ -214,6 +214,19 @@ export class CheckerState extends RuntimeState {
 	addWarning(w: ContextWarning): WriteResult<ContextWarning> {
 		const bad = this.checkClaimRev<ContextWarning>("context warning", w.claimId, w.claimRevision)
 		if (bad) return bad
+		const interpretation = this.claims.get(w.claimId)!.interpretation
+		if (w.source === "context-agent" && w.code === "FORWARD_LOOKING") {
+			const filed = this.registry?.filedPeriod(interpretation.fiscalYear, interpretation.fiscalPeriod)
+			// A previously issued forecast can still be quoted after filing. Check the actual words.
+			const wording = interpretation.quote.replace(/\bMay(?=\s+(?:\d|of\b))|\b(?:in|last|this|during|through)\s+May\b/gi, "")
+			const forecast = /\b(?:guidance|forecasts?|projects?|projected|projection|expects?|expected|anticipat\w*|estimat\w*|outlook|targets?|predict\w*|will|would|could|may|might|on track|aims?|plans?|sees|set to)\b/i.test(wording)
+			if (filed && !forecast) {
+				const reason = `Forecast warning conflicts with the reference. The period ended ${filed.end} and was reported in ${filed.form} on ${filed.filed}. Check the article wording.`
+				this.contextFailures.set(w.claimId, { claimRevision: w.claimRevision, reason })
+				this.log("context.disputed", reason + " Proposed warning: " + w.message, w.claimId)
+				return { ok: false, stale: false, reason, retainedForReview: true }
+			}
+		}
 		this.warnings.set(w.claimId, [...(this.warnings.get(w.claimId) ?? []), w])
 		this.log("context.warning", `r${w.claimRevision} [${w.code}] ${w.message}`, w.claimId)
 		return { ok: true, value: w }

@@ -15,7 +15,7 @@ import { existsSync, readFileSync, statSync } from "node:fs"
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http"
 import { extname, join, normalize, resolve } from "node:path"
 import { readArticle } from "../article.js"
-import { currentCompanyIndex, searchCompanies, type CompanyIndex } from "../company/companies.js"
+import { currentCompanyIndex, loadCompanyIndex, searchCompanies, type CompanyIndex } from "../company/companies.js"
 import type { CheckerState } from "../domain/store.js"
 import { defaultCassettePaths, defaultModel, loadCassettes, parseReplaySource, providerConfigured } from "../llm/cassettes.js"
 import { CheckerRunner, DEFAULT_REPLAY_SPEED, type Cassette } from "../llm/runner.js"
@@ -133,7 +133,7 @@ export function createApp(opts: AppOptions = {}) {
 	const staticDir = resolve(opts.staticDir ?? "dist/web")
 
 	/** SEC's full list of filers (live, refreshed daily; the committed copy if SEC is unreachable). */
-	let index: CompanyIndex | undefined
+	let index = opts.companyIndex ?? loadCompanyIndex()
 	const companies = async () => (index = opts.companyIndex ?? (await currentCompanyIndex({ allowLive: opts.liveSec !== false })))
 
 	function meta(): MetaView {
@@ -149,7 +149,7 @@ export function createApp(opts: AppOptions = {}) {
 				label: rec0 ? `Genuine recorded run (${rec0.model ?? "model"})` : "Genuine recorded run (none on this server)",
 				short: `Recorded ${rec0?.model ?? "model"} responses`,
 				available: recorded.length > 0,
-				detail: rec0 ? `Real responses recorded ${rec0.createdAt.slice(0, 16).replace("T", " ")} UTC with --mode record; replayed at recorded latency ÷ ${DEFAULT_REPLAY_SPEED}.` : "No recording available.",
+				detail: rec0 ? `Genuine responses replayed with the original prompt version. Recorded ${rec0.createdAt.slice(0, 16).replace("T", " ")} UTC with --mode record; replayed at recorded latency ÷ ${DEFAULT_REPLAY_SPEED}.` : "No recording available.",
 			},
 			{ id: "fixtures", label: "Hand-written fixtures (scripted demo)", short: "Fixture model responses", available: fixtures.length > 0, detail: "Hand-written responses that include two deliberate agent mistakes, to show the auditor's correction paths." },
 		]
@@ -211,7 +211,7 @@ export function createApp(opts: AppOptions = {}) {
 	}
 
 	/** Recordings of the included example (file names start with the example article's name). */
-	const exampleRecording = (p: string) => p.replace(/\\/g, "/").split("/").pop()!.startsWith(EXAMPLE_ARTICLE.split("/").pop()!.replace(/\.\w+$/, "") + ".")
+	const exampleRecording = (p: string, articlePath = EXAMPLE_ARTICLE) => p.replace(/\\/g, "/").split("/").pop()!.startsWith(articlePath.split("/").pop()!.replace(/\.\w+$/, "") + ".")
 
 	let preparing = 0
 	async function startRun(body: any): Promise<RunRecord> {
@@ -222,14 +222,16 @@ export function createApp(opts: AppOptions = {}) {
 		let mode: "replay" | "live"
 		let snapshot: SecSnapshot | undefined
 		let report: PreparedReport | undefined
+		const featured = source === "example" && body.sample === "wipro"
+		const examplePath = featured ? "data/articles/wipro-fy2025-inr.md" : EXAMPLE_ARTICLE
 		let cassettePaths: string[]
 		if (source === "example") {
-			article = { ...readArticle(EXAMPLE_ARTICLE), ticker: EXAMPLE_TICKER } // canonical parse, exactly as the CLI does
+			article = { ...readArticle(examplePath), ticker: featured ? "WIT" : EXAMPLE_TICKER } // canonical parse, exactly as the CLI does
 			mode = "replay"
-			const replaySource = parseReplaySource(body?.replay ?? meta().defaultReplay)
-			cassettePaths = opts.cassettePaths ?? defaultCassettePaths(replaySource).filter((p) => replaySource === "fixtures" || p.endsWith(".fixtures.json") || exampleRecording(p))
+			const replaySource = featured ? "recorded" : parseReplaySource(body?.replay ?? meta().defaultReplay)
+			cassettePaths = opts.cassettePaths ?? defaultCassettePaths(replaySource).filter((p) => replaySource === "fixtures" || (replaySource === "all" && p.endsWith(".fixtures.json")) || exampleRecording(p, examplePath))
 			if (mode === "replay" && active("replay") >= maxReplay) throw new HttpError(429, "The server is busy with other checks. Try again in a few seconds.", { code: "BUSY" })
-			snapshot = loadSnapshot(EXAMPLE_TICKER)
+			snapshot = loadSnapshot(article.ticker)
 		} else {
 			const title = typeof body.title === "string" ? body.title.trim() : ""
 			const text = typeof body.text === "string" ? body.text : ""
@@ -262,14 +264,14 @@ export function createApp(opts: AppOptions = {}) {
 		const cassettes = mode === "replay" ? loadCassettes(cassettePaths) : []
 		if (mode === "replay" && !cassettes.length) throw new HttpError(400, "No replay data is available on this server.", { code: "NO_REPLAY_DATA" })
 		// Live checks from the browser always run under the default safety limits (call/turn caps, pacing, retries).
-		const runner = new CheckerRunner({ mode, tasks, cassettes: cassettes.map((c) => c.data), inner: mode === "live" ? opts.liveInner?.(tasks) : undefined, model: mode === "live" ? defaultModel(env) : undefined, replaySpeed: opts.replaySpeed })
+		const runner = new CheckerRunner({ mode, tasks, cassettes: cassettes.map((c) => c.data), inner: mode === "live" ? opts.liveInner?.(tasks) : undefined, model: mode === "live" ? defaultModel(env) : undefined, replaySpeed: opts.replaySpeed ?? (featured ? 100 : DEFAULT_REPLAY_SPEED) })
 		const rec: RunRecord = {
 			id: `run-${++counter}-${Date.now().toString(36)}`,
 			source,
 			mode,
 			startedAt: new Date(),
 			status: "running",
-			articlePath: source === "example" ? EXAMPLE_ARTICLE : "(article submitted in the web app)",
+			articlePath: source === "example" ? examplePath : "(article submitted in the web app)",
 			tasks,
 			runner,
 			cassettes,
@@ -366,7 +368,6 @@ export function createApp(opts: AppOptions = {}) {
 		const p = url.pathname
 		try {
 			if (p === "/api/meta" && req.method === "GET") {
-				await companies().catch(() => undefined)
 				return json(res, 200, meta())
 			}
 			if (p === "/api/runs" && req.method === "POST") {

@@ -21,6 +21,7 @@ import type { InferenceRunner, SemanticEvent } from "@mozaik-ai/core"
 import { EvidenceRegistry, type ReferenceInfo } from "../sec/evidence.js"
 import type { SecSnapshot } from "../sec/types.js"
 import { AnyEvent, EV, handler, makeCtx } from "./context.js"
+import { CheckerRunner } from "../llm/runner.js"
 import { TaskTracker, type Task } from "./tasks.js"
 
 /** An official report (PDF) to check against, for a company without usable SEC data. */
@@ -47,6 +48,7 @@ export type RunOptions = {
 	runner: InferenceRunner
 	tasks: TaskTracker
 	model: string
+	serial?: boolean
 	timeoutMs?: number
 	/** Live feed of every semantic event (for the terminal view). */
 	onEvent?: (event: SemanticEvent, names: Map<string, string>, state: CheckerState) => void
@@ -76,7 +78,8 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 	} else throw new Error("runChecker needs a reference: snapshot (SEC) or report")
 	state.article = opts.article
 	rt.initializeRuntime({ state, inferenceRunnerConfig: { runner: opts.runner } })
-	const ctx = makeCtx(rt, state, opts.tasks, opts.model)
+	const archived = opts.runner instanceof CheckerRunner && opts.runner.usesArchivedPrompts(opts.article)
+	const ctx = makeCtx(rt, state, opts.tasks, opts.model, archived, opts.serial)
 	const names = new Map<string, string>()
 
 	// Completion is re-entrant: the first wait covers the run; a later challenge waits again.
@@ -184,7 +187,10 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 			handler("message_received.started", (p) => void opts.tasks.bindLoop(p.input?.context?.id, p.loopId)),
 			handler("model.answer", (p) => {
 				const task = opts.tasks.forLoop(p.loopId)
-				if (task && !task.done) ctx.later(() => finishTask(task))
+				if (task && !task.done) ctx.later(() => {
+					finishTask(task)
+					ctx.finishLoop()
+				})
 			}),
 			{
 				specification: new AnyEvent(),
@@ -223,7 +229,10 @@ export async function runChecker(opts: RunOptions): Promise<RunResult> {
 
 	/** Reviewer challenge: reopen one settled claim, let the extractor answer, re-run only that claim's work. */
 	async function challenge(claimId: string, reason: string, timeoutMs = 5 * 60_000, model?: string): Promise<{ timedOut: boolean }> {
-		if (model) ctx.model = model // a replayed run rechecks with the live model
+		if (model) {
+			ctx.model = model
+			ctx.archivedPrompts = false
+		}
 		const claim = state.claims.get(claimId)
 		if (!claim) throw new Error(`unknown claim ${claimId}`)
 		const reopened = state.reopenForChallenge(claimId, reason, "reviewer (human)")

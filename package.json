@@ -9,19 +9,20 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "start": "tsx src/cli.ts --mode replay",
-    "check": "tsx src/cli.ts",
+    "start": "node --import tsx src/cli.ts --mode replay",
+    "check": "node --import tsx src/cli.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit && tsc --noEmit -p web",
-    "snapshot:sec": "tsx scripts/snapshot-sec.ts",
-    "fixtures:seal": "tsx src/cli.ts --mode author --script fixtures/nvda-demo.script.ts --out out/author",
-    "web": "vite build && tsx src/web/server.ts",
+    "snapshot:sec": "node --import tsx scripts/snapshot-sec.ts",
+    "fixtures:seal": "node --import tsx src/cli.ts --mode author --script fixtures/nvda-demo.script.ts --out out/author",
+    "web": "vite build && node --import tsx src/web/server.ts",
     "web:build": "vite build",
-    "web:serve": "tsx src/web/server.ts",
+    "web:serve": "node --import tsx src/web/server.ts",
     "web:dev": "vite",
-    "eval": "tsx scripts/eval.ts --spec eval/multi-company.json --recordings data/replay/recordings",
-    "snapshot:companies": "tsx scripts/snapshot-companies.ts",
-    "eval:nvda": "tsx scripts/eval.ts --spec eval/expected.json --recordings eval/recordings"
+    "benchmark": "node --import tsx scripts/benchmark.ts",
+    "eval": "node --import tsx scripts/eval.ts --spec eval/multi-company.json --recordings data/replay/recordings",
+    "snapshot:companies": "node --import tsx scripts/snapshot-companies.ts",
+    "eval:nvda": "node --import tsx scripts/eval.ts --spec eval/expected.json --recordings eval/recordings"
   },
   "dependencies": {
     "@mozaik-ai/core": "6.0.0",

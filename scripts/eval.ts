@@ -8,7 +8,7 @@
  * kind, fiscal year/period and the stated number; nothing is fuzzy-matched.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
-import { basename, join } from "node:path"
+import { basename, dirname, join } from "node:path"
 import { parseArgs } from "node:util"
 import { readArticle } from "../src/article.js"
 import { loadCompanyIndex } from "../src/company/companies.js"
@@ -39,7 +39,7 @@ const mode = args.mode as "record" | "replay"
 if (mode !== "record" && mode !== "replay") throw new Error("--mode must be record or replay")
 const model = args.model ?? defaultModel()
 const spec = JSON.parse(readFileSync(args.spec!, "utf8")) as { articles: Record<string, ArticleSpec>; claims: Expected[] }
-const outBase = args.out ?? (args.spec === "eval/expected.json" ? "eval/results" : args.spec!.replace(/\.json$/, "-results"))
+const outBase = args.out ?? join("out/eval", basename(args.spec!, ".json") + "-results")
 const companyIndex = loadCompanyIndex()
 const ABSTAIN_VERDICTS: NumericVerdict[] = ["NOT_VERIFIABLE", "NOT_COMPUTABLE", "REFERENCE_NOT_YET_FILED"]
 
@@ -170,9 +170,9 @@ const summary = {
 }
 
 const md = [
-	"# Independent evaluation",
+	"# Named-case regression evaluation",
 	"",
-	"Separate from the prepared demo. Spec: `" + args.spec + "` (articles the checker was not tuned on; ground truth computed by hand from the filings).",
+	"Separate from the prepared demo. Spec: `" + args.spec + "` (expected values computed from the stated references).",
 	"",
 	`Source: ${summary.source}`,
 	"",
@@ -204,6 +204,7 @@ const md = [
 	"",
 ].join("\n")
 
+mkdirSync(dirname(outBase), { recursive: true })
 writeFileSync(`${outBase}.md`, md)
 writeFileSync(`${outBase}.json`, JSON.stringify({ summary, rows, spurious, runs }, null, 2))
 console.log(JSON.stringify(summary, null, 2))

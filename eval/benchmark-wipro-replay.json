@@ -1,0 +1,96 @@
+{
+  "mode": "replay",
+  "replaySpeed": 100,
+  "rows": [
+    {
+      "pair": 1,
+      "scheduler": "serial",
+      "firstMismatchMs": 18485,
+      "fullMs": 30232,
+      "correct": 8,
+      "expected": 8,
+      "reviewed": 8,
+      "extracted": 8,
+      "peakLoops": 1,
+      "calls": {
+        "recorded": 64
+      },
+      "timedOut": false
+    },
+    {
+      "pair": 1,
+      "scheduler": "concurrent",
+      "firstMismatchMs": 2951,
+      "fullMs": 4094,
+      "correct": 8,
+      "expected": 8,
+      "reviewed": 8,
+      "extracted": 8,
+      "peakLoops": 12,
+      "calls": {
+        "recorded": 64
+      },
+      "timedOut": false
+    },
+    {
+      "pair": 2,
+      "scheduler": "concurrent",
+      "firstMismatchMs": 2879,
+      "fullMs": 4025,
+      "correct": 8,
+      "expected": 8,
+      "reviewed": 8,
+      "extracted": 8,
+      "peakLoops": 12,
+      "calls": {
+        "recorded": 64
+      },
+      "timedOut": false
+    },
+    {
+      "pair": 2,
+      "scheduler": "serial",
+      "firstMismatchMs": 18487,
+      "fullMs": 30030,
+      "correct": 8,
+      "expected": 8,
+      "reviewed": 8,
+      "extracted": 8,
+      "peakLoops": 1,
+      "calls": {
+        "recorded": 64
+      },
+      "timedOut": false
+    },
+    {
+      "pair": 3,
+      "scheduler": "serial",
+      "firstMismatchMs": 18453,
+      "fullMs": 29971,
+      "correct": 8,
+      "expected": 8,
+      "reviewed": 8,
+      "extracted": 8,
+      "peakLoops": 1,
+      "calls": {
+        "recorded": 64
+      },
+      "timedOut": false
+    },
+    {
+      "pair": 3,
+      "scheduler": "concurrent",
+      "firstMismatchMs": 2880,
+      "fullMs": 4022,
+      "correct": 8,
+      "expected": 8,
+      "reviewed": 8,
+      "extracted": 8,
+      "peakLoops": 12,
+      "calls": {
+        "recorded": 64
+      },
+      "timedOut": false
+    }
+  ]
+}

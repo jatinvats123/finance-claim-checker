@@ -52,7 +52,7 @@ export type CassetteEntry = {
 
 /** Replay speed for recordings: recorded latency is divided by this, keeping the live run's ordering. */
 export const DEFAULT_REPLAY_SPEED = 10
-export type Cassette = { provenance: Provenance; description: string; createdAt: string; keyVersion?: number; model?: string; entries: Record<string, CassetteEntry> }
+export type Cassette = { archivedArticleHash?: string; provenance: Provenance; description: string; createdAt: string; keyVersion?: number; model?: string; entries: Record<string, CassetteEntry> }
 
 export type CallRecord = { task: string; turn: number; key: string; provenance: Provenance | "cache-miss" | "provider-error" | "limit-reached"; detail?: string }
 
@@ -141,6 +141,12 @@ export function loadCassette(path: string): Cassette | undefined {
 }
 
 export class CheckerRunner implements InferenceRunner {
+	usesArchivedPrompts(article: { title: string; text: string; ticker: string }): boolean {
+		if (this.opts.mode !== "replay") return false
+		const hash = createHash("sha256").update(JSON.stringify([article.title, article.text, article.ticker])).digest("hex")
+		return !!this.opts.cassettes?.some(c => c.provenance === "recorded" && c.archivedArticleHash === hash)
+	}
+
 	readonly calls: CallRecord[] = []
 	private readonly inner: InferenceRunner
 	private sealed?: Cassette

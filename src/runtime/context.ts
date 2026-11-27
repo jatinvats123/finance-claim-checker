@@ -41,6 +41,8 @@ export type Ctx = {
 	state: CheckerState
 	tasks: TaskTracker
 	model: string
+	archivedPrompts: boolean
+	finishLoop: () => void
 	/** id of the participant that publishes system events (the desk); set once the desk joins */
 	deskId: string
 	emit: (type: string, producerId: string, payload: object) => void
@@ -50,19 +52,34 @@ export type Ctx = {
 	later: (fn: () => void) => void
 }
 
-export function makeCtx(rt: Runtime, state: CheckerState, tasks: TaskTracker, model: string): Ctx {
+export function makeCtx(rt: Runtime, state: CheckerState, tasks: TaskTracker, model: string, archivedPrompts = false, serial = false): Ctx {
+	const queued: (() => void)[] = []
+	let active = false
 	const ctx: Ctx = {
 		rt,
 		state,
 		tasks,
 		model,
+		archivedPrompts,
+		finishLoop: () => {
+			if (!serial) return
+			const next = queued.shift()
+			if (next) next()
+			else active = false
+		},
 		deskId: "",
 		emit: (type, producerId, payload) => rt.sendEvent(SemanticEvent.create(type, producerId, payload), producerId),
 		startTask: (agent, t) => {
 			const context = ModelContext.create().addContextItem(DeveloperMessageItem.create(agent.getDeveloperMessage()))
 			tasks.register({ key: t.key, role: t.role, claimId: t.claimId, claimRevision: t.claimRevision, evidenceRevision: t.evidenceRevision, contextId: context.id })
 			// maxOutputTokens is required: Mozaik 6.0.0's Anthropic mapper sends max_tokens with no default.
-			rt.runLoop(agent.getId(), t.message, { model: ctx.model, context, tools: agent.getTools(), maxOutputTokens: 4096 })
+			const launch = () => rt.runLoop(agent.getId(), t.message, { model: ctx.model, context, tools: agent.getTools(), maxOutputTokens: 4096 })
+			if (!serial) launch()
+			else if (active) queued.push(launch)
+			else {
+				active = true
+				launch()
+			}
 		},
 		later: (fn) =>
 			setImmediate(() => {

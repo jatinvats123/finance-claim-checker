@@ -6,7 +6,7 @@
  */
 import { createAgent, type Agent, type Tool } from "@mozaik-ai/core"
 import { planEvidence, shortlistFor, type Shortlist } from "../domain/evidence-plan.js"
-import { periodLabel, type EvidenceFact, type FiscalPeriod } from "../sec/evidence.js"
+import { basePeriod, periodLabel, type EvidenceFact, type FiscalPeriod } from "../sec/evidence.js"
 import { METRIC_CONCEPTS, type VerifiableMetric } from "../sec/types.js"
 import { EV, handler, need, paragraphOf, reply, type ClaimRef, type CorrectionPayload, type Ctx } from "../runtime/context.js"
 import type { Claim, EvidenceBinding } from "../domain/types.js"
@@ -22,6 +22,18 @@ Rules:
 - Prefer the comparative presented in the same filing or report as the current figure; it reflects splits and reclassifications.
 - Evidence comes only from financial statements (10-Q/10-K/20-F/40-F, or the company's official report given for this run). If no statement covers the period, call report_no_reference. Never use earnings releases.
 - Bind the fact for the claim's period even when its value differs from the article: the calculator reports the difference.
+When the evidence is bound, reply "done".`
+
+const RECORDED_INSTRUCTION = `You attach official financial-statement evidence to one claim. Work one tool call per message.
+1. Call search_facts for the claim's metric and fiscal period. For a change claim, also search the comparison period.
+2. Call bind_evidence with fact ids exactly as returned — never numbers.
+Rules:
+- The current figure must cover exactly the claim's period: a quarter claim needs a ~91-day quarterly fact, not a six- or nine-month year-to-date figure; FY needs the ~364-day annual fact.
+- Use the metric's primary line item (listed first) unless the claim's wording names another one.
+- Consolidated vs standalone: if the claim says standalone, bind a standalone fact; otherwise bind the consolidated one. Bind a fact in the currency the claim states when one exists; never pick a convenience translation over the reporting currency for an unstated currency.
+- Change claims: comparison "yoy" → same fiscal period one fiscal year earlier; "qoq" → the immediately preceding quarter (Q1's previous quarter is Q4 of the prior fiscal year). If comparison is "unspecified", bind the year-over-year base as baseFactId AND the quarter-over-quarter base as alternateBaseFactId.
+- Prefer the comparative presented in the same filing or report as the current figure; it reflects splits and reclassifications.
+- Evidence comes only from financial statements (10-Q/10-K/20-F/40-F, or the company's official report given for this run). If search_facts reports that no statement covers the period, call report_no_reference. Never use earnings releases.
 When the evidence is bound, reply "done".`
 
 const PERIODS = ["Q1", "Q2", "Q3", "Q4", "FY", "H1", "9M"] as const
@@ -182,6 +194,17 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 		return lines.join("\n")
 	}
 
+	const recordedMessage = (claim: Claim) => {
+		const c = claim.interpretation
+		const lines = [`Claim ${claim.id} revision ${claim.revision}: "${c.quote}"`, `Interpretation: ${JSON.stringify(c)}`]
+		if (c.kind === "change") {
+			const yoy = basePeriod(c.fiscalYear, c.fiscalPeriod, "yoy")
+			const qoq = basePeriod(c.fiscalYear, c.fiscalPeriod, "qoq")
+			lines.push(`Comparison periods: yoy → ${yoy ? periodLabel(yoy.fy, yoy.fp) : "n/a"}, qoq → ${qoq ? periodLabel(qoq.fy, qoq.fp) : "n/a"}`)
+		}
+		return lines.join("\n")
+	}
+
 	const start = (claim: Claim, extra = "", why?: string) => {
 		const attempt = (state.evidenceAttempts.get(claim.id) ?? 0) + 1
 		state.evidenceAttempts.set(claim.id, attempt)
@@ -191,14 +214,14 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 			claimId: claim.id,
 			claimRevision: claim.revision,
 			evidenceRevision: state.bindings.get(claim.id)?.evidenceRevision ?? 0,
-			message: `${describe(claim, shortlistFor(claim, reg()), why)}\nContext: "${paragraphOf(state.article!.text, claim.interpretation.quote)}"${extra}`,
+			message: `${ctx.archivedPrompts ? recordedMessage(claim) : describe(claim, shortlistFor(claim, reg()), why)}\nContext: "${paragraphOf(state.article!.text, claim.interpretation.quote)}"${extra}`,
 		})
 	}
 
 	const agent: Agent = createAgent({
 		name: "Evidence",
 		capabilities: ["inference", "sec-evidence"],
-		instruction: INSTRUCTION,
+		instruction: ctx.archivedPrompts ? RECORDED_INSTRUCTION : INSTRUCTION,
 		tools: [searchFacts, bindEvidence, reportNoReference],
 		handlers: [
 			handler(EV.CLAIM_REVISED, (p: ClaimRef) =>
@@ -217,6 +240,10 @@ export function createEvidenceAgent(ctx: Ctx): Agent {
 						return
 					}
 					// Clear cases are bound by code (no model call); the calculator, auditor and corrections run as usual.
+					if (ctx.archivedPrompts) {
+						start(claim)
+						return
+					}
 					const plan = planEvidence(claim, reg())
 					if (plan.kind === "bind") {
 						state.log("evidence.direct", `${plan.currentFactId}: ${plan.reason}`, claim.id)
