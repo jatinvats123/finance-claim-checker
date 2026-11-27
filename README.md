@@ -25,6 +25,12 @@ Three paired runs used the same Wipro draft, filing, captured model responses an
 
 Run `npm run benchmark` to reproduce the comparison. It writes a trace for each run and a summary under `out/benchmark-replay/`. These measurements describe the scheduling difference in replay. For current model latency, run `npm run benchmark -- --live --pairs 1` with a configured provider. [Six measured runs](eval/benchmark-wipro-replay.json)
 
+The live benchmark uses the same pinned SEC snapshot, article, model and provider limits in both arms. Set `CHECKER_MODEL` to select the model. Run `npm run benchmark -- --live --pairs 1 --case apple` for a separate two-claim Apple draft. Both cases record when the first correct correction became available to copy, whether it was ready within 60 seconds, and whether any incorrect correction was offered. Each arm writes claim receipts and a Mozaik trace. The summary includes the input hash and timing for both arms.
+
+In one live Apple pair on Gemini 3.1 Flash-Lite, the correction was ready in **50.92 s concurrent** and **130.72 s serial**. Both arms returned two correct, fully reviewed verdicts with zero incorrect corrections. The serial run went first and logged a provider error after the auditor approved the correction. This pair shows what happened in those runs. Repeated, order-alternated runs are needed for a general latency estimate. [Live Apple results](eval/benchmark-apple-live.json)
+
+In one live Wipro pair on the same model, the correction was ready in **113.14 s concurrent** and **268.93 s serial**. Both arms got eight numerical verdicts right. Gemini overload and rate limiting left two reviews incomplete in the concurrent arm. The serial arm completed all eight reviews. [Live Wipro results](eval/benchmark-wipro-live.json)
+
 > Not financial advice. This tool checks whether numbers in a text match a company's official financial statements. It does not evaluate the company or recommend any action.
 
 Finance news and earnings coverage often get numbers wrong:

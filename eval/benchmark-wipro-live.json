@@ -1,0 +1,153 @@
+{
+  "mode": "live",
+  "startedAt": "2026-11-27T08:55:20.683Z",
+  "model": "gemini-3.1-flash-lite",
+  "scenario": "wipro",
+  "article": {
+    "title": "Wipro's FY25: revenue flat, profit up sharply",
+    "text": "Wipro reported revenue of ₹89,088 crore for the financial year ended March 31, 2025, which slipped 0.75% from ₹89,760 crore in the previous year.\n\nNet profit attributable to shareholders rose 18.9% to ₹13,135 crore. Diluted earnings per share were ₹12.52.\n\nOperating profit was ₹1,51,271 crore for the year. In dollar terms, revenue was $10.4 billion.\n\nThe IT services company said deal bookings remained steady.",
+    "ticker": "WIT"
+  },
+  "expected": [
+    {
+      "id": "P1",
+      "article": "wipro",
+      "metric": "revenue",
+      "kind": "level",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "statedNumber": "89088",
+      "expected": "MATCH",
+      "truth": "FY2025 revenue ₹890,884 million = ₹89,088.4 crore (20-F accn 0000950170-25-076303)"
+    },
+    {
+      "id": "P2",
+      "article": "wipro",
+      "metric": "revenue",
+      "kind": "change",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "statedNumber": "0.75",
+      "expected": "MATCH",
+      "truth": "890,884 / 897,603 = −0.75%"
+    },
+    {
+      "id": "P3",
+      "article": "wipro",
+      "metric": "revenue",
+      "kind": "level",
+      "fiscalYear": 2024,
+      "fiscalPeriod": "FY",
+      "statedNumber": "89760",
+      "expected": "MATCH",
+      "truth": "FY2024 revenue ₹897,603 million = ₹89,760.3 crore"
+    },
+    {
+      "id": "P4",
+      "article": "wipro",
+      "metric": "net_income",
+      "kind": "change",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "statedNumber": "18.9",
+      "expected": "MATCH",
+      "truth": "131,354 / 110,452 = +18.92%"
+    },
+    {
+      "id": "P5",
+      "article": "wipro",
+      "metric": "net_income",
+      "kind": "level",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "statedNumber": "13135",
+      "expected": "MATCH",
+      "truth": "profit attributable to owners ₹131,354 million = ₹13,135.4 crore"
+    },
+    {
+      "id": "P6",
+      "article": "wipro",
+      "metric": "eps_diluted",
+      "kind": "level",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "statedNumber": "12.52",
+      "expected": "MATCH",
+      "truth": "diluted EPS ₹12.52"
+    },
+    {
+      "id": "P7",
+      "article": "wipro",
+      "metric": "operating_income",
+      "kind": "level",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "statedNumber": "151271",
+      "expected": "MISMATCH",
+      "truth": "₹151,271 million = ₹15,127.1 crore; the article says ₹1,51,271 crore (million read as crore)"
+    },
+    {
+      "id": "P8",
+      "article": "wipro",
+      "metric": "revenue",
+      "kind": "level",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "statedNumber": "10.4",
+      "expected": "MATCH",
+      "truth": "USD convenience translation in the 20-F: $10.428B"
+    }
+  ],
+  "mismatch": {
+    "metric": "operating_income",
+    "value": 151271000000,
+    "currency": "INR",
+    "accession": "0000950170-25-076303",
+    "year": 2025
+  },
+  "inputHash": "ff0c5e3b0eb870e228b9be14a757a885165dc3587df5b7c0b7cad848f4e3a487",
+  "deadlineMs": 60000,
+  "limits": {
+    "requestTimeoutMs": 30000,
+    "retries": 1
+  },
+  "rows": [
+    {
+      "pair": 1,
+      "scheduler": "serial",
+      "firstMismatchMs": 82430,
+      "firstCopyReadyMs": 268925,
+      "correctCorrectionsByDeadline": 0,
+      "incorrectCorrections": 0,
+      "fullMs": 341655,
+      "correct": 8,
+      "expected": 8,
+      "reviewed": 8,
+      "extracted": 8,
+      "peakLoops": 1,
+      "calls": {
+        "live": 41
+      },
+      "timedOut": false
+    },
+    {
+      "pair": 1,
+      "scheduler": "concurrent",
+      "firstMismatchMs": 101676,
+      "firstCopyReadyMs": 113135,
+      "correctCorrectionsByDeadline": 0,
+      "incorrectCorrections": 0,
+      "fullMs": 187148,
+      "correct": 8,
+      "expected": 8,
+      "reviewed": 6,
+      "extracted": 8,
+      "peakLoops": 7,
+      "calls": {
+        "live": 36,
+        "provider-error": 4
+      },
+      "timedOut": false
+    }
+  ]
+}

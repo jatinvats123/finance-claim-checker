@@ -25,12 +25,21 @@ export type ReportState = {
 }
 
 export type Accepted<T> = { ok: true; value: T }
-export type Rejected = { ok: false; stale: boolean; reason: string; retainedForReview?: boolean }
+export type Rejected = { ok: false; stale: boolean; reason: string; retainedForReview?: boolean; dismissed?: boolean }
 export type WriteResult<T> = Accepted<T> | Rejected
 
 export type HistoryEntry = { at: number; claimId?: string; kind: string; detail: string }
 
 export const MAX_CORRECTIONS = 2
+
+const sentenceSegmenter = new Intl.Segmenter("en", { granularity: "sentence" })
+const normalizeWording = (text: string) => text.replace(/\s+/g, " ").trim().toLowerCase()
+const historicalWording = /\b(?:reported|posted|recorded|generated|recognized|earned|came in at|totaled|amounted to)\b/i
+
+function hasForecastWording(text: string): boolean {
+	const wording = text.replace(/\bMay(?=\s+(?:\d|of\b))|\b(?:in|last|this|during|through)\s+May\b/gi, "")
+	return /\b(?:guidance|forecasts?|projects?|projected|projection|expects?|expected|anticipat\w*|estimat\w*|outlook|targets?|predict\w*|will|would|could|may|might|on track|aims?|plans?|sees|set to)\b/i.test(wording)
+}
 
 export class CheckerState extends RuntimeState {
 	/** Set when the reference is ready (immediately for SEC data; after the Reader for a report). */
@@ -211,17 +220,24 @@ export class CheckerState extends RuntimeState {
 		return { ok: true, value: state }
 	}
 
-	addWarning(w: ContextWarning): WriteResult<ContextWarning> {
+	addWarning(w: ContextWarning, archived = false): WriteResult<ContextWarning> {
 		const bad = this.checkClaimRev<ContextWarning>("context warning", w.claimId, w.claimRevision)
 		if (bad) return bad
 		const interpretation = this.claims.get(w.claimId)!.interpretation
 		if (w.source === "context-agent" && w.code === "FORWARD_LOOKING") {
 			const filed = this.registry?.filedPeriod(interpretation.fiscalYear, interpretation.fiscalPeriod)
 			// A previously issued forecast can still be quoted after filing. Check the actual words.
-			const wording = interpretation.quote.replace(/\bMay(?=\s+(?:\d|of\b))|\b(?:in|last|this|during|through)\s+May\b/gi, "")
-			const forecast = /\b(?:guidance|forecasts?|projects?|projected|projection|expects?|expected|anticipat\w*|estimat\w*|outlook|targets?|predict\w*|will|would|could|may|might|on track|aims?|plans?|sees|set to)\b/i.test(wording)
-			if (filed && !forecast) {
+			if (filed && !hasForecastWording(interpretation.quote)) {
 				const reason = `Forecast warning conflicts with the reference. The period ended ${filed.end} and was reported in ${filed.form} on ${filed.filed}. Check the article wording.`
+				if (!archived && historicalWording.test(interpretation.quote)) {
+					const quote = normalizeWording(interpretation.quote)
+					const sentences = [...sentenceSegmenter.segment(this.article?.text ?? "")].filter(({ segment }) => normalizeWording(segment).includes(quote))
+					if (sentences.every(({ segment }) => !hasForecastWording(segment))) {
+						const detail = reason + " The quoted wording explicitly reports historical results."
+						this.log("context.dismissed", detail + " Proposed warning: " + w.message, w.claimId)
+						return { ok: false, stale: false, reason: detail, dismissed: true }
+					}
+				}
 				this.contextFailures.set(w.claimId, { claimRevision: w.claimRevision, reason })
 				this.log("context.disputed", reason + " Proposed warning: " + w.message, w.claimId)
 				return { ok: false, stale: false, reason, retainedForReview: true }

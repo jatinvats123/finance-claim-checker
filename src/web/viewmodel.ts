@@ -156,7 +156,13 @@ export function claimView(state: CheckerState, claim: Claim, runFinished: boolea
 			formula: calc.formula,
 			substituted: calc.substituted,
 			notes: calc.notes,
-			inputs: calc.inputs,
+			inputs: calc.inputs.map(input => {
+				if (!input.derivation) return input
+				const derivation = state.registry.get(input.evidenceId)?.derivation
+				const operands = derivation?.inputIds.map(id => state.registry.get(id))
+				if (!operands?.every(fact => fact !== undefined)) return input
+				return { ...input, derivationInputs: operands.map(fact => toInput(fact, input.role)) }
+			}),
 		},
 		evidence: binding && {
 			evidenceRevision: binding.evidenceRevision,

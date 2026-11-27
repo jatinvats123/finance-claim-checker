@@ -37,7 +37,7 @@ export type ClaimView = {
 		formula: string
 		substituted: string
 		notes: string[]
-		inputs: CalcInput[]
+		inputs: (CalcInput & { derivationInputs?: CalcInput[] })[]
 	}
 	evidence?: {
 		evidenceRevision: number

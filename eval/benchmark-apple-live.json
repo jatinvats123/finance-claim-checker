@@ -1,0 +1,81 @@
+{
+  "mode": "live",
+  "startedAt": "2026-11-27T08:51:35.680Z",
+  "model": "gemini-3.1-flash-lite",
+  "scenario": "apple",
+  "article": {
+    "title": "Apple annual revenue check",
+    "text": "Apple reported net sales of $461.2 billion for the fiscal year ended September 27, 2025.\n\nApple reported net income of $112.0 billion for that fiscal year.",
+    "ticker": "AAPL"
+  },
+  "expected": [
+    {
+      "metric": "revenue",
+      "kind": "level",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "statedNumber": "461.2",
+      "expected": "MISMATCH"
+    },
+    {
+      "metric": "net_income",
+      "kind": "level",
+      "fiscalYear": 2025,
+      "fiscalPeriod": "FY",
+      "statedNumber": "112.0",
+      "expected": "MATCH"
+    }
+  ],
+  "mismatch": {
+    "metric": "revenue",
+    "value": 416161000000,
+    "currency": "USD",
+    "accession": "0000320193-25-000079",
+    "year": 2025
+  },
+  "inputHash": "41182c31990a674e62646a44375e7dbc034d26d3988f57d5b16267a5bbc5a849",
+  "deadlineMs": 60000,
+  "limits": {
+    "requestTimeoutMs": 30000,
+    "retries": 1
+  },
+  "rows": [
+    {
+      "pair": 1,
+      "scheduler": "serial",
+      "firstMismatchMs": 9557,
+      "firstCopyReadyMs": 130723,
+      "correctCorrectionsByDeadline": 0,
+      "incorrectCorrections": 0,
+      "fullMs": 168541,
+      "correct": 2,
+      "expected": 2,
+      "reviewed": 2,
+      "extracted": 2,
+      "peakLoops": 1,
+      "calls": {
+        "live": 10,
+        "provider-error": 1
+      },
+      "timedOut": false
+    },
+    {
+      "pair": 1,
+      "scheduler": "concurrent",
+      "firstMismatchMs": 35791,
+      "firstCopyReadyMs": 50920,
+      "correctCorrectionsByDeadline": 1,
+      "incorrectCorrections": 0,
+      "fullMs": 55220,
+      "correct": 2,
+      "expected": 2,
+      "reviewed": 2,
+      "extracted": 2,
+      "peakLoops": 6,
+      "calls": {
+        "live": 11
+      },
+      "timedOut": false
+    }
+  ]
+}

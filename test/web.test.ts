@@ -7,6 +7,7 @@ import type { AddressInfo } from "node:net"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import type { InferenceInput, InferenceRunner } from "@mozaik-ai/core"
 import { readArticle } from "../src/article.js"
+import { calculate } from "../src/domain/calculator.js"
 import { CheckerState } from "../src/domain/store.js"
 import { CheckerRunner, type AuthorScript } from "../src/llm/runner.js"
 import { loadSnapshot } from "../src/sec/edgar.js"
@@ -16,7 +17,7 @@ const companyIndex = loadCompanyIndex()
 import { EvidenceRegistry } from "../src/sec/evidence.js"
 import { createApp, EXAMPLE_ARTICLE } from "../src/web/server.js"
 import type { MetaView, RunView } from "../src/web/types.js"
-import { claimView, locateQuote } from "../src/web/viewmodel.js"
+import { claimView, locateQuote, referenceView } from "../src/web/viewmodel.js"
 import script from "../fixtures/nvda-demo.script.js"
 
 type App = ReturnType<typeof createApp>
@@ -449,4 +450,29 @@ describe("view model", () => {
 		const [s] = locateQuote(text, '"net income rose"')
 		expect(text.slice(s.start, s.end)).toBe("“net income\nrose”")
 	})
+})
+
+it("copies the calculation and both original filing links for a derived Apple Q4 correction", () => {
+	const quote = "Apple reported revenue of $141.5 billion for Q4 FY2026."
+	const s = new CheckerState()
+	s.article = { title: "Apple quarterly report", text: quote, ticker: "AAPL" }
+	s.registry = new EvidenceRegistry(loadSnapshot("AAPL"))
+	s.referenceInfo = s.registry.info
+	const c = s.addClaim({
+		quote, metric: "revenue", kind: "level", accounting: "gaap", fiscalYear: 2026, fiscalPeriod: "Q4",
+		statedNumber: "141.5", statedUnit: "money", scale: "billion", qualifier: "exact", currency: "USD",
+	})
+	const fact = s.registry.search("revenue", 2026, "Q4").find(f => f.derivation && f.value === 114477000000)!
+	expect(s.bindEvidence({ claimId: c.id, claimRevision: 1, currentFactId: fact.id, boundBy: "t" }).ok).toBe(true)
+	s.acceptCalculation(calculate({ claimId: c.id, claimRevision: 1, evidenceRevision: 1 }, c.interpretation, fact), [])
+	s.setAudit(c.id, 1, 1, { status: "approved", note: "checked", by: "t" })
+	s.finishContext(c.id, 1)
+	const view = claimView(s, c, true)
+	const run = { reference: referenceView(s) }
+	const edit = correctionText(run, view)
+	expect(edit).toContain("calculated from its financial statements")
+	expect(edit).toContain("USD 478,834,000,000 full year − USD 364,357,000,000 first nine months = USD 114,477,000,000")
+	expect(edit).toContain("https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm")
+	expect(edit).toContain("https://www.sec.gov/Archives/edgar/data/320193/000032019326000020/aapl-20260627.htm")
+	expect(correctionText(run, { ...view, warnings: [{ claimId: c.id, claimRevision: 1, source: "context-agent", code: "FORWARD_LOOKING", message: "The quote is a forecast." }] })).toBeUndefined()
 })

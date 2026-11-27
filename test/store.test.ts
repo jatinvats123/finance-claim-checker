@@ -93,13 +93,22 @@ describe("versioned claims and evidence", () => {
 		const warning = (id: string) => state.addWarning({ claimId: id, claimRevision: 1, source: "context-agent", code: "FORWARD_LOOKING", message: "The period has not yet ended." })
 		const filed = state.registry.filedPeriod(2026, "FY")
 		expect(filed).toMatchObject({ form: "10-K", filed: "2026-11-03" })
-		const historic = claim("Apple reported diluted EPS of $8.89 for FY2026.")
-		expect(warning(historic.id)).toMatchObject({ ok: false, reason: expect.stringContaining("2026-11-03") })
+		const historic = state.addClaim(interp({
+			quote: "Apple reported net sales of $461.2 billion for the fiscal year ended September 27, 2025.",
+			fiscalYear: 2025, fiscalPeriod: "FY", statedNumber: "461.2",
+		}))
+		state.article = { title: "Apple results", text: historic.interpretation.quote, ticker: "AAPL" }
+		expect(warning(historic.id)).toMatchObject({ ok: false, dismissed: true, reason: expect.stringContaining("2025-10-31") })
 		state.finishContext(historic.id, 1)
 		expect(state.warnings.get(historic.id) ?? []).toHaveLength(0)
-		expect(state.contextFailures.has(historic.id)).toBe(true)
+		expect(state.contextFailures.has(historic.id)).toBe(false)
+		expect(state.history).toContainEqual(expect.objectContaining({ kind: "context.dismissed", claimId: historic.id }))
 		expect(warning(claim("In May 2026, the company reported diluted EPS of $8.89.").id).ok).toBe(false)
 		expect(warning(claim("Management expects diluted EPS of $8.89.").id).ok).toBe(true)
+		const excerpt = claim("Apple reported diluted EPS of $8.89")
+		state.article.text = "A forecast assumed that Apple reported diluted EPS of $8.89 by year-end."
+		expect(warning(excerpt.id)).toMatchObject({ ok: false, retainedForReview: true })
+		expect(state.contextFailures.has(excerpt.id)).toBe(true)
 	})
 
 	it("rejects evidence ids that do not exist (no model-invented references)", () => {

@@ -26,10 +26,11 @@ export function createContextAgent(ctx: Ctx): Agent {
 		invoke: async (args) => {
 			try {
 				const w = { claimId: need(args, "claimId"), claimRevision: Number(need(args, "claimRevision")), source: "context-agent" as const, code: need(args, "code", CODES), message: need(args, "message") }
-				const res = state.addWarning(w)
+				const res = state.addWarning(w, ctx.archivedPrompts)
 				if (!res.ok) {
 					// Preserve the original recorded receipt for a proposal retained in the audit log.
 					if (ctx.archivedPrompts && res.retainedForReview) return reply("recorded")
+					if (res.dismissed) return reply(`DISMISSED: ${res.reason} Continue with any other supported framing issue or finish the review.`)
 					if (res.stale) ctx.emit(EV.STALE_REJECTED, selfId, { claimId: w.claimId, reason: res.reason })
 					return reply(`REJECTED${res.stale ? " (stale)" : ""}: ${res.reason}`)
 				}
