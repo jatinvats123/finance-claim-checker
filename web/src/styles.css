@@ -517,8 +517,8 @@ button {
 	min-width: 0;
 	min-height: 0;
 }
-.layout-desktop .panel,
-.layout-wide .panel {
+.layout-desktop .panel:not(.panel-form),
+.layout-wide .panel:not(.panel-form) {
 	position: sticky;
 	top: 16px;
 	max-height: calc(100vh - 32px);

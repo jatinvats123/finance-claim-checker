@@ -106,7 +106,7 @@ export default function App() {
 		setTab("results")
 	}
 	const articlePanel = !run ? (
-		<section className="panel" aria-label="Check an article">
+		<section className="panel panel-form" aria-label="Check an article">
 			<CheckForm meta={meta} draft={draft} setDraft={setDraft} busy={running} onStart={startCustom} onRunExample={runExample} />
 		</section>
 	) : (
