@@ -150,6 +150,22 @@ async function testReport() {
 }
 
 describe("official report: every figure verified on its page", () => {
+	it("uses printed headings when a quarter exceeds its half-year, values repeat, or the headings are missing", async () => {
+		const values = { ...CONS, np: ["20,000", "(6,000)", "17,000", "14,000", "17,000", "30,000"] }
+		const page = resultsPage("Consolidated", values)
+		const check = async (items: typeof page, value: string, periodType: "quarter" | "half", periodEnd = "2025-09-30") => {
+			const pages = await parsePdf(makePdf([items]))
+			const doc = { fileName: "periods.pdf", sha256: "aaa", bytes: 1, pageCount: 1, pages, fetchedAt: "2026-11-27" }
+			return verifyProposed(doc, { metric: "net_income", consolidation: "consolidated", page: 1, row: "Net profit for the period", column: "", periodType, periodEnd, value }, { basis: "Ind AS", docCurrency: "INR" })
+		}
+		expect(await check(page, "20,000", "quarter")).toMatchObject({ ok: true })
+		expect(await check(page, "14,000", "half")).toMatchObject({ ok: true })
+		expect(await check(page, "14,000", "quarter")).toMatchObject({ ok: false })
+		expect(await check(page, "(6,000)", "quarter", "2025-06-30")).toMatchObject({ ok: true, fact: { value: -60000000000 } })
+		expect(await check(page, "17,000", "half", "2024-09-30")).toMatchObject({ ok: true, fact: { start: "2024-04-01" } })
+		expect(await check(page.filter(item => item.y !== 736), "14,000", "half")).toMatchObject({ ok: false })
+	})
+
 	it("selects statement pages and verifies row, column, period type, unit note and consolidation", async () => {
 		const doc = await testReport()
 		expect(selectStatementPages(doc).map((p) => p.n)).toEqual([1, 2])
@@ -240,6 +256,7 @@ describe("official report: every figure verified on its page", () => {
 		const p: ProposedFact = { metric: "revenue", consolidation: "consolidated", page: 1, row: "Revenue from operations", column: "", periodType: "quarter", periodEnd: "2026-09-30", value: "73,188" }
 		const v = (o: Partial<ProposedFact>) => verifyProposed(doc, { ...p, ...o }, { basis: "Ind AS", docCurrency: "INR" })
 		expect(v({})).toMatchObject({ ok: true, fact: { value: 731880000000, start: "2026-07-01", location: { column: "Three months ended September 30, 2026" } } })
+		expect(v({ value: "1,337" })).toMatchObject({ ok: false, reason: expect.stringContaining("not printed on the row") })
 		expect(v({ value: "1,45,463", periodType: "half" })).toMatchObject({ ok: true, fact: { value: 1454630000000, start: "2026-04-01" } })
 		expect(v({ value: "1,45,463" })).toMatchObject({ ok: false, reason: expect.stringMatching(/is a half column, not quarter/) })
 		expect(v({ value: "65,799" })).toMatchObject({ ok: false, reason: expect.stringMatching(/column dated 2025-09-30/) })

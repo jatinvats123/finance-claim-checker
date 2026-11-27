@@ -37,7 +37,7 @@ export function useMeta() {
 }
 
 export type StartBody =
-	| { source: "example"; replay?: "recorded" | "fixtures" }
+	| { source: "example"; sample?: "wipro"; replay?: "recorded" | "fixtures" }
 	| {
 			source: "custom"
 			mode: "live" | "replay"

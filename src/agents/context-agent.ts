@@ -28,6 +28,8 @@ export function createContextAgent(ctx: Ctx): Agent {
 				const w = { claimId: need(args, "claimId"), claimRevision: Number(need(args, "claimRevision")), source: "context-agent" as const, code: need(args, "code", CODES), message: need(args, "message") }
 				const res = state.addWarning(w)
 				if (!res.ok) {
+					// Preserve the original recorded receipt for a proposal retained in the audit log.
+					if (ctx.archivedPrompts && res.retainedForReview) return reply("recorded")
 					if (res.stale) ctx.emit(EV.STALE_REJECTED, selfId, { claimId: w.claimId, reason: res.reason })
 					return reply(`REJECTED${res.stale ? " (stale)" : ""}: ${res.reason}`)
 				}
@@ -48,6 +50,8 @@ export function createContextAgent(ctx: Ctx): Agent {
 			handler(EV.CLAIM_REVISED, (p: ClaimRef) => {
 				const claim = state.claims.get(p.claimId)
 				if (!claim || claim.revision !== p.claimRevision) return
+				const filed = state.registry.filedPeriod(claim.interpretation.fiscalYear, claim.interpretation.fiscalPeriod)
+				const reference = `Reference as of ${state.registry.asOf()}. ${filed ? `Period ended ${filed.end}. ${filed.form} filed ${filed.filed}.` : "No SEC filing date established for this period."} Distinguish explicit forecasts in the quotation from historical results. Article publication date is unknown.`
 				ctx.startTask(agent, {
 					role: "context",
 					key: `context:${claim.id}@r${claim.revision}`,
@@ -56,7 +60,7 @@ export function createContextAgent(ctx: Ctx): Agent {
 					message: `Claim ${claim.id} revision ${claim.revision}: "${claim.interpretation.quote}"
 Interpretation: ${JSON.stringify(claim.interpretation)}
 Paragraph: "${paragraphOf(state.article!.text, claim.interpretation.quote)}"
-Article title: ${state.article!.title}`,
+Article title: ${state.article!.title}${ctx.archivedPrompts ? "" : "\n" + reference}`,
 				})
 			}),
 		],

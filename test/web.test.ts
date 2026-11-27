@@ -1,3 +1,4 @@
+import { correctionText } from "../web/src/correction.js"
 /**
  * Web adapter: API, SSE stream, view model correctness against the engine's own report,
  * provenance/review/failure states. No API key needed.
@@ -203,12 +204,35 @@ describe("web API with the included example (keyless)", () => {
 })
 
 describe("genuine recording replay", () => {
+	it("opens the featured Wipro example without a provider or SEC lookup and exports a sourced correction", async () => {
+		const app = createApp({ env: {}, liveSec: false, replaySpeed: 1000 })
+		const base = await listen(app)
+		try {
+			const { status, body } = await post(base, { source: "example", sample: "wipro" })
+			expect(status).toBe(202)
+			const final = (await stream(base, body.id)).at(-1)!
+			expect(final.status).toBe("done")
+			expect(final.reference.ticker).toBe("WIT")
+			expect(final.provenance.counts).toEqual({ recorded: 64 })
+			expect(final.claims).toHaveLength(8)
+			expect(final.claims.every(c => c.review.status === "complete")).toBe(true)
+			const mismatch = final.claims.find(c => c.interpretation.metric === "operating_income" && c.verdict === "MISMATCH")!
+			const edit = correctionText(final, mismatch)!
+			expect(edit).toContain("₹15,127.1 crore")
+			expect(edit).toContain("0000950170-25-076303")
+			expect(edit).toMatch(/https:\/\/www\.sec\.gov\/Archives/)
+			expect(correctionText(final, { ...mismatch, review: { ...mismatch.review, status: "incomplete" } })).toBeUndefined()
+		} finally {
+			app.server.close()
+		}
+	}, 30_000)
+
 	it("replays only the recorded model run, labelled as recorded, with no fixture fallback", async () => {
 		const app = createApp({ companyIndex, replaySpeed: 1000 })
 		const base = await listen(app)
 		const meta = (await (await fetch(`${base}/api/meta`)).json()) as MetaView
 		const rec = meta.replayOptions.find((o) => o.id === "recorded")!
-		if (!rec.available) return app.server.close() // no recording in this checkout
+		expect(rec.available).toBe(true)
 		const { body } = await post(base, { source: "example", replay: "recorded" })
 		const final = (await stream(base, body.id)).at(-1)!
 		expect(final.status).toBe("done")
@@ -216,7 +240,9 @@ describe("genuine recording replay", () => {
 		expect(final.provenance.label).toBe("Recorded model responses")
 		expect(final.trace?.timing).toBe("replay-recorded")
 		expect(final.claims.length).toBeGreaterThan(0)
-		expect(final.claims.every((c) => c.review.status === "complete")).toBe(true)
+		const disputed = final.claims.filter(c => c.review.status !== "complete")
+		expect(disputed.map(c => c.id)).toEqual(["c1"])
+		expect(disputed[0].context.reason).toContain("Forecast warning conflicts")
 		app.server.close()
 	}, 30_000)
 })
@@ -359,11 +385,11 @@ describe("company-independent custom articles", () => {
 		expect(status).toBe(202)
 		const final = (await stream(base, body.id)).at(-1)!
 		expect(final.reference).toMatchObject({ kind: "sec", entityName: "Apple Inc.", ticker: "AAPL" })
-		if (final.status === "cache_miss") return app.server.close() // no recording of this sample in this checkout
+		expect(final.provenance.counts["cache-miss"] ?? 0).toBe(0)
 		expect(final.status).toBe("done")
 		expect(final.provenance.kind).toBe("recorded")
 		expect(final.claims.find((c) => c.statedDisplay === "$8.89 per share")?.verdict).toBe("MISMATCH")
-		expect(final.claims.every((c) => c.review.status === "complete")).toBe(true)
+		expect(final.claims.every(c => c.review.status === "complete")).toBe(true)
 		app.server.close()
 	}, 60_000)
 

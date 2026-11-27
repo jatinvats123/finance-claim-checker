@@ -1,6 +1,29 @@
 # Finance Claim Checker
 
-**Paste a finance article about any company. Concurrent Mozaik agents find its revenue, profit and EPS figures and check each one against the company's official financial statements (its SEC filings, or the company's own results report as a PDF), with a receipt for every verdict.**
+Finance Claim Checker helps a financial editor decide which figures in an earnings draft need a correction before publication. It compares quoted figures with the company's SEC filing or supplied results PDF, shows the calculation and lets the editor copy a sourced correction.
+
+## Try the Wipro case
+
+1. From a fresh checkout with Node.js 22.13 or later, run `npm ci` and `npm run web`. Open [the local app](http://localhost:4317).
+2. Select **Check the Wipro example · recorded**. The example uses a synthetic draft, an included SEC snapshot and genuine recorded model responses. It runs without an API key or external data fetch after installation.
+3. In **Results**, choose **Mismatches** and open **Operating income**. The draft put ₹1,51,271 crore in print. Wipro reported ₹151,271 million, equivalent to **₹15,127.1 crore**. Select **Copy correction with source** to get the corrected sentence and filing. [Wipro FY2025 Form 20-F](https://www.sec.gov/Archives/edgar/data/1123799/000095017025076303/wit-20250331.htm)
+4. Open **Timeline** to see the agents work on different claims while the extractor is still reading. The calculator binds each result to a version of its inputs. A claim revision invalidates the old calculation and audit.
+
+![The Wipro draft, its reviewed discrepancy and the editor's correction action](docs/wipro-receipt.png)
+
+### What concurrency changed
+
+Three paired runs used the same Wipro draft, filing, captured model responses and checks. One scheduler allowed overlap. The other completed one agent loop at a time. The order alternated between pairs. The replay divided the originally recorded response latencies by 100 in both arms. Timing starts when the checker receives the article. The first discrepancy requires the correct INR operating income from the specified accession.
+
+| Median over three runs per scheduler | Concurrent | Serial |
+|---|---:|---:|
+| First source-backed operating profit discrepancy | 2.88 s | 18.49 s |
+| All eight claims reviewed | 4.03 s | 30.03 s |
+| Peak active agent loops | 12 | 1 |
+| Correct verdicts per run | 8/8 | 8/8 |
+| Recorded model calls per run | 64 | 64 |
+
+Run `npm run benchmark` to reproduce the comparison. It writes a trace for each run and a summary under `out/benchmark-replay/`. These measurements describe the scheduling difference in replay. For current model latency, run `npm run benchmark -- --live --pairs 1` with a configured provider. [Six measured runs](eval/benchmark-wipro-replay.json)
 
 > Not financial advice. This tool checks whether numbers in a text match a company's official financial statements. It does not evaluate the company or recommend any action.
 
@@ -18,10 +41,10 @@ It then extracts the claims about six supported metrics (revenue, net income, gr
 
 Every check comes with the document, the line item (or page, row and column), the dates, the input values and the formula. Missing or unverifiable data is reported as such. No other company's data is ever substituted, and no value is invented.
 
-**Live demo: https://finance-claim-checker.onrender.com** (no sign-in, no API key). It resolves any company and previews its SEC reference live. Model responses are replayed: the sample articles and the NVIDIA example were recorded with a real model. Checking new text needs a provider key, so run it locally.
+[Hosted app](https://finance-claim-checker.onrender.com/). The available modes appear in the app. Custom text uses a configured provider. The included recordings preserve the original model prompts for their exact articles, and the current code checks the resulting figures and flags disputed warnings.
 
 ```
-npm install
+npm ci
 npm run web        # verification workspace at http://localhost:4317 ("Check your article" is the start screen)
 npm start          # keyless NVIDIA example in the terminal
 npm run check -- --article my-article.md --mode live        # any company (needs a provider key in .env)
@@ -182,7 +205,7 @@ If the reference doesn't cover a period, the result is `REFERENCE_NOT_YET_FILED`
 **Report verification.** A figure from a PDF is accepted only if code finds all of the following on the page:
 - the row label, and the printed value on that row;
 - the value sitting under a column header carrying the stated period-end date;
-- a column label of the stated period type. Columns that end on the same date, such as a quarter and a half-year both ending 30.09.2025, are also told apart by size: the shorter period has the smaller value.
+- a column label identifying the stated quarter, half-year, nine months or year. Columns sharing an end date need distinct heading geometry. Ambiguous headers cause the checker to decline the proposed figure.
 - a unit note such as "(Rs. in crore)", "(₹ in lakhs)" or "(In millions)", which sets the scale and currency (never the model);
 - a statement heading that says consolidated or standalone.
 
@@ -240,7 +263,7 @@ The calculator **resolves values from validated evidence ids**. Agents can't pas
   - **genuine recordings** (`data/replay/recordings/`): real `gemini-3.1-flash-lite` responses from `--mode record` runs, one per article (the NVIDIA example and the sample articles); the web app uses them by default;
   - **hand-written fixtures** (`data/replay/*.fixtures.json`): a scripted run with two deliberate agent mistakes, to show the auditor's correction paths.
 - Replay keys (cache policy version 2) hash everything the model sees: instructions, task message, earlier tool calls and their exact outputs, and every tool's name, description, parameter schema and strict flag. A different article, refreshed SEC data, a changed prompt or a changed tool schema produces an explicit **`CACHE_MISS`**; nothing is substituted. Cassettes record the key version, and replay refuses a cassette from another version.
-- Recordings store each call's measured latency; replay waits recorded latency ÷ 10 so the live run's ordering is preserved. That timing is labelled as replay timing, never as model latency.
+- Recordings store each call's measured latency; standard replay waits recorded latency ÷ 10. The featured Wipro example uses ÷ 100. That timing is labelled as replay timing, never as model latency.
 - In keyless mode, everything except the model text runs for real: SEC lookup, period identification, calculations, the rule gate, revision control and the receipts.
 - Provider errors are isolated to their task. The claim is marked `FAILED`, or shown "unaudited" when only the review failed, and the run finishes.
 
@@ -353,7 +376,7 @@ Fresh articles the checker was not tuned on, about four companies other than NVI
 
 Walmart run 2 (113 requests): **11/11 verdicts correct**. One claim (W10, a match) is shown as *not fully reviewed*: its auditor call hit Google's free-tier daily limit (500 requests/day for `gemini-3.1-flash-lite`), and the run labelled it unaudited.
 
-`npm run eval` over the recordings in `data/replay/recordings/` (`eval/multi-company-results.md`):
+The four SEC-backed articles account for the results below. In the full six-case evaluation on this branch, 28/36 expected checkable claims were correct end to end and 3/5 unsupported claims were handled correctly. The optional TCS PDF was absent and there is no complete recorded TCS run. One Walmart claim had a correct number and an incomplete audit. `npm run eval` writes the full case breakdown under `out/eval/`.
 
 | Measure | Result |
 |---|---|
@@ -365,7 +388,7 @@ Walmart run 2 (113 requests): **11/11 verdicts correct**. One claim (W10, a matc
 | Spurious extractions | 0 |
 | Unknown company stopped with `COMPANY_NOT_FOUND` | 1/1 |
 
-The Walmart numbers in that table are from run 2, after the fixes, so they are not independent. Its independent result is run 1's 9/11. Run 1 receipts and the run-1 Walmart recording are in `eval/multi-run1/`. Every other article replays from its run-1 recording with 0 cache misses under the current code.
+The Walmart numbers in that table are from run 2, after the fixes, so they are not independent. Its independent result is run 1's 9/11. Run 1 receipts and the run-1 Walmart recording are in `eval/multi-run1/`. The Apple, Wipro and Infosys articles use their original recorded runs.
 
 **Unknown company and unavailable data** (deterministic: these stop before any model call, and nothing is substituted):
 

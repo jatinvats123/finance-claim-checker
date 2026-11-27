@@ -86,6 +86,22 @@ describe("versioned claims and evidence", () => {
 		expect(s.warnings.get(a.id)!.map((w) => w.message)).toEqual(["fresh"])
 	})
 
+	it("checks forecast warnings against the filing date and the actual words of the claim", () => {
+		const state = new CheckerState()
+		state.registry = new EvidenceRegistry(loadSnapshot("AAPL"))
+		const claim = (quote: string) => state.addClaim(interp({ quote, fiscalYear: 2026, fiscalPeriod: "FY", metric: "eps_diluted", statedNumber: "8.89" }))
+		const warning = (id: string) => state.addWarning({ claimId: id, claimRevision: 1, source: "context-agent", code: "FORWARD_LOOKING", message: "The period has not yet ended." })
+		const filed = state.registry.filedPeriod(2026, "FY")
+		expect(filed).toMatchObject({ form: "10-K", filed: "2026-11-03" })
+		const historic = claim("Apple reported diluted EPS of $8.89 for FY2026.")
+		expect(warning(historic.id)).toMatchObject({ ok: false, reason: expect.stringContaining("2026-11-03") })
+		state.finishContext(historic.id, 1)
+		expect(state.warnings.get(historic.id) ?? []).toHaveLength(0)
+		expect(state.contextFailures.has(historic.id)).toBe(true)
+		expect(warning(claim("In May 2026, the company reported diluted EPS of $8.89.").id).ok).toBe(false)
+		expect(warning(claim("Management expects diluted EPS of $8.89.").id).ok).toBe(true)
+	})
+
 	it("rejects evidence ids that do not exist (no model-invented references)", () => {
 		const s = fresh()
 		const a = s.addClaim(interp())

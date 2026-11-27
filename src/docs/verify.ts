@@ -3,8 +3,8 @@
  * "metric M is the row labelled R, column C, value V as printed"; code checks every part on the page:
  *   - the row label is on the page and the printed value is on that row,
  *   - the value sits under a column header carrying the stated period-end date (x-alignment),
- *   - the period type (quarter / half / nine months / year) fits the column (labels above it, and for
- *     same-date columns the shorter period has the smaller value),
+ *   - the period type (quarter / half / nine months / year) fits the column (labels above it, with
+ *     column geometry resolving same-date periods),
  *   - scale and currency come from the page's unit note ("₹ in crore", "Rs. in lakhs", "in millions"),
  *     never from the model; consolidated vs standalone comes from the statement heading.
  * The value used is the printed number × the note's scale. Anything that cannot be verified is rejected
@@ -197,6 +197,37 @@ function stackedColumns(page: PdfPage, aboveIdx: number): DateHeader[] {
 	return out
 }
 
+/** A group label can cover several dates on the same line. Ambiguous group boundaries abstain. */
+function groupedPeriod(page: PdfPage, dateHeader: DateHeader, headers: DateHeader[]): PeriodType | undefined {
+	const columns = headers.filter(header => header.y === dateHeader.y).sort((a, b) => a.x - b.x)
+	const above = [...page.lines].reverse().filter(line => line.y > dateHeader.y && line.y - dateHeader.y < 42)
+	for (const line of above) {
+		const labels = line.items.filter(item => item.str.length <= 40 && typeOf(item.str))
+		if (!labels.length) continue
+		if (labels.length === 1) {
+			const item = labels[0]
+			return dateHeader.x >= item.x0 - 40 && dateHeader.x <= item.x1 + 40 ? typeOf(item.str) : undefined
+		}
+		const groups = labels.map(item => {
+			const nearest = columns.reduce((best, col) => Math.abs(col.x - item.x0) < Math.abs(best.x - item.x0) ? col : best)
+			return { start: columns.indexOf(nearest), type: typeOf(item.str) }
+		}).sort((a, b) => a.start - b.start)
+		// Distinct start columns and distinct dates within each group are necessary to identify a period.
+		if (groups[0].start !== 0 || new Set(groups.map(group => group.start)).size !== groups.length) return
+		const i = columns.indexOf(dateHeader)
+		for (let g = 0; g < groups.length; g++) {
+			const { start, type } = groups[g]
+			const end = groups[g + 1]?.start ?? columns.length
+			const dates = columns.slice(start, end).map(col => col.date)
+			if (new Set(dates).size !== dates.length) return
+			if (i >= start && i < end) return type
+		}
+	}
+}
+
+type PrintedCell = { line: PdfLine; idx: number; x: number }
+const numericLine = (line: PdfLine) => line.items.every(item => /^[\s\d,.()+%−–—-]+$/.test(item.str))
+
 /** The nearest label line above a row that carries no numbers (e.g. "Profit for the period attributable to:"). */
 function rowHeading(page: PdfPage, idx: number): string {
 	for (let i = idx - 1; i >= Math.max(0, idx - 4); i--) {
@@ -281,18 +312,38 @@ export function verifyProposed(doc: ReportDoc, p: ProposedFact, ctx: { basis: st
 	const rowLines = page.lines.map((l, i) => ({ l, i })).filter(({ l }) => norm(l.text).includes(row))
 	if (!rowLines.length) return fail(`row label "${p.row}" is not on page ${page.n}`)
 	const target = p.value.trim()
-	let hit: { line: PdfLine; idx: number; item: PdfItem } | undefined
+	const matches: PrintedCell[] = []
 	for (const { l, i } of rowLines) {
-		for (const cand of [page.lines[i], page.lines[i + 1]].filter(Boolean)) {
-			const item = cand.items.find((it) => it.str.trim() === target || it.str.split(/\s+/).includes(target))
-			if (item) {
-				hit = { line: cand, idx: page.lines.indexOf(cand), item }
-				break
+		const next = page.lines[i + 1]
+		// A label without figures may wrap onto a numeric-only continuation line.
+		// A new label or a row that already contains figures ends that logical row.
+		const lines = [{ line: l, idx: i }]
+		if (next && !l.items.some(item => item.str.split(/\s+/).some(token => parsePrinted(token) !== undefined)) && numericLine(next)) {
+			lines.push({ line: next, idx: i + 1 })
+		}
+		for (const { line, idx } of lines) {
+			for (const item of line.items) {
+				for (const token of item.str.matchAll(/\S+/g)) {
+					if (token[0] !== target) continue
+					const fraction = (token.index + target.length / 2) / item.str.length
+					matches.push({ line, idx, x: item.x0 + fraction * (item.x1 - item.x0) })
+				}
 			}
 		}
-		if (hit) break
 	}
-	if (!hit) return fail(`value "${target}" is not printed on the row "${p.row}" (page ${page.n})`)
+	if (!matches.length) return fail(`value "${target}" is not printed on the row "${p.row}" (page ${page.n})`)
+	let firstError: Verified | undefined
+	for (const hit of matches) {
+		const result = verifyCell(doc, page, p, ctx, hit)
+		if (result.ok) return result
+		firstError ??= result
+	}
+	return firstError!
+}
+
+function verifyCell(doc: ReportDoc, page: PdfPage, p: ProposedFact, ctx: { basis: string; docCurrency?: string }, hit: PrintedCell): Verified {
+	const fail = (reason: string): Verified => ({ ok: false, reason })
+	const target = p.value.trim()
 	// the row must be a line of this metric; an indented row ("Shareholders of the Company") is read with its heading
 	const heading = rowHeading(page, hit.idx)
 	const attributableRow = p.metric === "net_income" && /shareholders|owners|equity holders|parent|attributable/i.test(p.row) && /profit|net income|earnings/i.test(`${p.row} ${heading}`) && /attributable/i.test(`${p.row} ${heading}`) && !/comprehensive/i.test(`${p.row} ${heading}`)
@@ -300,48 +351,24 @@ export function verifyProposed(doc: ReportDoc, p: ProposedFact, ctx: { basis: st
 	const verified = [`row "${p.row}"${attributableRow && !/attributable/i.test(p.row) ? ` under "${heading}"` : ""} found on page ${page.n}`, `value ${target} printed on that row`]
 
 	// 2. column: the nearest column-header date above the value must be the stated period end
-	const headers = [...stackedColumns(page, hit.idx), ...headerDates(page, hit.line.y)]
+	const flatHeaders = headerDates(page, hit.line.y)
+	const headers = [...stackedColumns(page, hit.idx).filter(header => typeOf(header.text)), ...flatHeaders]
 	if (!headers.length) return fail(`no column-header dates found above the value on page ${page.n}`)
-	// if the value cell holds several numbers, estimate this number's x within the cell
-	const cellX = (() => {
-		const s = hit.item.str
-		const at = s.indexOf(target)
-		return at >= 0 && s.trim() !== target ? hit.item.x0 + ((at + target.length / 2) / Math.max(1, s.length)) * (hit.item.x1 - hit.item.x0) : xc(hit.item)
-	})()
+	const cellX = hit.x
 	const nearest = [...headers].sort((a, b) => Math.abs(a.x - cellX) - Math.abs(b.x - cellX))[0]
 	if (Math.abs(nearest.x - cellX) > 90) return fail(`could not align the value with a column header on page ${page.n}`)
 	if (nearest.date !== p.periodEnd) return fail(`the value sits under the column dated ${nearest.date}, not ${p.periodEnd}`)
 	verified.push(`printed under the column dated ${nearest.date} ("${nearest.text}")`)
 
-	// 3. period type: labels above the column; same-date columns ordered by size
-	// header cells only: a title sentence ("…for the quarter and half year ended…") is not a column label
-	const labels = page.lines
-		.filter((l) => l.y > hit!.line.y)
-		.flatMap((l) => l.items.filter((it) => it.str.trim().length <= 40).map((it) => ({ it, type: typeOf(it.str) })))
-		.filter((x) => x.type)
-	const covering = labels.filter(({ it }) => cellX >= it.x0 - 40 && cellX <= it.x1 + 40).map((x) => x.type!)
+	// 3. Period identity comes exclusively from the header above this column.
 	const inHeader = typeOf(nearest.text)
 	if (inHeader && inHeader !== p.periodType) return fail(`the column header "${nearest.text}" is a ${inHeader} column, not ${p.periodType}`)
-	if (!inHeader && covering.length && !covering.includes(p.periodType)) return fail(`the column is labelled ${[...new Set(covering)].join("/")}, not ${p.periodType}`)
-	const sameDate = headers.filter((h) => h.date === p.periodEnd)
-	const xs = [...new Set(sameDate.map((h) => Math.round(h.x)))]
-	if (xs.length > 1) {
-		// values on this row under each same-date column
-		const vals = xs
-			.map((x) => {
-				const it = hit!.line.items.filter((i) => parsePrinted(i.str) !== undefined).sort((a, b) => Math.abs(xc(a) - x) - Math.abs(xc(b) - x))[0]
-				return it && Math.abs(xc(it) - x) < 90 ? Math.abs(parsePrinted(it.str)!) : undefined
-			})
-			.filter((v): v is number => v !== undefined)
-		if (vals.length > 1 && new Set(vals).size === vals.length) {
-			const mine = Math.abs(printed)
-			const shortest = p.periodType === "quarter"
-			if (shortest && mine !== Math.min(...vals)) return fail(`two columns end ${p.periodEnd}; the quarter is the smaller value (${Math.min(...vals)}), not ${target}`)
-			if (!shortest && vals.length === 2 && mine !== Math.max(...vals)) return fail(`two columns end ${p.periodEnd}; the longer ${p.periodType.replace("_", " ")} period is the larger value (${Math.max(...vals)}), not ${target}`)
-			verified.push(`same-date columns told apart by size (${p.periodType})`)
-		}
+	if (!inHeader) {
+		const type = groupedPeriod(page, nearest, flatHeaders)
+		if (!type) return fail(`no unambiguous period label above the column dated ${nearest.date}`)
+		if (type !== p.periodType) return fail(`the column is labelled ${type}, not ${p.periodType}`)
 	}
-	verified.push(inHeader || covering.includes(p.periodType) ? `column labelled ${p.periodType}` : `period type ${p.periodType} as read by the Reader (no label positioned over the column)`)
+	verified.push(`column labelled ${p.periodType}`)
 
 	// 4. scale and currency from the page's unit note (EPS is per share: no scale)
 	const perShare = isPerShareMetric(p.metric)
@@ -354,7 +381,7 @@ export function verifyProposed(doc: ReportDoc, p: ProposedFact, ctx: { basis: st
 		if (!notes.length) return fail(`page ${page.n} has no unit note (e.g. "₹ in crore"); the scale cannot be established`)
 		if (scalesOnPage.length > 1) {
 			// several notes: use the nearest one above the value
-			const above = notes.filter((n) => n.line <= hit!.idx).sort((a, b) => b.line - a.line)[0]
+			const above = notes.filter((n) => n.line <= hit.idx).sort((a, b) => b.line - a.line)[0]
 			if (!above) return fail(`page ${page.n} has several unit notes (${scalesOnPage.join(", ")}) and none above the value`)
 			scale = above.scale
 			unitNote = above.note

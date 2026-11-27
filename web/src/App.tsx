@@ -88,6 +88,12 @@ export default function App() {
 	if (metaError) return <div className="fatal">Could not reach the checker server: {metaError}</div>
 	if (!meta || !draft) return <div className="loading" aria-busy="true">Loading…</div>
 
+	const featured = meta.samples.find(sample => sample.id === "wipro")
+	const runFeatured = () => {
+		if (!featured) return
+		setTab("results")
+		start({ source: "example", sample: "wipro", replay: "recorded" }).catch(() => undefined)
+	}
 	const replayOption = meta.replayOptions.find((o) => o.id === replay)
 	const articleTitle = run?.article.title ?? meta.example.title
 	const articleText = run?.article.text ?? meta.example.text
@@ -118,7 +124,7 @@ export default function App() {
 				claims={run?.claims ?? []}
 				selectedId={selectedId}
 				onSelect={(id) => select(id)}
-				note={run.source === "example" ? <p className="synthetic-note">Synthetic test article written for this demo. It mixes NVIDIA's real reported figures with deliberate, realistic errors.</p> : undefined}
+				note={run.source === "example" ? <p className="synthetic-note">Synthetic test article written for this demo. It mixes the company’s real reported figures with deliberate, realistic errors.</p> : undefined}
 			/>
 		</section>
 	)
@@ -183,6 +189,10 @@ export default function App() {
 				</>
 			) : (
 				<div className="panel-body empty-state">
+					{featured && <section className="notice notice-warn">
+						<h3>Did Wipro really earn ₹1,51,271 crore in operating profit?</h3>
+						<p>Check the units in the draft against the FY2025 filing, then copy the correction for your editor.</p>
+					</section>}
 					<h3>How a check works</h3>
 					<ol className="steps small">
 						<li>
@@ -258,7 +268,10 @@ export default function App() {
 
 			<div className="runbar">
 				<div className="runbar-actions">
-					<button className="btn btn-primary" onClick={() => reset()} disabled={running || !run}>
+					{featured && <button className="btn btn-primary" onClick={runFeatured} disabled={running}>
+						<IconPlay size={14} /> Check the Wipro example · recorded
+					</button>}
+					<button className="btn btn-secondary" onClick={() => reset()} disabled={running || !run}>
 						{running ? <IconSpinner size={14} /> : <IconDoc size={14} />} {running ? "Running…" : "Check your article"}
 					</button>
 					<button className="btn btn-secondary" onClick={runExample} disabled={running} aria-describedby="example-label">
@@ -278,9 +291,9 @@ export default function App() {
 							</select>
 						</label>
 					)}
-					{(!run || run.source === "example") && (
-						<span className="label-chip" id="example-label" title={replayOption?.detail}>
-							Example: synthetic article · {replayOption?.short} · Real calculations
+					{(run?.source === "example") && (
+						<span className="label-chip" id="example-label" >
+							Synthetic article · {run.provenance.label} · Real calculations
 						</span>
 					)}
 				</div>
