@@ -2,6 +2,8 @@
 
 Finance Claim Checker helps a financial editor decide which figures in an earnings draft need a correction before publication. It compares quoted figures with the company's SEC filing or supplied results PDF, shows the calculation and lets the editor copy a sourced correction.
 
+**[▶ Watch the full demo video on YouTube](https://youtu.be/xVKdnLOqKgk)**
+
 [Open the Apple newsroom walkthrough](https://finance-claim-checker.onrender.com/newsroom) · [Watch the 60-second demo](https://finance-claim-checker.onrender.com/newsroom#watch) · [Check a draft](https://finance-claim-checker.onrender.com/) · [12-draft benchmark](eval/editor-stress.md)
 
 ## Reproduce the published Apple error
@@ -97,10 +99,6 @@ Verified on 27 Nov 2026 with a real model (`gemini-3.1-flash-lite`) on fresh art
 | SEC XBRL, **40-F** | ⚠ supported in code, not run | same path as 20-F |
 | SEC XBRL, bank income statements | ✅ unit-tested | JPMorgan's `RevenuesNetOfInterestExpense` is used as revenue |
 | **Official report PDF** with a text layer (results tables) | ✅ figures read and verified on a **real company PDF** | TCS's Ind AS consolidated interim statements for Q2 FY27 (58 pages): two live Reader runs each ended with **20/20 figures verified** on the profit and loss page (revenue, both profit lines, EPS, four columns), values exact. Also generated test PDFs: quarter/half/year columns, same-date columns, "(Rs. in crore)", consolidated vs standalone. The full claim check of the TCS article is **pending**: Gemini's free daily quota ran out mid-run (details under [A real company report](#a-real-company-report-tcs)) |
-| Scanned PDFs (no text layer) | ❌ not supported | reported as `REPORT_NO_TEXT`; no OCR |
-| HTML report pages, XLSX, iXBRL documents | ❌ not supported | an HTML URL is reported as `REPORT_NOT_PDF` |
-| Earnings releases (8-K, 6-K) | ❌ deliberately excluded | they are often the article's source, so using them would be circular |
-| 6-K quarterly results of foreign issuers | ❌ not available | SEC XBRL has only their annual 20-F/40-F figures; give the report PDF instead |
 
 | Metric | SEC concepts (priority order) | From a report PDF |
 |---|---|---|
